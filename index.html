@@ -416,6 +416,7 @@ body{background:#243D83}
 .regionBan.show{animation:regionIn 2.6s ease-out forwards}
 @keyframes regionIn{0%{opacity:0;transform:translate(-50%,10px) scale(.6)}12%{opacity:1;transform:translate(-50%,0) scale(1.06)}20%{transform:translate(-50%,0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-14px) scale(1)}}
 </style>
+<style>.row.mis small{display:block}.misLv{white-space:nowrap;font-size:12px;font-family:var(--body);color:var(--muted)}</style>
 <div class="app">
   <header class="hud">
     <div class="brand"><img alt="랜덤 히어로 디펜스" src="ui/logo_horizontal.png"></div>
@@ -769,7 +770,6 @@ function applyAuras(){
 }
 function tick(){
   S.frame++;
-  for(let i=0;i<3;i++)if(S.mis[i]>0)S.mis[i]--;
   if(S.phase==="prep"){if(--S.cd<=0)startWave()}
   else if(S.phase==="wave"){
     if(S.spawnLeft>0){if(--S.spawnT<=0){const def=waveDef(S.wi);spawn(def,waveHP(S.wi,def),"wave");S.spawnLeft--;S.spawnT=24}}
@@ -953,9 +953,12 @@ function slotSpin(pr){
 function gachaFx(kind){const btn=MQ.matches?$("navLotto"):$("lottoBtn");const r=btn.getBoundingClientRect();
   const d=document.createElement("div");d.className="gfx";d.style.backgroundImage=`url(ui/gacha/lotto_${kind}_4.png)`;
   d.style.left=(r.left+r.width/2)+"px";d.style.top=(r.top+r.height/2-(MQ.matches?60:40))+"px";document.body.appendChild(d);setTimeout(()=>d.remove(),400)}
+// missions recharge by waves (not seconds), so skipping the break costs nothing
+const MIS_WAVES=3,MIS_REC=[4,12,21]; // recommended wave to try each one
+const misLeft=i=>Math.max(0,(S.mis[i]||0)-S.wi);
 function mission(i){
-  if(!running)return;if(S.mis[i]>0){log("쿨타임입니다.","warn");return}
-  S.mis[i]=MISSION_CD;const d=MISSIONS[i];spawn(d,d.hp,"mission");
+  if(!running)return;if(misLeft(i)>0){log(`${misLeft(i)}웨이브 뒤에 다시 도전할 수 있어요`,"warn");return}
+  S.mis[i]=S.wi+MIS_WAVES;const d=MISSIONS[i];spawn(d,d.hp,"mission");
   log(`${i+1}단계 도전 미션 시작 · ${d.name} HP ${fmt(d.hp)}. 막지 못하면 목숨 -10.`,"hi");renderPanels();
 }
 function useBoss(kind){
@@ -1281,7 +1284,7 @@ function renderPanels(){
     return `<div class="row up ${mine.length?"":"dim"}"><img class="gi" alt="" style="background:${UPG_COL[k]};border-radius:50%;padding:4px;box-sizing:border-box" src="ui/icons/icon_${UPG_ICON[k]}.svg"><div><b class="un" style="color:${UPG_COL[k]}">${n}</b><small class="ud">${UPG_DESC[k]}</small><span class="ui">${mine.length?mine.slice(0,4).map(t=>`<img alt="${t.name}" src="${ICON[t.i]}">`).join(""):`<small>보유 캐릭터 없음</small>`}</span></div><span class="lv">Lv${lv}</span><button class="btn gem" data-u="${k}" ${S.gas<cost?"disabled":""}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12l4 6-10 11L2 10z"/></svg>${cost}</button></div>`}).join("")}</div>`;
   $("pUpg").querySelectorAll("[data-u]").forEach(b=>b.onclick=()=>buyUpg(b.dataset.u));
   // missions
-  $("pMis").innerHTML=`<div class="rows">${MISSIONS.map((d,i)=>`<div class="row mis"><img class="mi" alt="" src="ui/missions/icon_mission_${i+1}.png"><div>${i+1}단계 · ${d.name}<small>잡으면 골드 +${d.reward} · 놓치면 목숨 -10</small></div><span class="lv">${S.mis[i]>0?Math.ceil(S.mis[i]/24)+"s":""}</span><button class="btn" data-m="${i}" ${S.mis[i]>0||!running?"disabled":""}>도전</button></div>`).join("")}</div>`;
+  $("pMis").innerHTML=`<div class="rows">${MISSIONS.map((d,i)=>`<div class="row mis"><img class="mi" alt="" src="ui/missions/icon_mission_${i+1}.png"><div>${i+1}단계 · ${d.name}<small>권장 ${MIS_REC[i]}웨이브부터 · 보상 골드 +${d.reward}</small><small>놓치면 목숨 -10</small></div><span class="lv misLv">${misLeft(i)>0?misLeft(i)+"웨이브 뒤":""}</span><button class="btn" data-m="${i}" ${misLeft(i)>0||!running?"disabled":""}>도전</button></div>`).join("")}</div>`;
   $("pMis").querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>mission(+b.dataset.m));
   {const fr=S.freeTix>0,dis=(!fr&&S.ore<100)||lottoBusy;$("lottoBtn").disabled=dis;$("navLotto").disabled=dis;const lb=fr?`무료 ${S.freeTix}장`:"골드 100";$("lottoBtn").querySelector("span").textContent=lb;$("navLotto").querySelector("small").textContent=lb}
   {const n=mergeablePairs();$("mergeAll").disabled=!n||!running;$("mergeAllN").textContent=n}
@@ -1389,7 +1392,7 @@ function loop(now){
   requestAnimationFrame(loop);
 }
 let lastSig="";
-function refreshLive(){const sig=[S.ore,S.gas,S.mis.map(x=>Math.ceil(x/24)).join(),S.towers.length,S.sel&&S.sel.id,running].join("|");if(sig!==lastSig){lastSig=sig;renderPanels()}}
+function refreshLive(){const sig=[S.ore,S.gas,S.mis.join(),S.wi,S.towers.length,S.sel&&S.sel.id,running].join("|");if(sig!==lastSig){lastSig=sig;renderPanels()}}
 requestAnimationFrame(loop);
 
 // ---------- augments: every 5 cleared waves, pick 1 of 3 (silver 60% / gold 32% / prism 8%) ----------
