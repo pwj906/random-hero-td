@@ -317,6 +317,7 @@ body{background:radial-gradient(ellipse at 30% 0%,#A5D9E8 0%,#6CA9D5 42%,#527CB4
 .bubble .bb .btn{flex:1}
 </style>
 <style>.bubble .uchip{margin-left:auto;padding:2px 9px;border-radius:999px;color:#fff;font-size:12px;font-weight:800}</style>
+<style>.bubble .stats.s2{grid-template-columns:repeat(2,1fr)}</style>
 <div class="app">
   <header class="hud">
     <div class="brand"><img alt="랜덤 히어로 디펜스" src="ui/logo_horizontal.png"></div>
@@ -408,17 +409,31 @@ const MON_NAMES=["들쥐", "붕대병", "좀비", "뿔소", "사냥개", "장갑
 const GRADE=["견습","숙련","정예","영웅","전설"];
 const GCOL=["#aab7c0","#428dff","#9b4dff","#ff573d","#ffd34f"];
 const SELL=[50,100,200,400,0];
-// upgrades: 3 lines instead of the original 9 StarCraft weapon groups (casual readability).
-// melee = 1-cell weapons, area = splash/bounce/line, shot = everything else. cost is scaled up because each line covers ~3x more characters.
-const UPG_ICON={Melee:"sword",Shot:"gun",Area:"artillery"};
-const UPG_COL={Melee:"#FF5A5F",Shot:"#3D8BFF",Area:"#FFA62B"}; // red = 근접, blue = 사격, orange = 범위
-const UPGS=[["Melee","근접"],["Shot","사격"],["Area","범위"]];
+// upgrades: one line per role (사격·저격·범위·근접·마법), five characters each
+const UPG_ICON={Shot:"gun",Sniper:"sniper",Area:"artillery",Melee:"sword",Magic:"magic"};
+const UPG_COL={Shot:"#3D8BFF",Sniper:"#8B5CF6",Area:"#FFA62B",Melee:"#FF5A5F",Magic:"#2BC48A"};
+const UPGS=[["Shot","사격"],["Sniper","저격"],["Area","범위"],["Melee","근접"],["Magic","마법"]];
 const UPG_K=1.5;const upgCost=lv=>Math.round(UPG_K*(7+lv));
 // monster size no longer changes damage (the StarCraft concussive/explosive table was too hard to read)
 const MULT={Normal:[1,1,1,1],Ignore_Armor:[1,1,1,1],Concussive:[1,1,1,1],Explosive:[1,1,1,1],Independent:[1,1,1,1]};
 const MISSION_CD=7600; // 3800 trigger cycles
 const HEAD={"대검타워":"blade","독침 타워":"spike","레이저 타워":"laser","바이클 타워":"grenade","스카웃 타워":"twin","캐논 타워":"cannon","표창 타워":"glaive","피스톨 타워":"rifle","EMP 타워":"orb","대포 타워":"mortar","블레이드 타워":"blade","빔 타워":"prism","쇼크 타워":"shock","스나이퍼 타워":"sniper","포이즌 타워":"venom","폭발 타워":"mortar","고철 타워":"gatling","광폭 타워":"cannon","맹독 타워":"venom","블러드 타워":"orb","빔소드 타워":"laser","촉수 타워":"tentacle","포토캐논 타워":"cannon","광자포 타워":"cannon","플레임 타워":"flame","학살 타워":"blade","저격 타워":"sniper","불릿 타워":"gatling","폭격 타워":"missile","미사일 타워":"missile","니들 타워":"spike","복 주머니":"bag","폭풍 타워":"shock","거인 타워":"hangar","래피드 타워":"gatling","핵 타워":"orb","수리검 타워":"glaive","야마토 타워":"cannon","여왕 타워":"crown","유령 타워":"sniper","지옥불 타워":"flame"};
 const RENAME={"55": "그림자 닌자왕", "2": "쇠공 투척병", "70": "쌍권총잡이", "0": "화승총병", "16": "번개 마법사", "30": "박격포 사수", "61": "광선검 기사", "88": "광선 마법사", "68": "해머 전사", "1": "저격수", "46": "독가스 분사병", "32": "폭파 전문가", "3": "기관총 사수", "71": "공성포 기사", "62": "산성 연금술사", "52": "맹독 마녀", "21": "레이저 기사", "78": "에너지탄 사수", "10": "화염방사 특공대", "54": "쌍검 검성", "44": "대물 저격 명사수", "20": "개틀링 거한", "58": "로켓 포격대장", "76": "미사일 대장", "53": "작살 명사냥꾼", "81": "폭탄 도깨비", "67": "폭풍 현자", "82": "양봉 군주", "19": "미니건 전쟁신", "79": "불마법사", "100": "거포 대장군", "51": "용인 광전사", "99": "망령 저격왕", "103": "용암 창술왕", "39": "대검 병사", "38": "독침 사냥꾼", "8": "활잡이", "66": "나무 대포병", "43": "표창수", "104": "철퇴 기사"};
+// ---------- roster v5: 5 roles x 5 grades = 25 characters (the other 15 original towers stay in data, unused) ----------
+TOWERS.push(
+  {uid:201,name:"견습 마법사",grade:0,weapon:"Aura",dmg:0,bonus:0,cd:72,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,aura:{r:1,spd:.25}},
+  {uid:202,name:"석궁수",grade:1,weapon:"Crossbow",dmg:62,bonus:9,cd:12,range:160,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,noRescale:true},
+  {uid:203,name:"시간의 대마법사",grade:4,weapon:"Aura",dmg:0,bonus:0,cd:72,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,aura:{r:99,spd:.2,slowAll:.2}});
+const ROLE={70:"Shot",202:"Shot",3:"Shot",20:"Shot",82:"Shot", 0:"Sniper",1:"Sniper",21:"Sniper",44:"Sniper",99:"Sniper",
+  66:"Area",30:"Area",10:"Area",58:"Area",79:"Area", 39:"Melee",61:"Melee",104:"Melee",54:"Melee",51:"Melee",
+  201:"Magic",88:"Magic",52:"Magic",67:"Magic",203:"Magic"};
+const TIER={70:2,202:3,3:3,20:3,82:3, 0:4,1:4,21:4,44:4,99:4, 66:2,30:3,10:2,58:3,79:3, 201:1,88:1,52:2,67:3,203:4};
+TOWERS.forEach(t=>{t.off=!ROLE[t.uid];
+  if(t.uid===88){t.aura={r:1,pow:.2};t.dmg=0;t.bonus=0;t.cd=72} // light mage: blessing instead of attacking
+  if(t.uid===66)t.splash=[8,16,28];                             // wooden cannon now splashes
+  if(t.uid===52)t.curse={v:.25,dur:96};                         // venom witch curses what she hits
+  if(t.uid===67)t.slow={v:.5,dur:48}});                         // storm sage slows inside the storm
+const pick=a=>a[Math.floor(Math.random()*a.length)];
 TOWERS.forEach((t,i)=>{t.i=i;t.head=HEAD[t.name]||"rifle";t.hue=(i*47+20)%360;t.name=(RENAME[t.uid]||t.name).replace("대검타워","대검 타워");t.short=t.name.replace(" 타워","").replace("타워","")});
 // ---------- range in whole cells (square, like the board) ----------
 // a character hits monsters inside the (2N+1)x(2N+1) cell square around it.
@@ -431,29 +446,29 @@ const RANGE_OVERRIDE={2:2,46:2,10:2,32:2,62:2,30:4,71:4,81:3,67:3,79:3};
 // missiles explode: give the missile captain a small blast (it was single-target)
 TOWERS.forEach(t=>{if(t.uid===76)t.splash=[5,15,30]});
 const MELEE_UIDS=new Set([39,61,104,54,51,68]);
-function tierOf(t){if(MELEE_UIDS.has(t.uid))return 1;if(RANGE_OVERRIDE[t.uid])return RANGE_OVERRIDE[t.uid];return t.range<=128?2:t.range<=192?3:4}
+function tierOf(t){if(TIER[t.uid])return TIER[t.uid];if(MELEE_UIDS.has(t.uid))return 1;if(RANGE_OVERRIDE[t.uid])return RANGE_OVERRIDE[t.uid];return t.range<=128?2:t.range<=192?3:4}
 function inSquare(N,dx,dy,pad){const h=(N+.5)*CELL+(pad||0);return Math.abs(dx)<=h&&Math.abs(dy)<=h}
 (function rescale(){
   const pts=[];for(let d=0;d<PATHLEN;d+=4)pts.push(pathAt(d));
   const top8=f=>{const v=SLOTS.map(sl=>pts.reduce((a,p)=>a+(f(p[0]-sl.x,p[1]-sl.y)?1:0),0)).sort((a,b)=>b-a);return v.slice(0,8).reduce((a,b)=>a+b,0)||1};
   const sq={};for(let N=1;N<=4;N++)sq[N]=top8((dx,dy)=>inSquare(N,dx,dy));
   const circ={};
-  TOWERS.forEach(t=>{const N=tierOf(t);const r=t.range+24;const c=circ[r]||(circ[r]=top8((dx,dy)=>dx*dx+dy*dy<=r*r));
+  TOWERS.forEach(t=>{const N=tierOf(t);if(t.aura||t.noRescale){t.rt=N;t.range=(N+.5)*CELL-16;t.upg=ROLE[t.uid]||"Shot";return}const r=t.range+24;const c=circ[r]||(circ[r]=top8((dx,dy)=>dx*dx+dy*dy<=r*r));
     const m=c/sq[N];t.rt=N;t.melee=N===1&&MELEE_UIDS.has(t.uid);t.cd=Math.max(4,Math.round(t.cd/m));t.range=(N+.5)*CELL-16;
-    t.upg=MELEE_UIDS.has(t.uid)?"Melee":(t.splash[2]>0||t.weapon.startsWith("Glave")||t.weapon==="Subterranean_Spines")?"Area":"Shot"});
+    t.upg=ROLE[t.uid]||"Shot"});
 })();
 // tempo fixes (same damage per second, different rhythm): x<1 = faster & lighter hits, x>1 = slower & heavier
 // gatling/minigun spin fast, shuriken & bow fire quicker, the spiked flail and the giant cannon hit slow and hard
 const TEMPO={20:.5,19:.5,43:.5,8:.6,104:2,100:3,30:.7,71:.6,67:.7}; // mortar/siege/storm got slow from their longer reach
 TOWERS.forEach(t=>{const f=TEMPO[t.uid];if(!f)return;t.cd=Math.max(3,Math.round(t.cd*f));t.dmg=Math.round(t.dmg*f);t.bonus=Math.round(t.bonus*f)});
-const byGrade=g=>TOWERS.filter(t=>t.grade===g);
+const byGrade=g=>TOWERS.filter(t=>t.grade===g&&!t.off);
 const UID=uid=>TOWERS.findIndex(t=>t.uid===uid);
 
 // ---------- state ----------
 let S;
 function fresh(diff){
   SLOTS.forEach(s=>s.tower=null);
-  return {diff,ore:500,gas:0,life:30,kills:0,frame:0,wi:0,phase:"prep",cd:Math.round(50*24*PREP_K),spawnLeft:0,spawnT:0,
+  return {diff,ore:500,gas:0,gSlow:0,life:30,kills:0,frame:0,wi:0,phase:"prep",cd:Math.round(50*24*PREP_K),spawnLeft:0,spawnT:0,
     upg:Object.fromEntries(UPGS.map(u=>[u[0],3])),towers:[],mons:[],fx:[],proj:[],picks:[],
     tok:{boss:0,rare:0,unique:0,epic:0},mis:[0,0,0],ach:{},sel:null,over:false,nextId:1};
 }
@@ -472,7 +487,7 @@ function hitDmg(t){return t.dmg+t.bonus*lvl(t)}
 // HP multiplier curve: [wave index (0-based), multiplier], linear in between
 // tuned with 16-seed bot runs to the target play time at x3 speed: usual run ~5 min, lucky/strong run ~15 min.
 // the 28-slot board can't grow as strong as the original's, so later waves are scaled down hard.
-var HPC=[[0,.55],[10,1],[20,.55],[30,.5],[39,.6]];
+var HPC=[[0,.4],[10,1.05],[20,.75],[30,.7],[39,.8]];
 const PREP_K=0.8; // shorter breaks between waves (time only; combat unchanged)
 const ease=i=>{for(let k=1;k<HPC.length;k++)if(i<=HPC[k][0]){const[a,x]=HPC[k-1],[b,y]=HPC[k];return x+(y-x)*(i-a)/(b-a)}return HPC[HPC.length-1][1]};
 function waveHP(i,def){let hp=def.hp;if(i>=30&&i<=38)hp+=(i-30)*4000;return Math.round(hp*ease(i))}
@@ -527,6 +542,7 @@ function damage(m,raw,dt){
   const ar=dt==="Ignore_Armor"?0:m.ar-m.acid;
   let v=(d-ar)*(MULT[dt]||MULT.Normal)[m.size];
   if(v<0.5)v=0.5;
+  if(m.curseT>0)v*=1.25; // venom witch curse
   m.hp-=v;if(m.hp<=0)kill(m);
 }
 function splash(t,cx,cy,raw){
@@ -535,7 +551,7 @@ function splash(t,cx,cy,raw){
     const f=dd<=si?1:dd<=sm?.5:dd<=so?.25:0;if(f)damage(m,raw*f,t.dtype)}
 }
 function fire(tw,t,m,noFx){
-  const raw=hitDmg(t)*t.factor;const col=FXCOL[t.uid]||GCOL[t.grade];
+  const raw=hitDmg(t)*t.factor*(tw.bPow||1);const col=FXCOL[t.uid]||GCOL[t.grade];
   if(t.weapon==="Subterranean_Spines"){ // lurker line
     const ang=Math.atan2(m.y-tw.y,m.x-tw.x),L=(t.rt+.7)*CELL,ex=tw.x+Math.cos(ang)*L,ey=tw.y+Math.sin(ang)*L;
     for(const o of S.mons){if(o.dead)continue;const dist=segDist(o.x,o.y,tw.x,tw.y,ex,ey);if(dist<=20+monR(o))damage(o,raw,t.dtype)}
@@ -557,6 +573,15 @@ function fire(tw,t,m,noFx){
 }
 function segDist(px,py,ax,ay,bx,by){const vx=bx-ax,vy=by-ay,l=vx*vx+vy*vy;let f=((px-ax)*vx+(py-ay)*vy)/l;f=Math.max(0,Math.min(1,f));return Math.hypot(px-ax-vx*f,py-ay-vy*f)}
 
+// aura buffs: strongest of each kind applies (no stacking of the same kind); magic upgrades add +5%/level of the buff
+function applyAuras(){
+  S.gSlow=0;for(const tw of S.towers){tw.bSpd=1;tw.bPow=1}
+  for(const a of S.towers){const t=TOWERS[a.type];if(!t.aura)continue;const k=1+.05*(lvl(t)-3);
+    if(t.aura.slowAll)S.gSlow=Math.max(S.gSlow,t.aura.slowAll*k);
+    for(const b of S.towers){if(b===a||TOWERS[b.type].aura)continue;
+      if(Math.max(Math.abs(b.x-a.x),Math.abs(b.y-a.y))>t.aura.r*CELL+1)continue;
+      if(t.aura.spd)b.bSpd=Math.max(b.bSpd,1+t.aura.spd*k);if(t.aura.pow)b.bPow=Math.max(b.bPow,1+t.aura.pow*k)}}
+}
 function tick(){
   S.frame++;
   for(let i=0;i<3;i++)if(S.mis[i]>0)S.mis[i]--;
@@ -565,14 +590,19 @@ function tick(){
     if(S.spawnLeft>0){if(--S.spawnT<=0){const def=WAVES[S.wi];spawn(def,waveHP(S.wi,def),"wave");S.spawnLeft--;S.spawnT=24}}
     else if(S.mons.length===0)endWave();
   }
-  for(const m of S.mons){if(m.dead)continue;m.d+=m.spd*SPEED_K;if(m.acidT>0&&--m.acidT===0)m.acid=0;
+  for(const m of S.mons){if(m.dead)continue;m.d+=m.spd*SPEED_K*(m.slowT>0?1-m.slowV:1)*(1-S.gSlow);if(m.slowT>0)m.slowT--;if(m.curseT>0)m.curseT--;if(m.acidT>0&&--m.acidT===0)m.acid=0;
     if(m.d>=PATHLEN){leak(m);continue}const p=pathAt(m.d);m.x=p[0];m.y=p[1];m.a=p[2]}
+  if(S.frame%6===0)applyAuras();
   for(const tw of S.towers){const t=TOWERS[tw.type];
+    if(t.aura){ // magic support: no target, casts its ring every few seconds
+      if(tw.atk!=null){tw.atk++;if(!tw.fired&&tw.atk>=tw.relAt){tw.fired=true;ANIM.release(tw,t)}if(tw.atk>=tw.atkDur)tw.atk=null}
+      if(--tw.cool<=0){tw.cool=t.cd;if(ANIM.has(t)){tw.atkDur=7.2;tw.relAt=4.2;tw.atk=0;tw.fired=false}else ANIM.release(tw,t)}
+      continue}
     let m=tw.target;if(!m||m.dead||!inRange(t,tw,m)){m=null;let best=-1;for(const o of S.mons){if(!o.dead&&o.d>best&&inRange(t,tw,o)){best=o.d;m=o}}tw.target=m}
     if(m){const want=Math.atan2(m.y-tw.y,m.x-tw.x);let da=((want-tw.ang+Math.PI*3)%(Math.PI*2))-Math.PI;tw.ang+=Math.max(-.35,Math.min(.35,da))}
     if(tw.atk!=null){tw.atk++;if(!tw.fired&&tw.atk>=tw.relAt){tw.fired=true;ANIM.release(tw,t)}if(tw.atk>=tw.atkDur)tw.atk=null}
     if(tw.cool>0){tw.cool--;continue}
-    if(m){if(ANIM.has(t)){tw.cool=t.cd;tw.atkDur=Math.min(7.2,t.cd);tw.relAt=tw.atkDur*3.5/6;tw.atk=0;tw.fired=false;tw.pend=m}else{fire(tw,t,m);tw.cool=t.cd;tw.kick=4}}
+    if(m){if(ANIM.has(t)){tw.cool=t.cd/(tw.bSpd||1);tw.atkDur=Math.min(7.2,tw.cool);tw.relAt=tw.atkDur*3.5/6;tw.atk=0;tw.fired=false;tw.pend=m}else{fire(tw,t,m);tw.cool=t.cd/(tw.bSpd||1);tw.kick=4}}
   }
   ANIM.stepProj();
   if(S.mons.some(m=>m.dead))S.mons=S.mons.filter(m=>!m.dead);
@@ -594,7 +624,7 @@ function build(slot){
   if(!running||slot.tower)return;
   if(S.ore<100){log("골드가 부족합니다 (건설 100).","warn");return}
   S.ore-=100;
-  const type=S.picks.length?S.picks.shift():byGrade(0)[Math.floor(Math.random()*8)].i;
+  const type=S.picks.length?S.picks.shift():pick(byGrade(0)).i;
   addTower(slot,type);renderPanels(); // a new character is not auto-selected
 }
 function merge(tw){
@@ -603,7 +633,7 @@ function merge(tw){
   const partner=S.towers.filter(o=>o!==tw&&o.type===tw.type).sort((a,b)=>a.born-b.born)[0];
   if(!partner){log("타워 업그레이드에 실패하였습니다. 같은 타워가 하나 더 필요합니다.","warn");return}
   const slot=tw.slot;removeTower(partner);removeTower(tw);
-  const pool=byGrade(t.grade+1);const nt=pool[Math.floor(Math.random()*8)].i;
+  const nt=pick(byGrade(t.grade+1)).i;
   S.sel=addTower(slot,nt);renderPanels();
 }
 function sell(tw){
@@ -643,10 +673,10 @@ function lotto(){
   if(o.k==="gold")pr.gold=o.v;
   else if(o.k==="gem")pr.gem=[60,80,100,120,160][Math.floor(Math.random()*5)];
   else if(o.k==="big"){if(Math.random()<.5)pr.gold=400;else pr.gem=300}
-  else if(o.k==="char")pr.type=byGrade(Math.random()<.7?0:1)[Math.floor(Math.random()*8)].i;
-  else if(o.k==="elite")pr.type=byGrade(2)[Math.floor(Math.random()*8)].i;
-  else if(o.k==="hero")pr.type=byGrade(3)[Math.floor(Math.random()*8)].i;
-  else if(o.k==="legend"||o.k==="miracle")pr.type=byGrade(4)[Math.floor(Math.random()*8)].i;
+  else if(o.k==="char")pr.type=pick(byGrade(Math.random()<.7?0:1)).i;
+  else if(o.k==="elite")pr.type=pick(byGrade(2)).i;
+  else if(o.k==="hero")pr.type=pick(byGrade(3)).i;
+  else if(o.k==="legend"||o.k==="miracle")pr.type=pick(byGrade(4)).i;
   if(window.FAST_LOTTO){givePrize(pr);return}
   slotSpin(pr);
 }
@@ -681,7 +711,7 @@ function symHTML(kind,type){
   return sp&&sp.idle?`<span class="sc" style="border-color:${GCOL[g]};background-image:url(${sp.idle.src})"></span>`:`<span class="s7">★</span>`;
 }
 const REEL_KINDS=["miss","gold","gem","big","char","hero","legend"];
-function randSym(){const k=REEL_KINDS[Math.floor(Math.random()*REEL_KINDS.length)];const g={char:0,hero:3,legend:4}[k];return symHTML(k,g!=null?byGrade(g)[Math.floor(Math.random()*8)].i:null)}
+function randSym(){const k=REEL_KINDS[Math.floor(Math.random()*REEL_KINDS.length)];const g={char:0,hero:3,legend:4}[k];return symHTML(k,g!=null?pick(byGrade(g)).i:null)}
 function slotSpin(pr){
   lottoBusy=true;let box=$("slotM");if(!box){box=document.createElement("div");box.id="slotM";box.className="slotm";document.body.appendChild(box)}
   box.className="slotm show";box.innerHTML=`<div class="res"></div><div class="reel"></div><div class="reel"></div><div class="reel"></div>`;
@@ -689,7 +719,7 @@ function slotSpin(pr){
   const kindOf=k=>k==="elite"||k==="hero"||k==="legend"?k:k;
   // final faces: three of a kind for a win; a miss shows a mixed line, often a painful near miss
   let faces;const win=symHTML(kindOf(pr.k)==="elite"?"char":pr.k,pr.type);
-  if(pr.k==="miss"){if(Math.random()<.45){const tease=Math.random()<.5?"legend":"big";const ty=tease==="legend"?byGrade(4)[Math.floor(Math.random()*8)].i:null;const s=symHTML(tease,ty);faces=[s,s,symHTML("miss")];box.dataset.tease="1"}
+  if(pr.k==="miss"){if(Math.random()<.45){const tease=Math.random()<.5?"legend":"big";const ty=tease==="legend"?pick(byGrade(4)).i:null;const s=symHTML(tease,ty);faces=[s,s,symHTML("miss")];box.dataset.tease="1"}
     else{faces=[symHTML("gem"),symHTML("miss"),symHTML("gold")];box.dataset.tease=""}}
   else faces=[win,win,win];
   const stops=pr.k==="miss"&&box.dataset.tease?[420,760,1700]:rare?[420,760,pr.k==="miracle"||pr.k==="legend"?2300:1700]:[380,620,860];
@@ -741,16 +771,16 @@ let rewardOpen=false;
 // ---------- animated hero & legend sprites ----------
 // Each: base (fixed) + idle/attack(6f, 300ms, release on frame 3) rotating around center (facing right = 0),
 // impact(4f, 300ms) and projectile(2f loop). Damage values/cycles stay the original game's.
-const SPRITE_IDS={39:"greatsword_soldier",38:"blowdart_hunter",8:"archer",2:"iron_ball_thrower",70:"dual_pistol_gunner",66:"wooden_cannoneer",43:"shuriken_thrower",0:"matchlock_musketeer",54:"twin_blade_master",44:"antimateriel_marksman",20:"gatling_brute",58:"rocket_captain",76:"missile_captain",53:"harpoon_hunter",81:"bomb_goblin",67:"storm_sage",
+const SPRITE_IDS={201:"apprentice_mage",202:"crossbowman",203:"time_archmage",39:"greatsword_soldier",38:"blowdart_hunter",8:"archer",2:"iron_ball_thrower",70:"dual_pistol_gunner",66:"wooden_cannoneer",43:"shuriken_thrower",0:"matchlock_musketeer",54:"twin_blade_master",44:"antimateriel_marksman",20:"gatling_brute",58:"rocket_captain",76:"missile_captain",53:"harpoon_hunter",81:"bomb_goblin",67:"storm_sage",
   82:"beekeeper_monarch",19:"minigun_war_god",79:"fire_mage",55:"shadow_ninja_king",100:"cannon_general",51:"dragon_berserker",99:"wraith_sniper_king",103:"lava_spear_king",
   16:"lightning_mage",3:"heavy_machinegunner",71:"siege_cannon_knight",62:"acid_alchemist",52:"venom_witch",21:"laser_knight",104:"flail_knight",78:"energy_gunner",10:"flamethrower_trooper",30:"mortar_gunner",61:"lightsaber_knight",88:"light_mage",68:"hammer_warrior",1:"sniper",46:"poison_gas_sprayer",32:"demolition_expert"};
-const MODE={104:"melee",10:"flame",46:"spray",62:"spray",39:"melee",54:"melee",51:"melee",61:"melee",68:"self",67:"targeted",16:"targeted",103:"line"}; // others: projectile
-const PSPD={71:14,62:13,52:12,21:28,78:16,30:13,32:12,88:20,1:30,46:12,2:13,66:15,43:14,81:11,79:12,58:14,76:16,82:10,55:15,100:20}; // px per game frame (default 24)
-const FXCOL={3:"#ffd27a",71:"#9aa4ae",62:"#9dff5a",52:"#c04cff",21:"#5ab8ff",104:"#cfd8e0",78:"#5ab8ff",10:"#ff5a2a",16:"#ffe45a",30:"#ff9a3c",61:"#fff3c4",88:"#ffffff",68:"#b98a5a",1:"#e6eef5",46:"#b06cff",32:"#ff7a3c",39:"#e6eef5",38:"#b06cff",8:"#cfa36a",2:"#9aa4ae",70:"#ffd27a",66:"#9aa4ae",43:"#d8dce6",0:"#ffd27a",82:"#ffd23f",19:"#ffe08a",79:"#ff8a2a",55:"#d8dce6",100:"#ffb547",51:"#ff5a3c",99:"#4fe0c8",103:"#ff6a1f",54:"#e6eef5",44:"#e6eef5",20:"#ffd27a",58:"#ff9a3c",76:"#ff9a3c",53:"#cfd8e0",81:"#ff9a3c",67:"#ffe45a"};
+const MODE={201:"aura",203:"aura",88:"aura",104:"melee",10:"flame",46:"spray",62:"spray",39:"melee",54:"melee",51:"melee",61:"melee",68:"self",67:"targeted",16:"targeted",103:"line"}; // others: projectile
+const PSPD={202:22,71:14,62:13,52:12,21:28,78:16,30:13,32:12,88:20,1:30,46:12,2:13,66:15,43:14,81:11,79:12,58:14,76:16,82:10,55:15,100:20}; // px per game frame (default 24)
+const FXCOL={202:"#cfd8e0",3:"#ffd27a",71:"#9aa4ae",62:"#9dff5a",52:"#c04cff",21:"#5ab8ff",104:"#cfd8e0",78:"#5ab8ff",10:"#ff5a2a",16:"#ffe45a",30:"#ff9a3c",61:"#fff3c4",88:"#ffffff",68:"#b98a5a",1:"#e6eef5",46:"#b06cff",32:"#ff7a3c",39:"#e6eef5",38:"#b06cff",8:"#cfa36a",2:"#9aa4ae",70:"#ffd27a",66:"#9aa4ae",43:"#d8dce6",0:"#ffd27a",82:"#ffd23f",19:"#ffe08a",79:"#ff8a2a",55:"#d8dce6",100:"#ffb547",51:"#ff5a3c",99:"#4fe0c8",103:"#ff6a1f",54:"#e6eef5",44:"#e6eef5",20:"#ffd27a",58:"#ff9a3c",76:"#ff9a3c",53:"#cfd8e0",81:"#ff9a3c",67:"#ffe45a"};
 const SPR={};const BASE={};
 function loadSprites(done){
   const list=["apprentice","skilled","elite","hero","legend"].map((id,i)=>["b:"+i,`sprites/base_${id}.png`]);
-  for(const[u,id]of Object.entries(SPRITE_IDS))for(const p of["idle","attack","impact","proj"])if(!(p==="proj"&&MODE[u]&&MODE[u]!=="proj"))list.push([u+":"+p,`sprites/${id}/${p}.png`]);
+  for(const[u,id]of Object.entries(SPRITE_IDS))if(!(TOWERS[UID(+u)]||{}).off)for(const p of["idle","attack","impact","proj"])if(!(p==="proj"&&MODE[u]&&MODE[u]!=="proj"))list.push([u+":"+p,`sprites/${id}/${p}.png`]);
   let left=list.length;
   for(const[k,src]of list){const im=new Image();im.onload=im.onerror=()=>{if(im.naturalWidth){const[a,b]=k.split(":");if(a==="b")BASE[b]=im;else(SPR[a]=SPR[a]||{})[b]=im}if(--left===0)done()};im.src=src}
 }
@@ -767,6 +797,7 @@ const ANIM={
   has:t=>!!(SPR[t.uid]&&SPR[t.uid].attack),
   impact(t,x,y,scale){const sp=SPR[t.uid];if(!sp||!sp.impact)return;S.fx.push({k:"imp",im:sp.impact,x,y,s:scale,life:7,max:7})},
   release(tw,t){
+    if(t.aura){ANIM.impact(t,tw.x,tw.y,t.aura.r>9?7:(t.aura.r*2+1)*2/1.5);return}
     let m=tw.pend;if(!m||m.dead||!inRange(t,tw,m))m=tw.target;if(!m||m.dead)return;
     const mode=MODE[t.uid]||"proj",R=TS*1.38;
     if(mode==="melee"){fire(tw,t,m,true);ANIM.impact(t,m.x,m.y,1);return}
@@ -774,7 +805,7 @@ const ANIM={
       S.fx.push({k:"flame",pal:mode==="spray"?(t.uid===46?"gas":"acid"):"fire",x:tw.x+Math.cos(a)*22,y:tw.y+Math.sin(a)*22,x2:m.x+Math.cos(a)*14,y2:m.y+Math.sin(a)*14,life:10,max:10});
       ANIM.impact(t,m.x,m.y,(t.splash[2]*2+40)/96);return}
     if(mode==="self"){fire(tw,t,m,true);ANIM.impact(t,tw.x,tw.y,(t.splash[2]*2+40)/96);return}
-    if(mode==="targeted"){fire(tw,t,m,true);ANIM.impact(t,m.x,m.y,(t.splash[2]*2+40)/96);return}
+    if(mode==="targeted"){if(t.slow)for(const o of S.mons)if(!o.dead&&Math.hypot(o.x-m.x,o.y-m.y)<=t.splash[2]+monR(o)){o.slowT=t.slow.dur;o.slowV=t.slow.v}fire(tw,t,m,true);ANIM.impact(t,m.x,m.y,(t.splash[2]*2+40)/96);return}
     if(mode==="line"){fire(tw,t,m,true);return}
     const n=t.uid===82?(t.shots||8):1,spd=PSPD[t.uid]||24,mx=tw.x+Math.cos(tw.ang)*R*.9/K,my=tw.y+Math.sin(tw.ang)*R*.9/K;
     for(let k=0;k<n;k++)S.proj.push({tw,t,m,x:mx,y:my,tx:m.x,ty:m.y,spd,f:1,bounce:t.weapon.startsWith("Glave")?2:0,hit:new Set(),age:0,wob:n>1?(k-n/2)*.35:0,delay:n>1?k*1.2:0,bee:n>1});
@@ -790,7 +821,8 @@ const ANIM={
     S.proj=S.proj.filter(p=>!p.done);
   },
   arrive(p){
-    const t=p.t,raw=hitDmg(t)*t.factor*p.f;
+    const t=p.t,raw=hitDmg(t)*t.factor*p.f*(p.tw&&p.tw.bPow||1);
+    if(t.curse)for(const o of S.mons)if(!o.dead&&Math.hypot(o.x-p.x,o.y-p.y)<=t.splash[2]+monR(o))o.curseT=t.curse.dur;
     if(t.splash[2]>0){splash(t,p.x,p.y,raw);ANIM.impact(t,p.x,p.y,(t.splash[2]*2+40)/96)}
     else{if(p.m&&!p.m.dead){damage(p.m,raw,t.dtype);if(t.exp==="Corrosive_Acid"&&!p.m.dead){p.m.acid=Math.min(9,p.m.acid+1);p.m.acidT=240}}
       ANIM.impact(t,p.x,p.y,p.bee?.5:1)}
@@ -851,6 +883,7 @@ const cv=$("cv"),ctx=cv.getContext("2d");
 let TS=36,K=TS/WT; // canvas px per tile, world→canvas
 let mapLayer=null;
 const UPG_IMG={};for(const[k,v]of Object.entries(UPG_ICON)){UPG_IMG[k]=new Image();UPG_IMG[k].src=`ui/icons/icon_${v}.svg`}
+const STAT_IMG={};for(const k of["status_slow","status_curse","buff_speed","buff_power"]){STAT_IMG[k]=new Image();STAT_IMG[k].src=`ui/status/${k}.png`}
 const BADGE=new Image();BADGE.src="ui/badge_merge.png";
 const MAP_TEXTURE=new Image();MAP_TEXTURE.onload=()=>{mapLayer=null};MAP_TEXTURE.src="ui/map_board_v4.jpg"; // 6x9 board art v4 (768x1152, 128px per cell)
 
@@ -890,9 +923,9 @@ function render(){
   if(hover&&!hover.tower&&running){c.fillStyle=S.ore>=100?"#ffb54722":"#ff6f7d22";c.fillRect(hover.x*K-TS+4,hover.y*K-TS+4,TS*2-8,TS*2-8);c.strokeStyle=S.ore>=100?"#ffb547":"#ff6f7d";c.lineWidth=2;c.strokeRect(hover.x*K-TS+4,hover.y*K-TS+4,TS*2-8,TS*2-8)}
   // selection range
   // range square: shown for the selected character, and while dragging it shows where it would reach from the slot under the finger
-  const drawRange=(wx,wy,rt)=>{const h=(rt+.5)*CELL*K,x0=Math.max(0,wx*K-h),y0=Math.max(0,wy*K-h),x1=Math.min(cv.width,wx*K+h),y1=Math.min(cv.height,wy*K+h);c.fillStyle="rgba(255,255,255,.3)";c.fillRect(x0,y0,x1-x0,y1-y0);c.strokeStyle="rgba(28,58,96,.85)";c.setLineDash([TS*.25,TS*.18]);c.lineWidth=Math.max(2,TS*.08);c.strokeRect(x0+1,y0+1,x1-x0-2,y1-y0-2);c.setLineDash([])};
-  if(tdrag&&tdrag.active){const o=tdrag.over||tdrag.tw.slot;drawRange(o.x,o.y,TOWERS[tdrag.tw.type].rt)}
-  else if(S.sel)drawRange(S.sel.x,S.sel.y,TOWERS[S.sel.type].rt);
+  const drawRange=(wx,wy,rt,mg)=>{if(rt>9)rt=9;const h=(rt+.5)*CELL*K,x0=Math.max(0,wx*K-h),y0=Math.max(0,wy*K-h),x1=Math.min(cv.width,wx*K+h),y1=Math.min(cv.height,wy*K+h);c.fillStyle=mg?"rgba(43,196,138,.18)":"rgba(255,255,255,.3)";c.fillRect(x0,y0,x1-x0,y1-y0);c.strokeStyle=mg?"rgba(20,140,95,.9)":"rgba(28,58,96,.85)";c.setLineDash([TS*.25,TS*.18]);c.lineWidth=Math.max(2,TS*.08);c.strokeRect(x0+1,y0+1,x1-x0-2,y1-y0-2);c.setLineDash([])};
+  if(tdrag&&tdrag.active){const o=tdrag.over||tdrag.tw.slot;{const tt=TOWERS[tdrag.tw.type];drawRange(o.x,o.y,tt.aura?tt.aura.r:tt.rt,!!tt.aura)}}
+  else if(S.sel){const tt=TOWERS[S.sel.type];drawRange(S.sel.x,S.sel.y,tt.aura?tt.aura.r:tt.rt,!!tt.aura)}
   const tc={};for(const tw of S.towers)tc[tw.type]=(tc[tw.type]||0)+1;
   for(const tw of S.towers){const dragging=tdrag&&tdrag.active&&tdrag.tw===tw;if(dragging)c.globalAlpha=.35;drawTower(c,TOWERS[tw.type],tw.x*K,tw.y*K,TS*1.38,tw.ang,time,tw.kick,tw);c.globalAlpha=1}
   if(tdrag&&tdrag.active){const o=tdrag.over;if(o&&o!==tdrag.tw.slot){c.fillStyle=o.tower?"rgba(255,194,58,.28)":"rgba(78,240,176,.28)";c.strokeStyle=o.tower?"#ffc23a":"#4ef0b0";c.lineWidth=3;c.fillRect(o.x*K-TS+3,o.y*K-TS+3,TS*2-6,TS*2-6);c.strokeRect(o.x*K-TS+3,o.y*K-TS+3,TS*2-6,TS*2-6)}
@@ -906,6 +939,10 @@ function render(){
     c.beginPath();c.moveTo(bx,by-br*.55);c.lineTo(bx+br*.5,by+br*.05);c.lineTo(bx+br*.2,by+br*.05);c.lineTo(bx+br*.2,by+br*.55);c.lineTo(bx-br*.2,by+br*.55);c.lineTo(bx-br*.2,by+br*.05);c.lineTo(bx-br*.5,by+br*.05);c.closePath();c.fillStyle="#fff";c.fill()}
   if(S.sel){c.strokeStyle="#fff";c.lineWidth=2;c.strokeRect(S.sel.x*K-TS+3,S.sel.y*K-TS+3,TS*2-6,TS*2-6)}
   for(const m of S.mons)drawMon(c,m,time);
+  // status icons: slowed (storm) and cursed monsters, buffed characters
+  const si=(k,x,y,z)=>{const im=STAT_IMG[k];if(im&&im.complete&&im.naturalWidth)c.drawImage(im,x-z/2,y-z/2,z,z)};
+  for(const m of S.mons){let n=0;const z=TS*.5,y=m.y*K-monR(m)*K-TS*.55;if(m.slowT>0)si("status_slow",m.x*K-z*.55+n++*z*1.1,y,z);if(m.curseT>0)si("status_curse",m.x*K-z*.55+n++*z*1.1,y,z)}
+  for(const tw of S.towers){let n=0;const z=TS*.42,x=tw.x*K-TS*.72,y=tw.y*K-TS*.7;if(tw.bSpd>1)si("buff_speed",x,y+n++*z*1.05,z);if(tw.bPow>1)si("buff_power",x,y+n++*z*1.05,z)}
   for(const p of S.proj){if(p.delay>0)continue;const im=SPR[p.t.uid]&&SPR[p.t.uid].proj;if(!im)continue;
     const z=TS*(p.bee?.6:p.t.uid===55?1:.7);c.save();c.translate(p.x*K,p.y*K);c.rotate(p.t.weapon.startsWith("Glave")?p.age*.6:p.a);cell(c,im,Math.floor(p.age/2)%2,2,-z/2,-z/2,z,z);c.restore()}
   for(const f of S.fx)drawFx(c,f);
@@ -956,18 +993,21 @@ function desc(t){
   if(t.dtype==="Ignore_Armor")s+=" · 방어 무시";return s}
 function sameCount(tw){return S.towers.filter(o=>o.type===tw.type).length}
 // character card: four numbers + at most two short trait tags, then 판매 / 합성
-function traitTags(t){const tags=[];
+function traitTags(t){const tags=[];const a=t.aura,pc=v=>Math.round(v*100)+"%";
+  if(a){const w=a.r>9?"판 전체":`주변 ${a.r}칸`;if(a.spd)tags.push(`${w} 아군 공격 속도 +${pc(a.spd)}`);if(a.pow)tags.push(`${w} 아군 공격력 +${pc(a.pow)}`);if(a.slowAll)tags.push(`모든 적 ${pc(a.slowAll)} 느리게`)}
+  if(t.curse)tags.push(`저주: 받는 피해 +${pc(t.curse.v)}`);if(t.slow)tags.push(`맞은 적 ${pc(t.slow.v)} 느리게`);
   if(t.weapon.startsWith("Glave"))tags.push("튕김 3명");else if(t.weapon==="Subterranean_Spines")tags.push("일직선 관통");else if(t.shots>1)tags.push(`벌떼 ${t.shots}마리`);
   if(t.dtype==="Ignore_Armor")tags.push("방어 무시");if(t.exp==="Corrosive_Acid")tags.push("방어 녹임");
   return tags}
 function renderBubble(){
   const bb=$("bubble"),tw=S&&S.sel;if(!tw){bb.hidden=true;bb.dataset.id="";return}
-  const t=TOWERS[tw.type],key=[tw.id,sameCount(tw),lvl(t)].join(":");
+  const t=TOWERS[tw.type],key=[tw.id,sameCount(tw),lvl(t),tw.bSpd,tw.bPow].join(":");
   if(bb.dataset.id!==key){
     bb.dataset.id=key;const can=t.grade<4&&sameCount(tw)>=2,sv=t.uid===81?1000:SELL[t.grade];
     const area=t.splash[2]>0?"범위":"1명";
     bb.innerHTML=`<div class="bh"><span class="gchip" style="background:${GCOL[t.grade]}">${GRADE[t.grade]}</span><b>${t.name}</b><span class="uchip" style="background:${UPG_COL[t.upg]}">${UPGS.find(u=>u[0]===t.upg)[1]}</span></div>
-    <div class="stats"><div><small>공격력</small><b>${fmt(hitDmg(t)*t.factor)}</b></div><div><small>공격 속도</small><b>${(t.cd/24).toFixed(1)}초</b></div><div><small>사거리</small><b>${t.rt}칸</b></div><div><small>대상</small><b>${area}</b></div></div>
+    ${t.aura?`<div class="stats s2"><div><small>효과 범위</small><b>${t.aura.r>9?"판 전체":t.aura.r+"칸"}</b></div><div><small>대상</small><b>아군${t.aura.slowAll?"·적":""}</b></div></div>`:
+    `<div class="stats"><div><small>공격력</small><b>${fmt(hitDmg(t)*t.factor*(tw.bPow||1))}</b></div><div><small>공격 속도</small><b>${(t.cd/24/(tw.bSpd||1)).toFixed(1)}초</b></div><div><small>사거리</small><b>${t.rt}칸</b></div><div><small>대상</small><b>${area}</b></div></div>`}
     ${traitTags(t).map(x=>`<span class="tag">${x}</span>`).join("")}
     <div class="bb"><button type="button" class="btn" id="bbS" ${sv?"":"disabled"}>판매${sv?" +"+sv:""}</button><button type="button" class="btn primary" id="bbM" ${can?"":"disabled"}>합성</button></div>`;
     $("bbM").onclick=()=>{merge(tw)};$("bbS").onclick=()=>{sell(tw)};
