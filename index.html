@@ -437,7 +437,7 @@ TOWERS.forEach(t=>{t.off=!ROLE[t.uid];
   if(t.uid===52)t.curse={v:.15,dur:96};                         // venom witch curses what she hits
   if(t.uid===67)t.slow={v:.35,dur:48}});                         // storm sage slows inside the storm
 const pick=a=>a[Math.floor(Math.random()*a.length)];
-TOWERS.forEach((t,i)=>{t.i=i;t.head=HEAD[t.name]||"rifle";t.hue=(i*47+20)%360;t.name=(t.uid===79?"화염 군주":RENAME[t.uid]||t.name).replace("대검타워","대검 타워");t.short=t.name.replace(" 타워","").replace("타워","")});
+TOWERS.forEach((t,i)=>{t.i=i;t.head=HEAD[t.name]||"rifle";t.hue=(i*47+20)%360;t.name=(t.uid===79?"화염 군주":t.uid===44?"철갑탄 명사수":RENAME[t.uid]||t.name).replace("대검타워","대검 타워");t.short=t.name.replace(" 타워","").replace("타워","")});
 // ---------- range in whole cells (square, like the board) ----------
 // a character hits monsters inside the (2N+1)x(2N+1) cell square around it.
 // tiers follow the weapon: melee 1, short (pistol/throw/flame) 2, rifle/bow 3, sniper/artillery 4.
