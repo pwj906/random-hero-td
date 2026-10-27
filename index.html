@@ -414,7 +414,8 @@ const UPG_ICON={Melee:"sword",Shot:"gun",Area:"artillery"};
 const UPG_COL={Melee:"#FF5A5F",Shot:"#3D8BFF",Area:"#FFA62B"}; // red = 근접, blue = 사격, orange = 범위
 const UPGS=[["Melee","근접"],["Shot","사격"],["Area","범위"]];
 const UPG_K=1.5;const upgCost=lv=>Math.round(UPG_K*(7+lv));
-const MULT={Normal:[1,1,1,1],Ignore_Armor:[1,1,1,1],Concussive:[1,1,.5,.25],Explosive:[1,.5,.75,1],Independent:[1,1,1,1]};
+// monster size no longer changes damage (the StarCraft concussive/explosive table was too hard to read)
+const MULT={Normal:[1,1,1,1],Ignore_Armor:[1,1,1,1],Concussive:[1,1,1,1],Explosive:[1,1,1,1],Independent:[1,1,1,1]};
 const MISSION_CD=7600; // 3800 trigger cycles
 const HEAD={"대검타워":"blade","독침 타워":"spike","레이저 타워":"laser","바이클 타워":"grenade","스카웃 타워":"twin","캐논 타워":"cannon","표창 타워":"glaive","피스톨 타워":"rifle","EMP 타워":"orb","대포 타워":"mortar","블레이드 타워":"blade","빔 타워":"prism","쇼크 타워":"shock","스나이퍼 타워":"sniper","포이즌 타워":"venom","폭발 타워":"mortar","고철 타워":"gatling","광폭 타워":"cannon","맹독 타워":"venom","블러드 타워":"orb","빔소드 타워":"laser","촉수 타워":"tentacle","포토캐논 타워":"cannon","광자포 타워":"cannon","플레임 타워":"flame","학살 타워":"blade","저격 타워":"sniper","불릿 타워":"gatling","폭격 타워":"missile","미사일 타워":"missile","니들 타워":"spike","복 주머니":"bag","폭풍 타워":"shock","거인 타워":"hangar","래피드 타워":"gatling","핵 타워":"orb","수리검 타워":"glaive","야마토 타워":"cannon","여왕 타워":"crown","유령 타워":"sniper","지옥불 타워":"flame"};
 const RENAME={"55": "그림자 닌자왕", "2": "쇠공 투척병", "70": "쌍권총잡이", "0": "화승총병", "16": "번개 마법사", "30": "박격포 사수", "61": "광선검 기사", "88": "광선 마법사", "68": "해머 전사", "1": "저격수", "46": "독가스 분사병", "32": "폭파 전문가", "3": "기관총 사수", "71": "공성포 기사", "62": "산성 연금술사", "52": "맹독 마녀", "21": "레이저 기사", "78": "에너지탄 사수", "10": "화염방사 특공대", "54": "쌍검 검성", "44": "대물 저격 명사수", "20": "개틀링 거한", "58": "로켓 포격대장", "76": "미사일 대장", "53": "작살 명사냥꾼", "81": "폭탄 도깨비", "67": "폭풍 현자", "82": "양봉 군주", "19": "미니건 전쟁신", "79": "불마법사", "100": "거포 대장군", "51": "용인 광전사", "99": "망령 저격왕", "103": "용암 창술왕", "39": "대검 병사", "38": "독침 사냥꾼", "8": "활잡이", "66": "나무 대포병", "43": "표창수", "104": "철퇴 기사"};
@@ -471,7 +472,7 @@ function hitDmg(t){return t.dmg+t.bonus*lvl(t)}
 // HP multiplier curve: [wave index (0-based), multiplier], linear in between
 // tuned with 16-seed bot runs to the target play time at x3 speed: usual run ~5 min, lucky/strong run ~15 min.
 // the 28-slot board can't grow as strong as the original's, so later waves are scaled down hard.
-var HPC=[[0,.5],[10,.9],[20,.4],[30,.4],[39,.5]];
+var HPC=[[0,.55],[10,1],[20,.55],[30,.5],[39,.6]];
 const PREP_K=0.8; // shorter breaks between waves (time only; combat unchanged)
 const ease=i=>{for(let k=1;k<HPC.length;k++)if(i<=HPC[k][0]){const[a,x]=HPC[k-1],[b,y]=HPC[k];return x+(y-x)*(i-a)/(b-a)}return HPC[HPC.length-1][1]};
 function waveHP(i,def){let hp=def.hp;if(i>=30&&i<=38)hp+=(i-30)*4000;return Math.round(hp*ease(i))}
@@ -958,7 +959,6 @@ function sameCount(tw){return S.towers.filter(o=>o.type===tw.type).length}
 function traitTags(t){const tags=[];
   if(t.weapon.startsWith("Glave"))tags.push("튕김 3명");else if(t.weapon==="Subterranean_Spines")tags.push("일직선 관통");else if(t.shots>1)tags.push(`벌떼 ${t.shots}마리`);
   if(t.dtype==="Ignore_Armor")tags.push("방어 무시");if(t.exp==="Corrosive_Acid")tags.push("방어 녹임");
-  if(t.dtype==="Concussive")tags.push("작은 적에 강함");else if(t.dtype==="Explosive")tags.push("큰 적에 강함");
   return tags}
 function renderBubble(){
   const bb=$("bubble"),tw=S&&S.sel;if(!tw){bb.hidden=true;bb.dataset.id="";return}
