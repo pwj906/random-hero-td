@@ -421,18 +421,18 @@ const HEAD={"대검타워":"blade","독침 타워":"spike","레이저 타워":"l
 const RENAME={"55": "그림자 닌자왕", "2": "쇠공 투척병", "70": "쌍권총잡이", "0": "화승총병", "16": "번개 마법사", "30": "박격포 사수", "61": "광선검 기사", "88": "광선 마법사", "68": "해머 전사", "1": "저격수", "46": "독가스 분사병", "32": "폭파 전문가", "3": "기관총 사수", "71": "공성포 기사", "62": "산성 연금술사", "52": "맹독 마녀", "21": "레이저 기사", "78": "에너지탄 사수", "10": "화염방사 특공대", "54": "쌍검 검성", "44": "대물 저격 명사수", "20": "개틀링 거한", "58": "로켓 포격대장", "76": "미사일 대장", "53": "작살 명사냥꾼", "81": "폭탄 도깨비", "67": "폭풍 현자", "82": "양봉 군주", "19": "미니건 전쟁신", "79": "불마법사", "100": "거포 대장군", "51": "용인 광전사", "99": "망령 저격왕", "103": "용암 창술왕", "39": "대검 병사", "38": "독침 사냥꾼", "8": "활잡이", "66": "나무 대포병", "43": "표창수", "104": "철퇴 기사"};
 // ---------- roster v5: 5 roles x 5 grades = 25 characters (the other 15 original towers stay in data, unused) ----------
 TOWERS.push(
-  {uid:201,name:"견습 마법사",grade:0,weapon:"Aura",dmg:0,bonus:0,cd:72,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,aura:{r:1,spd:.25}},
+  {uid:201,name:"견습 마법사",grade:0,weapon:"Aura",dmg:0,bonus:0,cd:72,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,aura:{r:1,spd:.12}},
   {uid:202,name:"석궁수",grade:1,weapon:"Crossbow",dmg:62,bonus:9,cd:12,range:160,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,noRescale:true},
-  {uid:203,name:"시간의 대마법사",grade:4,weapon:"Aura",dmg:0,bonus:0,cd:72,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,aura:{r:99,spd:.2,slowAll:.2}});
+  {uid:203,name:"시간의 대마법사",grade:4,weapon:"Aura",dmg:0,bonus:0,cd:72,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,aura:{r:99,spd:.4,slowAll:.25}});
 const ROLE={70:"Shot",202:"Shot",3:"Shot",20:"Shot",82:"Shot", 0:"Sniper",1:"Sniper",21:"Sniper",44:"Sniper",99:"Sniper",
   66:"Area",30:"Area",10:"Area",58:"Area",79:"Area", 39:"Melee",61:"Melee",104:"Melee",54:"Melee",51:"Melee",
   201:"Magic",88:"Magic",52:"Magic",67:"Magic",203:"Magic"};
 const TIER={70:2,202:3,3:3,20:3,82:3, 0:4,1:4,21:4,44:4,99:4, 66:2,30:3,10:2,58:3,79:3, 201:1,88:1,52:2,67:3,203:4};
 TOWERS.forEach(t=>{t.off=!ROLE[t.uid];
-  if(t.uid===88){t.aura={r:1,pow:.2};t.dmg=0;t.bonus=0;t.cd=72} // light mage: blessing instead of attacking
+  if(t.uid===88){t.aura={r:1,pow:.25};t.dmg=0;t.bonus=0;t.cd=72} // light mage: blessing instead of attacking
   if(t.uid===66)t.splash=[8,16,28];                             // wooden cannon now splashes
-  if(t.uid===52)t.curse={v:.25,dur:96};                         // venom witch curses what she hits
-  if(t.uid===67)t.slow={v:.5,dur:48}});                         // storm sage slows inside the storm
+  if(t.uid===52)t.curse={v:.2,dur:96};                         // venom witch curses what she hits
+  if(t.uid===67)t.slow={v:.3,dur:48}});                         // storm sage slows inside the storm
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 TOWERS.forEach((t,i)=>{t.i=i;t.head=HEAD[t.name]||"rifle";t.hue=(i*47+20)%360;t.name=(RENAME[t.uid]||t.name).replace("대검타워","대검 타워");t.short=t.name.replace(" 타워","").replace("타워","")});
 // ---------- range in whole cells (square, like the board) ----------
@@ -542,7 +542,7 @@ function damage(m,raw,dt){
   const ar=dt==="Ignore_Armor"?0:m.ar-m.acid;
   let v=(d-ar)*(MULT[dt]||MULT.Normal)[m.size];
   if(v<0.5)v=0.5;
-  if(m.curseT>0)v*=1.25; // venom witch curse
+  if(m.curseT>0)v*=1.2; // venom witch curse
   m.hp-=v;if(m.hp<=0)kill(m);
 }
 function splash(t,cx,cy,raw){
@@ -573,14 +573,15 @@ function fire(tw,t,m,noFx){
 }
 function segDist(px,py,ax,ay,bx,by){const vx=bx-ax,vy=by-ay,l=vx*vx+vy*vy;let f=((px-ax)*vx+(py-ay)*vy)/l;f=Math.max(0,Math.min(1,f));return Math.hypot(px-ax-vx*f,py-ay-vy*f)}
 
-// aura buffs: strongest of each kind applies (no stacking of the same kind); magic upgrades add +5%/level of the buff
+// aura buffs: every magic character's buff adds up (two apprentice mages = +24%), capped at +100% per kind;
+// magic upgrades make each buff 5%/level stronger
 function applyAuras(){
   S.gSlow=0;for(const tw of S.towers){tw.bSpd=1;tw.bPow=1}
   for(const a of S.towers){const t=TOWERS[a.type];if(!t.aura)continue;const k=1+.05*(lvl(t)-3);
-    if(t.aura.slowAll)S.gSlow=Math.max(S.gSlow,t.aura.slowAll*k);
+    if(t.aura.slowAll)S.gSlow=Math.min(.5,S.gSlow+t.aura.slowAll*k);
     for(const b of S.towers){if(b===a||TOWERS[b.type].aura)continue;
       if(Math.max(Math.abs(b.x-a.x),Math.abs(b.y-a.y))>t.aura.r*CELL+1)continue;
-      if(t.aura.spd)b.bSpd=Math.max(b.bSpd,1+t.aura.spd*k);if(t.aura.pow)b.bPow=Math.max(b.bPow,1+t.aura.pow*k)}}
+      if(t.aura.spd)b.bSpd=Math.min(2,b.bSpd+t.aura.spd*k);if(t.aura.pow)b.bPow=Math.min(2,b.bPow+t.aura.pow*k)}}
 }
 function tick(){
   S.frame++;
