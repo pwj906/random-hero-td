@@ -638,7 +638,12 @@ function hitDmg(t){return t.dmg+t.bonus*lvl(t)}
 var HPC=[[0,.6],[10,1.8],[16,1.5],[20,1],[30,.9],[39,1]];
 const PREP_K=0.8; // shorter breaks between waves (time only; combat unchanged)
 const ease=i=>{for(let k=1;k<HPC.length;k++)if(i<=HPC[k][0]){const[a,x]=HPC[k-1],[b,y]=HPC[k];return x+(y-x)*(i-a)/(b-a)}return HPC[HPC.length-1][1]};
-function waveHP(i,def){let hp=def.hp;if(i>=30&&i<=38)hp+=(i-30)*4000;return Math.round(hp*ease(i))}
+// smooth difficulty: each normal wave's effective HP (HP x speed) follows one curve, so no wave is a sudden wall.
+// faster monsters get less HP; armor creeps up from wave 21 instead of jumping at 31
+const SMOOTH=[[1,55],[5,620],[9,3200],[14,10500],[19,21000],[24,35000],[29,54000],[34,82000],[39,125000]];
+function smoothE(w){for(let k=1;k<SMOOTH.length;k++)if(w<=SMOOTH[k][0]){const[a,x]=SMOOTH[k-1],[b,y]=SMOOTH[k];return x*Math.pow(y/x,(w-a)/(b-a))}return SMOOTH[SMOOTH.length-1][1]}
+WAVES.forEach((w,i)=>{if(!w.boss)w.ar=i<20?0:Math.round((i-19)*5.5)});
+function waveHP(i,def){if(!def.boss&&i<WAVES.length)return Math.round(smoothE(i+1)*4.5/def.spd);let hp=def.hp;if(i>=30&&i<=38)hp+=(i-30)*4000;return Math.round(hp*ease(i))}
 function monR(m){return [0,8,12,16][m.size]||10}
 
 // ---------- waves ----------
@@ -650,7 +655,7 @@ function waveDef(i){
   S.gen=S.gen||{};if(S.gen[i])return S.gen[i];
   const n=i-WAVES.length,boss=(i+1)%10===0,base=WAVES[ENDLESS_POOL[n%ENDLESS_POOL.length]];
   const d=Object.assign({},base,{idx:i,boss:boss?1:0,name:(boss?"무한 보스 · ":"무한 · ")+base.name,
-    hp:Math.round(160000*Math.pow(1.12,n)*(boss?25:1)),ar:Math.min(250,40+3*n),sh:0,size:boss?3:base.size,spd:boss?2:base.spd,spr:boss?"b_endless":base.spr});
+    hp:Math.round(125000*Math.pow(1.1,n+1)*4.5/(boss?2:base.spd)*(boss?12:1)),ar:Math.min(250,110+3*n),sh:0,size:boss?3:base.size,spd:boss?2:base.spd,spr:boss?"b_endless":base.spr});
   if(boss)d.name="무한 보스 · 혼돈의 황제";
   return S.gen[i]=d}
 function startWave(){
