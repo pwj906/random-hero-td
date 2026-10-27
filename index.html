@@ -431,15 +431,17 @@ TOWERS.push(
 TOWERS.push(
   {uid:204,name:"권투 소년",grade:0,weapon:"Fists",dmg:40,bonus:7,cd:12,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,noRescale:true},
   {uid:205,name:"회오리 도끼 전사",grade:3,weapon:"Whirl_Axe",dmg:300,bonus:40,cd:24,range:48,splash:[20,40,60],exp:"Normal",dtype:"Normal",factor:1,noRescale:true});
-TOWERS.push( // 신 grade (5): two legends merge into a random god. 근접 단발 and 저격 범위 gods are still to be drawn.
+TOWERS.push( // 신 grade (5): two legends merge into a random god. all six slots filled.
   {uid:301,name:"총신",grade:5,weapon:"God_Guns",dmg:1,bonus:0,cd:8,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,noRescale:true},
   {uid:302,name:"궁신",grade:5,weapon:"God_Bow",dmg:1,bonus:0,cd:24,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,noRescale:true},
   {uid:303,name:"태양신",grade:5,weapon:"Sun",dmg:1,bonus:0,cd:24,range:48,splash:[16,32,48],exp:"Normal",dtype:"Normal",factor:1,noRescale:true},
-  {uid:304,name:"검신",grade:5,weapon:"God_Sword",dmg:1,bonus:0,cd:18,range:48,splash:[24,44,64],exp:"Normal",dtype:"Normal",factor:1,noRescale:true});
-const ROLE={301:"Shot",302:"Sniper",303:"Shot",304:"Melee",204:"Melee",39:"Melee",61:"Melee",68:"Melee",104:"Melee",10:"Melee",54:"Melee",205:"Melee",51:"Melee",103:"Melee",
+  {uid:304,name:"검신",grade:5,weapon:"God_Sword",dmg:1,bonus:0,cd:18,range:48,splash:[24,44,64],exp:"Normal",dtype:"Normal",factor:1,noRescale:true},
+  {uid:305,name:"권신",grade:5,weapon:"God_Fist",dmg:1,bonus:0,cd:12,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,noRescale:true},
+  {uid:306,name:"창신",grade:5,weapon:"God_Spear",dmg:1,bonus:0,cd:30,range:48,splash:[16,32,48],exp:"Normal",dtype:"Normal",factor:1,noRescale:true});
+const ROLE={305:"Melee",306:"Sniper",301:"Shot",302:"Sniper",303:"Shot",304:"Melee",204:"Melee",39:"Melee",61:"Melee",68:"Melee",104:"Melee",10:"Melee",54:"Melee",205:"Melee",51:"Melee",103:"Melee",
   70:"Shot",43:"Shot",202:"Shot",32:"Shot",3:"Shot",52:"Shot",20:"Shot",58:"Shot",19:"Shot",79:"Shot",
   0:"Sniper",66:"Sniper",1:"Sniper",30:"Sniper",21:"Sniper",71:"Sniper",44:"Sniper",76:"Sniper",99:"Sniper",100:"Sniper"};
-const TIER={301:3,302:4,303:3,304:1,204:1,39:1,61:1,68:1,104:1,10:1,54:1,205:1,51:1,103:1, 70:2,43:2,202:3,32:2,3:3,52:2,20:3,58:3,19:3,79:3,
+const TIER={305:1,306:4,301:3,302:4,303:3,304:1,204:1,39:1,61:1,68:1,104:1,10:1,54:1,205:1,51:1,103:1, 70:2,43:2,202:3,32:2,3:3,52:2,20:3,58:3,19:3,79:3,
   0:4,66:4,1:4,30:4,21:4,71:4,44:4,76:4,99:4,100:4};
 TOWERS.forEach(t=>{t.off=!ROLE[t.uid];
   if(t.uid===39)t.splash=[16,32,48];   // greatsword sweeps around the target
@@ -820,12 +822,12 @@ let rewardOpen=false;
 // ---------- animated hero & legend sprites ----------
 // Each: base (fixed) + idle/attack(6f, 300ms, release on frame 3) rotating around center (facing right = 0),
 // impact(4f, 300ms) and projectile(2f loop). Damage values/cycles stay the original game's.
-const SPRITE_IDS={301:"god_gunner",302:"god_archer",303:"god_sun",304:"god_sword",201:"apprentice_mage",202:"crossbowman",203:"time_archmage",39:"greatsword_soldier",38:"blowdart_hunter",8:"archer",2:"iron_ball_thrower",70:"dual_pistol_gunner",66:"wooden_cannoneer",43:"shuriken_thrower",0:"matchlock_musketeer",54:"twin_blade_master",44:"antimateriel_marksman",20:"gatling_brute",58:"rocket_captain",76:"missile_captain",53:"harpoon_hunter",81:"bomb_goblin",67:"storm_sage",
+const SPRITE_IDS={305:"god_fist",306:"god_spear",204:"boxer_boy",205:"whirl_axe_warrior",301:"god_gunner",302:"god_archer",303:"god_sun",304:"god_sword",201:"apprentice_mage",202:"crossbowman",203:"time_archmage",39:"greatsword_soldier",38:"blowdart_hunter",8:"archer",2:"iron_ball_thrower",70:"dual_pistol_gunner",66:"wooden_cannoneer",43:"shuriken_thrower",0:"matchlock_musketeer",54:"twin_blade_master",44:"antimateriel_marksman",20:"gatling_brute",58:"rocket_captain",76:"missile_captain",53:"harpoon_hunter",81:"bomb_goblin",67:"storm_sage",
   82:"beekeeper_monarch",19:"minigun_war_god",79:"fire_mage",55:"shadow_ninja_king",100:"cannon_general",51:"dragon_berserker",99:"wraith_sniper_king",103:"lava_spear_king",
   16:"lightning_mage",3:"heavy_machinegunner",71:"siege_cannon_knight",62:"acid_alchemist",52:"venom_witch",21:"laser_knight",104:"flail_knight",78:"energy_gunner",10:"flamethrower_trooper",30:"mortar_gunner",61:"lightsaber_knight",88:"light_mage",68:"hammer_warrior",1:"sniper",46:"poison_gas_sprayer",32:"demolition_expert"};
-const MODE={303:"targeted",304:"self",205:"self",201:"aura",203:"aura",88:"aura",104:"melee",10:"flame",46:"spray",62:"spray",39:"melee",54:"melee",51:"melee",61:"melee",68:"self",67:"targeted",16:"targeted",103:"line"}; // others: projectile
-const PSPD={301:26,302:30,202:22,71:14,62:13,52:12,21:28,78:16,30:13,32:12,88:20,1:30,46:12,2:13,66:15,43:14,81:11,79:12,58:14,76:16,82:10,55:15,100:20}; // px per game frame (default 24)
-const FXCOL={301:"#ffd34f",302:"#9fe8ff",303:"#ff9a2a",304:"#fff3c4",202:"#cfd8e0",3:"#ffd27a",71:"#9aa4ae",62:"#9dff5a",52:"#c04cff",21:"#5ab8ff",104:"#cfd8e0",78:"#5ab8ff",10:"#ff5a2a",16:"#ffe45a",30:"#ff9a3c",61:"#fff3c4",88:"#ffffff",68:"#b98a5a",1:"#e6eef5",46:"#b06cff",32:"#ff7a3c",39:"#e6eef5",38:"#b06cff",8:"#cfa36a",2:"#9aa4ae",70:"#ffd27a",66:"#9aa4ae",43:"#d8dce6",0:"#ffd27a",82:"#ffd23f",19:"#ffe08a",79:"#ff8a2a",55:"#d8dce6",100:"#ffb547",51:"#ff5a3c",99:"#4fe0c8",103:"#ff6a1f",54:"#e6eef5",44:"#e6eef5",20:"#ffd27a",58:"#ff9a3c",76:"#ff9a3c",53:"#cfd8e0",81:"#ff9a3c",67:"#ffe45a"};
+const MODE={305:"melee",204:"melee",303:"targeted",304:"self",205:"self",201:"aura",203:"aura",88:"aura",104:"melee",10:"flame",46:"spray",62:"spray",39:"melee",54:"melee",51:"melee",61:"melee",68:"self",67:"targeted",16:"targeted",103:"line"}; // others: projectile
+const PSPD={306:22,301:26,302:30,202:22,71:14,62:13,52:12,21:28,78:16,30:13,32:12,88:20,1:30,46:12,2:13,66:15,43:14,81:11,79:12,58:14,76:16,82:10,55:15,100:20}; // px per game frame (default 24)
+const FXCOL={305:"#fff3c4",306:"#ffd34f",204:"#ffffff",205:"#cfd8e0",301:"#ffd34f",302:"#9fe8ff",303:"#ff9a2a",304:"#fff3c4",202:"#cfd8e0",3:"#ffd27a",71:"#9aa4ae",62:"#9dff5a",52:"#c04cff",21:"#5ab8ff",104:"#cfd8e0",78:"#5ab8ff",10:"#ff5a2a",16:"#ffe45a",30:"#ff9a3c",61:"#fff3c4",88:"#ffffff",68:"#b98a5a",1:"#e6eef5",46:"#b06cff",32:"#ff7a3c",39:"#e6eef5",38:"#b06cff",8:"#cfa36a",2:"#9aa4ae",70:"#ffd27a",66:"#9aa4ae",43:"#d8dce6",0:"#ffd27a",82:"#ffd23f",19:"#ffe08a",79:"#ff8a2a",55:"#d8dce6",100:"#ffb547",51:"#ff5a3c",99:"#4fe0c8",103:"#ff6a1f",54:"#e6eef5",44:"#e6eef5",20:"#ffd27a",58:"#ff9a3c",76:"#ff9a3c",53:"#cfd8e0",81:"#ff9a3c",67:"#ffe45a"};
 const SPR={};const BASE={};
 function loadSprites(done){
   const list=["apprentice","skilled","elite","hero","legend","god"].map((id,i)=>["b:"+i,`sprites/base_${id}.png`]);
