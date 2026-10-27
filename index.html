@@ -711,7 +711,7 @@ const cv=$("cv"),ctx=cv.getContext("2d");
 let TS=36,K=TS/WT; // canvas px per tile, world→canvas
 let mapLayer=null;
 const BADGE=new Image();BADGE.src="ui/badge_merge.png";
-const MAP_TEXTURE=new Image();MAP_TEXTURE.onload=()=>{mapLayer=null};// new 6x9 board art pending; drawn in code until then
+const MAP_TEXTURE=new Image();MAP_TEXTURE.onload=()=>{mapLayer=null};MAP_TEXTURE.src="ui/map_board_v4.jpg"; // 6x9 board art v4 (768x1152, 128px per cell)
 
 const MQ=matchMedia("(max-width:700px)");
 function sizeCanvas(){TS=MQ.matches?56:36;K=TS/WT;cv.width=COLS*TS;cv.height=ROWS*TS;mapLayer=null}
@@ -853,7 +853,7 @@ function hud(){
   $("sWave").textContent=`${Math.min(40,S.wi+(S.phase==="wave"?1:0))}/40`;
   $("sTimerLbl").textContent=S.phase==="prep"?"다음 웨이브":"남은 적";
   $("sTimer").textContent=S.phase==="prep"?Math.ceil(S.cd/24)+"s":String(S.mons.length+S.spawnLeft);$("skipBtn").hidden=S.phase!=="prep"||!running;
-  $("sLife").textContent=S.life;$("sOre").textContent=S.ore;$("sGas").textContent=S.gas;$("sKill").textContent=S.kills;
+  $("sLife").textContent=S.life;const kf=n=>n>=10000?(n/1000).toFixed(1).replace(/\.0$/,"")+"k":String(n);$("sOre").textContent=kf(S.ore);$("sGas").textContent=kf(S.gas);$("sKill").textContent=S.kills;
 }
 
 // ---------- input ----------
