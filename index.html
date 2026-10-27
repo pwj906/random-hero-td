@@ -319,6 +319,7 @@ body{background:radial-gradient(ellipse at 30% 0%,#A5D9E8 0%,#6CA9D5 42%,#527CB4
 <style>.bubble .uchip{margin-left:auto;padding:2px 9px;border-radius:999px;color:#fff;font-size:12px;font-weight:800}</style>
 <style>.bubble .stats.s2{grid-template-columns:repeat(2,1fr)}</style>
 <style>.row.up .ud{margin-left:6px;font-size:11px;color:var(--muted);font-weight:500}</style>
+<style>.bubble .uchip{white-space:nowrap;flex-shrink:0}.bubble .bh b{min-width:0}</style>
 <div class="app">
   <header class="hud">
     <div class="brand"><img alt="랜덤 히어로 디펜스" src="ui/logo_horizontal.png"></div>
@@ -423,15 +424,15 @@ const HEAD={"대검타워":"blade","독침 타워":"spike","레이저 타워":"l
 const RENAME={"55": "그림자 닌자왕", "2": "쇠공 투척병", "70": "쌍권총잡이", "0": "화승총병", "16": "번개 마법사", "30": "박격포 사수", "61": "광선검 기사", "88": "광선 마법사", "68": "해머 전사", "1": "저격수", "46": "독가스 분사병", "32": "폭파 전문가", "3": "기관총 사수", "71": "공성포 기사", "62": "산성 연금술사", "52": "맹독 마녀", "21": "레이저 기사", "78": "에너지탄 사수", "10": "화염방사 특공대", "54": "쌍검 검성", "44": "대물 저격 명사수", "20": "개틀링 거한", "58": "로켓 포격대장", "76": "미사일 대장", "53": "작살 명사냥꾼", "81": "폭탄 도깨비", "67": "폭풍 현자", "82": "양봉 군주", "19": "미니건 전쟁신", "79": "불마법사", "100": "거포 대장군", "51": "용인 광전사", "99": "망령 저격왕", "103": "용암 창술왕", "39": "대검 병사", "38": "독침 사냥꾼", "8": "활잡이", "66": "나무 대포병", "43": "표창수", "104": "철퇴 기사"};
 // ---------- roster v5: 5 roles x 5 grades = 25 characters (the other 15 original towers stay in data, unused) ----------
 TOWERS.push(
-  {uid:201,name:"견습 마법사",grade:0,weapon:"Aura",dmg:0,bonus:0,cd:72,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,aura:{r:1,spd:.22}},
+  {uid:201,name:"견습 마법사",grade:0,weapon:"Aura",dmg:22,bonus:4,cd:18,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,noRescale:true,aura:{r:1,spd:.15}},
   {uid:202,name:"석궁수",grade:1,weapon:"Crossbow",dmg:62,bonus:9,cd:12,range:160,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,noRescale:true},
-  {uid:203,name:"시간의 대마법사",grade:4,weapon:"Aura",dmg:0,bonus:0,cd:72,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,aura:{r:99,spd:.1,slowAll:.08}});
+  {uid:203,name:"시간의 대마법사",grade:4,weapon:"Aura",dmg:350,bonus:45,cd:18,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,noRescale:true,aura:{r:99,spd:.1,slowAll:.08}});
 const ROLE={70:"Shot",202:"Shot",3:"Shot",20:"Shot",82:"Shot", 0:"Sniper",1:"Sniper",21:"Sniper",44:"Sniper",99:"Sniper",
   66:"Area",30:"Area",10:"Area",58:"Area",79:"Area", 39:"Melee",61:"Melee",104:"Melee",54:"Melee",51:"Melee",
   201:"Magic",88:"Magic",52:"Magic",67:"Magic",203:"Magic"};
-const TIER={70:2,202:3,3:3,20:3,82:3, 0:4,1:4,21:4,44:4,99:4, 66:2,30:3,10:2,58:3,79:3, 201:1,88:1,52:2,67:3,203:4};
+const TIER={70:2,202:3,3:3,20:3,82:3, 0:4,1:4,21:4,44:4,99:4, 66:2,30:3,10:2,58:3,79:3, 201:2,88:2,52:2,67:3,203:3};
 TOWERS.forEach(t=>{t.off=!ROLE[t.uid];
-  if(t.uid===88){t.aura={r:1,pow:.3};t.dmg=0;t.bonus=0;t.cd=72} // light mage: blessing instead of attacking
+  if(t.uid===88){t.aura={r:1,pow:.2};t.dmg=60;t.bonus=9;t.cd=18;t.splash=[0,0,0];t.noRescale=true} // light mage: blessing instead of attacking
   if(t.uid===66)t.splash=[8,16,28];                             // wooden cannon now splashes
   if(t.uid===52)t.curse={v:.15,dur:96};                         // venom witch curses what she hits
   if(t.uid===67)t.slow={v:.35,dur:48}});                         // storm sage slows inside the storm
@@ -455,7 +456,7 @@ function inSquare(N,dx,dy,pad){const h=(N+.5)*CELL+(pad||0);return Math.abs(dx)<
   const top8=f=>{const v=SLOTS.map(sl=>pts.reduce((a,p)=>a+(f(p[0]-sl.x,p[1]-sl.y)?1:0),0)).sort((a,b)=>b-a);return v.slice(0,8).reduce((a,b)=>a+b,0)||1};
   const sq={};for(let N=1;N<=4;N++)sq[N]=top8((dx,dy)=>inSquare(N,dx,dy));
   const circ={};
-  TOWERS.forEach(t=>{const N=tierOf(t);if(t.aura||t.noRescale){t.rt=N;t.range=(N+.5)*CELL-16;t.upg=ROLE[t.uid]||"Shot";return}const r=t.range+24;const c=circ[r]||(circ[r]=top8((dx,dy)=>dx*dx+dy*dy<=r*r));
+  TOWERS.forEach(t=>{const N=tierOf(t);if(t.noRescale){t.rt=N;t.range=(N+.5)*CELL-16;t.upg=ROLE[t.uid]||"Shot";return}const r=t.range+24;const c=circ[r]||(circ[r]=top8((dx,dy)=>dx*dx+dy*dy<=r*r));
     const m=c/sq[N];t.rt=N;t.melee=N===1&&MELEE_UIDS.has(t.uid);t.cd=Math.max(4,Math.round(t.cd/m));t.range=(N+.5)*CELL-16;
     t.upg=ROLE[t.uid]||"Shot"});
 })();
@@ -611,10 +612,7 @@ function tick(){
     if(m.d>=PATHLEN){leak(m);continue}const p=pathAt(m.d);m.x=p[0];m.y=p[1];m.a=p[2]}
   if(S.frame%6===0)applyAuras();
   for(const tw of S.towers){const t=TOWERS[tw.type];
-    if(t.aura){ // magic support: no target, casts its ring every few seconds
-      if(tw.atk!=null){tw.atk++;if(!tw.fired&&tw.atk>=tw.relAt){tw.fired=true;ANIM.release(tw,t)}if(tw.atk>=tw.atkDur)tw.atk=null}
-      if(--tw.cool<=0){tw.cool=t.cd;if(ANIM.has(t)){tw.atkDur=7.2;tw.relAt=4.2;tw.atk=0;tw.fired=false}else ANIM.release(tw,t)}
-      continue}
+    if(t.aura&&(tw.acool=(tw.acool||1)-1)<=0){tw.acool=72;ANIM.impact(t,tw.x,tw.y,t.aura.r>9?7:(t.aura.r*2+1)*2/1.5)} // buff ring every 3s; magic also attacks
     let m=tw.target;if(!m||m.dead||!inRange(t,tw,m)){m=null;let best=-1;for(const o of S.mons){if(!o.dead&&o.d>best&&inRange(t,tw,o)){best=o.d;m=o}}tw.target=m}
     if(m){const want=Math.atan2(m.y-tw.y,m.x-tw.x);let da=((want-tw.ang+Math.PI*3)%(Math.PI*2))-Math.PI;tw.ang+=Math.max(-.35,Math.min(.35,da))}
     if(tw.atk!=null){tw.atk++;if(!tw.fired&&tw.atk>=tw.relAt){tw.fired=true;ANIM.release(tw,t)}if(tw.atk>=tw.atkDur)tw.atk=null}
@@ -814,8 +812,8 @@ const ANIM={
   has:t=>!!(SPR[t.uid]&&SPR[t.uid].attack),
   impact(t,x,y,scale){const sp=SPR[t.uid];if(!sp||!sp.impact)return;S.fx.push({k:"imp",im:sp.impact,x,y,s:scale,life:7,max:7})},
   release(tw,t){
-    if(t.aura){ANIM.impact(t,tw.x,tw.y,t.aura.r>9?7:(t.aura.r*2+1)*2/1.5);return}
     let m=tw.pend;if(!m||m.dead||!inRange(t,tw,m))m=tw.target;if(!m||m.dead)return;
+    if(t.aura){fire(tw,t,m);ANIM.impact(t,m.x,m.y,.7);return} // magic bolt
     const mode=MODE[t.uid]||"proj",R=TS*1.38;
     if(mode==="melee"){fire(tw,t,m,true);ANIM.impact(t,m.x,m.y,1);return}
     if(mode==="flame"||mode==="spray"){fire(tw,t,m,true);const a=Math.atan2(m.y-tw.y,m.x-tw.x);
@@ -1023,8 +1021,7 @@ function renderBubble(){
     bb.dataset.id=key;const can=t.grade<4&&sameCount(tw)>=2,sv=t.uid===81?1000:SELL[t.grade];
     const area=t.splash[2]>0?"범위":"1명";
     bb.innerHTML=`<div class="bh"><span class="gchip" style="background:${GCOL[t.grade]}">${GRADE[t.grade]}</span><b>${t.name}</b><span class="uchip" style="background:${UPG_COL[t.upg]}">${UPGS.find(u=>u[0]===t.upg)[1]}</span></div>
-    ${t.aura?`<div class="stats s2"><div><small>효과 범위</small><b>${t.aura.r>9?"판 전체":t.aura.r+"칸"}</b></div><div><small>대상</small><b>아군${t.aura.slowAll?"·적":""}</b></div></div>`:
-    `<div class="stats"><div><small>공격력</small><b>${fmt(hitDmg(t)*t.factor*(tw.bPow||1))}</b></div><div><small>공격 속도</small><b>${(t.cd/24/(tw.bSpd||1)).toFixed(1)}초</b></div><div><small>사거리</small><b>${t.rt}칸</b></div><div><small>대상</small><b>${area}</b></div></div>`}
+    ${`<div class="stats"><div><small>공격력</small><b>${fmt(hitDmg(t)*t.factor*(tw.bPow||1))}</b></div><div><small>공격 속도</small><b>${(t.cd/24/(tw.bSpd||1)).toFixed(1)}초</b></div><div><small>사거리</small><b>${t.rt}칸</b></div><div><small>대상</small><b>${area}</b></div></div>`}
     ${traitTags(t).map(x=>`<span class="tag">${x}</span>`).join("")}
     <div class="bb"><button type="button" class="btn" id="bbS" ${sv?"":"disabled"}>판매${sv?" +"+sv:""}</button><button type="button" class="btn primary" id="bbM" ${can?"":"disabled"}>합성</button></div>`;
     $("bbM").onclick=()=>{merge(tw)};$("bbS").onclick=()=>{sell(tw)};
