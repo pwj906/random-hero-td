@@ -413,7 +413,7 @@ const GCOL=["#aab7c0","#428dff","#9b4dff","#ff573d","#ffd34f"];
 const SELL=[50,100,200,400,0];
 // upgrades: one line per role (사격·저격·범위·근접·마법), five characters each
 const UPG_ICON={Shot:"gun",Sniper:"sniper",Area:"artillery",Melee:"sword",Magic:"magic"};
-const UPG_DESC={Shot:"공격력 올리기",Sniper:"공격력 올리기",Area:"공격력 올리기",Melee:"공격력 올리기",Magic:"버프·저주·둔화 효과 +5%씩"};
+const UPG_DESC={Shot:"공격력 올리기",Sniper:"공격력 올리기",Area:"공격력 올리기",Melee:"공격력 올리기",Magic:"공격력 + 특수효과(버프·저주·둔화) 5%씩"};
 const UPG_COL={Shot:"#3D8BFF",Sniper:"#8B5CF6",Area:"#FFA62B",Melee:"#FF5A5F",Magic:"#2BC48A"};
 const UPGS=[["Shot","사격"],["Sniper","저격"],["Area","범위"],["Melee","근접"],["Magic","마법"]];
 const UPG_K=1.5;const upgCost=lv=>Math.round(UPG_K*(7+lv));
@@ -559,7 +559,7 @@ function damage(m,raw,dt){
   const ar=dt==="Ignore_Armor"?0:m.ar-m.acid;
   let v=(d-ar)*(MULT[dt]||MULT.Normal)[m.size];
   if(v<0.5)v=0.5;
-  if(m.curseT>0)v*=1.15; // venom witch curse
+  if(m.curseT>0)v*=1+(m.curseV||.15); // venom witch curse (grows with magic upgrades)
   m.hp-=v;if(m.hp<=0)kill(m);
 }
 function splash(t,cx,cy,raw){
@@ -820,7 +820,7 @@ const ANIM={
       S.fx.push({k:"flame",pal:mode==="spray"?(t.uid===46?"gas":"acid"):"fire",x:tw.x+Math.cos(a)*22,y:tw.y+Math.sin(a)*22,x2:m.x+Math.cos(a)*14,y2:m.y+Math.sin(a)*14,life:10,max:10});
       ANIM.impact(t,m.x,m.y,(t.splash[2]*2+40)/96);return}
     if(mode==="self"){fire(tw,t,m,true);ANIM.impact(t,tw.x,tw.y,(t.splash[2]*2+40)/96);return}
-    if(mode==="targeted"){if(t.slow)for(const o of S.mons)if(!o.dead&&Math.hypot(o.x-m.x,o.y-m.y)<=t.splash[2]+monR(o)){o.slowT=t.slow.dur;o.slowV=t.slow.v}fire(tw,t,m,true);ANIM.impact(t,m.x,m.y,(t.splash[2]*2+40)/96);return}
+    if(mode==="targeted"){if(t.slow)for(const o of S.mons)if(!o.dead&&Math.hypot(o.x-m.x,o.y-m.y)<=t.splash[2]+monR(o)){o.slowT=t.slow.dur;o.slowV=Math.min(.7,t.slow.v*(1+.05*(lvl(t)-3)))}fire(tw,t,m,true);ANIM.impact(t,m.x,m.y,(t.splash[2]*2+40)/96);return}
     if(mode==="line"){fire(tw,t,m,true);return}
     const n=t.uid===82?(t.shots||8):1,spd=PSPD[t.uid]||24,mx=tw.x+Math.cos(tw.ang)*R*.9/K,my=tw.y+Math.sin(tw.ang)*R*.9/K;
     for(let k=0;k<n;k++)S.proj.push({tw,t,m,x:mx,y:my,tx:m.x,ty:m.y,spd,f:1,bounce:t.weapon.startsWith("Glave")?2:0,hit:new Set(),age:0,wob:n>1?(k-n/2)*.35:0,delay:n>1?k*1.2:0,bee:n>1});
@@ -837,7 +837,7 @@ const ANIM={
   },
   arrive(p){
     const t=p.t,raw=hitDmg(t)*t.factor*p.f*(p.tw&&p.tw.bPow||1);
-    if(t.curse)for(const o of S.mons)if(!o.dead&&Math.hypot(o.x-p.x,o.y-p.y)<=t.splash[2]+monR(o))o.curseT=t.curse.dur;
+    if(t.curse){const cv=t.curse.v*(1+.05*(lvl(t)-3));for(const o of S.mons)if(!o.dead&&Math.hypot(o.x-p.x,o.y-p.y)<=t.splash[2]+monR(o)){o.curseT=t.curse.dur;o.curseV=cv}}
     if(t.splash[2]>0){splash(t,p.x,p.y,raw);ANIM.impact(t,p.x,p.y,(t.splash[2]*2+40)/96)}
     else{if(p.m&&!p.m.dead){damage(p.m,raw,t.dtype);if(t.exp==="Corrosive_Acid"&&!p.m.dead){p.m.acid=Math.min(9,p.m.acid+1);p.m.acidT=240}}
       ANIM.impact(t,p.x,p.y,p.bee?.5:1)}
