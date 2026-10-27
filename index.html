@@ -539,7 +539,7 @@ const GRID=[],RECTS=[],PATH=[],SEG=[],SLOTS=[];let PATHLEN=0,SPEED_K=1;
 function buildBoard(){
   GRID.length=0;for(let y=0;y<ROWS;y++)GRID.push(y<2||y>=ROWS-2?"#".repeat(COLS):"##"+"P".repeat(COLS-4)+"##");
   RECTS.length=0;RECTS.push([2,2,COLS-4,ROWS-4]);
-  const rp=[[1,1],[COLS-1,1],[COLS-1,ROWS-1],[1,ROWS-1],[1,2.3]];/* ends inside the exit gate (the cell under the entrance) */PATH.length=0;for(const p of rp)PATH.push([p[0]*WT,p[1]*WT]);
+  const rp=[[1,1],[COLS-1,1],[COLS-1,ROWS-1],[1,ROWS-1],[1,1.5]];/* no exit gate: monsters walk back into the entrance cave */PATH.length=0;for(const p of rp)PATH.push([p[0]*WT,p[1]*WT]);
   SEG.length=0;PATHLEN=0;for(let i=0;i<PATH.length-1;i++){const a=PATH[i],b=PATH[i+1],l=Math.hypot(b[0]-a[0],b[1]-a[1]);SEG.push({a,b,l,s:PATHLEN});PATHLEN+=l}
   SPEED_K=0.43; // tuned by bot simulation to match the original early-game difficulty
   SLOTS.length=0;for(const[x,y,w,h]of RECTS)for(let sy=y;sy<y+h;sy+=2)for(let sx=x;sx<x+w;sx+=2)SLOTS.push({x:(sx+1)*WT,y:(sy+1)*WT,tower:null});
@@ -1215,7 +1215,7 @@ function render(){
   for(const f of S.fx)drawFx(c,f);
 }
 function drawMon(c,m,time){
-  const fade=Math.min(1,(PATHLEN-m.d)/40);if(fade<1){c.save();c.globalAlpha=Math.max(0,fade);drawMon0(c,m,time);c.restore();return}drawMon0(c,m,time)}
+  const fade=Math.min(1,(PATHLEN-m.d)/56);if(fade<1){c.save();c.globalAlpha=Math.max(0,fade);drawMon0(c,m,time);c.restore();return}drawMon0(c,m,time)}
 function drawMon0(c,m,time){
   const r=monR(m)*K*1.45*(MQ.matches?1.1:1)*(m.def.boss?1.6:1)*(m.kind==="mission"?1.4:1),x=m.x*K,y=m.y*K;
   c.save();c.translate(x,y);
