@@ -408,34 +408,46 @@ function pathAt(d){for(const s of SEG){if(d<=s.s+s.l){const f=(d-s.s)/s.l;return
 
 // ---------- rules ----------
 const MON_NAMES=["들쥐", "붕대병", "좀비", "뿔소", "사냥개", "장갑차", "일꾼 로봇", "그림자 검객", "새끼 벌레", "거대 풍선벌레", "수송선", "털북숭이", "수호 비행선", "여왕벌", "일벌", "거대 집게벌레", "암살자", "정찰 드론", "자폭벌", "거대 전함", "연구선", "화물선", "들소", "탐사선", "장수풍뎅이", "마녀벌", "산호새", "황금 기사", "에이스 전투기", "거대 굴착기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 모함"];WAVES.forEach((w,i)=>w.name=MON_NAMES[i]);["공룡","강철 기사","거대 비행체"].forEach((n,i)=>MISSIONS[i].name=n);
-const GRADE=["견습","숙련","정예","영웅","전설"];
-const GCOL=["#aab7c0","#428dff","#9b4dff","#ff573d","#ffd34f"];
-const SELL=[50,100,200,400,0];
+const GRADE=["견습","숙련","정예","영웅","전설","신"];
+const GCOL=["#aab7c0","#428dff","#9b4dff","#ff573d","#ffd34f","#ff5cc8"];
+const SELL=[50,100,200,400,0,0];
 // upgrades: one line per role (사격·저격·범위·근접·마법), five characters each
 const UPG_ICON={Shot:"gun",Sniper:"sniper",Area:"artillery",Melee:"sword",Magic:"magic"};
 const UPG_DESC={Shot:"공격력 올리기",Sniper:"공격력 올리기",Area:"공격력 올리기",Melee:"공격력 올리기",Magic:"공격력 + 특수효과(버프·저주·둔화) 5%씩"};
 const UPG_COL={Shot:"#3D8BFF",Sniper:"#8B5CF6",Area:"#FFA62B",Melee:"#FF5A5F",Magic:"#2BC48A"};
-const UPGS=[["Shot","사격"],["Sniper","저격"],["Area","범위"],["Melee","근접"],["Magic","마법"]];
+const UPGS=[["Melee","근접"],["Shot","사격"],["Sniper","저격"]];
 const UPG_K=1.5;const upgCost=lv=>Math.round(UPG_K*(7+lv));
 // monster size no longer changes damage (the StarCraft concussive/explosive table was too hard to read)
 const MULT={Normal:[1,1,1,1],Ignore_Armor:[1,1,1,1],Concussive:[1,1,1,1],Explosive:[1,1,1,1],Independent:[1,1,1,1]};
 const MISSION_CD=7600; // 3800 trigger cycles
 const HEAD={"대검타워":"blade","독침 타워":"spike","레이저 타워":"laser","바이클 타워":"grenade","스카웃 타워":"twin","캐논 타워":"cannon","표창 타워":"glaive","피스톨 타워":"rifle","EMP 타워":"orb","대포 타워":"mortar","블레이드 타워":"blade","빔 타워":"prism","쇼크 타워":"shock","스나이퍼 타워":"sniper","포이즌 타워":"venom","폭발 타워":"mortar","고철 타워":"gatling","광폭 타워":"cannon","맹독 타워":"venom","블러드 타워":"orb","빔소드 타워":"laser","촉수 타워":"tentacle","포토캐논 타워":"cannon","광자포 타워":"cannon","플레임 타워":"flame","학살 타워":"blade","저격 타워":"sniper","불릿 타워":"gatling","폭격 타워":"missile","미사일 타워":"missile","니들 타워":"spike","복 주머니":"bag","폭풍 타워":"shock","거인 타워":"hangar","래피드 타워":"gatling","핵 타워":"orb","수리검 타워":"glaive","야마토 타워":"cannon","여왕 타워":"crown","유령 타워":"sniper","지옥불 타워":"flame"};
 const RENAME={"55": "그림자 닌자왕", "2": "쇠공 투척병", "70": "쌍권총잡이", "0": "화승총병", "16": "번개 마법사", "30": "박격포 사수", "61": "광선검 기사", "88": "광선 마법사", "68": "해머 전사", "1": "저격수", "46": "독가스 분사병", "32": "폭파 전문가", "3": "기관총 사수", "71": "공성포 기사", "62": "산성 연금술사", "52": "맹독 마녀", "21": "레이저 기사", "78": "에너지탄 사수", "10": "화염방사 특공대", "54": "쌍검 검성", "44": "대물 저격 명사수", "20": "개틀링 거한", "58": "로켓 포격대장", "76": "미사일 대장", "53": "작살 명사냥꾼", "81": "폭탄 도깨비", "67": "폭풍 현자", "82": "양봉 군주", "19": "미니건 전쟁신", "79": "불마법사", "100": "거포 대장군", "51": "용인 광전사", "99": "망령 저격왕", "103": "용암 창술왕", "39": "대검 병사", "38": "독침 사냥꾼", "8": "활잡이", "66": "나무 대포병", "43": "표창수", "104": "철퇴 기사"};
-// ---------- roster v5: 5 roles x 5 grades = 25 characters (the other 15 original towers stay in data, unused) ----------
+// ---------- roster v6: 4 roles x 5 grades = 20 characters (the other 15 original towers stay in data, unused) ----------
 TOWERS.push(
   {uid:201,name:"견습 마법사",grade:0,weapon:"Aura",dmg:22,bonus:4,cd:18,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,noRescale:true,aura:{r:1,spd:.15}},
   {uid:202,name:"석궁수",grade:1,weapon:"Crossbow",dmg:62,bonus:9,cd:12,range:160,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,noRescale:true},
   {uid:203,name:"시간의 대마법사",grade:4,weapon:"Aura",dmg:350,bonus:45,cd:18,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,noRescale:true,aura:{r:99,spd:.1,slowAll:.08}});
-const ROLE={70:"Shot",202:"Shot",3:"Shot",20:"Shot",82:"Shot", 0:"Sniper",1:"Sniper",21:"Sniper",44:"Sniper",99:"Sniper",
-  66:"Area",30:"Area",10:"Area",58:"Area",79:"Area", 39:"Melee",61:"Melee",104:"Melee",54:"Melee",51:"Melee",
-  201:"Magic",88:"Magic",52:"Magic",67:"Magic",203:"Magic"};
-const TIER={70:2,202:3,3:3,20:3,82:3, 0:4,1:4,21:4,44:4,99:4, 66:2,30:3,10:2,58:3,79:3, 201:2,88:2,52:2,67:3,203:3};
+// roster v6: 3 upgrade lines (근접·사격·저격); every grade has a single-target and an area character in each line = 6 per grade, 30 total
+TOWERS.push(
+  {uid:204,name:"권투 소년",grade:0,weapon:"Fists",dmg:40,bonus:7,cd:12,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,noRescale:true},
+  {uid:205,name:"회오리 도끼 전사",grade:3,weapon:"Whirl_Axe",dmg:300,bonus:40,cd:24,range:48,splash:[20,40,60],exp:"Normal",dtype:"Normal",factor:1,noRescale:true});
+TOWERS.push( // 신 grade (5): two legends merge into a random god. 근접 단발 and 저격 범위 gods are still to be drawn.
+  {uid:301,name:"총신",grade:5,weapon:"God_Guns",dmg:1,bonus:0,cd:8,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,noRescale:true},
+  {uid:302,name:"궁신",grade:5,weapon:"God_Bow",dmg:1,bonus:0,cd:24,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,noRescale:true},
+  {uid:303,name:"태양신",grade:5,weapon:"Sun",dmg:1,bonus:0,cd:24,range:48,splash:[16,32,48],exp:"Normal",dtype:"Normal",factor:1,noRescale:true},
+  {uid:304,name:"검신",grade:5,weapon:"God_Sword",dmg:1,bonus:0,cd:18,range:48,splash:[24,44,64],exp:"Normal",dtype:"Normal",factor:1,noRescale:true});
+const ROLE={301:"Shot",302:"Sniper",303:"Shot",304:"Melee",204:"Melee",39:"Melee",61:"Melee",68:"Melee",104:"Melee",10:"Melee",54:"Melee",205:"Melee",51:"Melee",103:"Melee",
+  70:"Shot",43:"Shot",202:"Shot",32:"Shot",3:"Shot",52:"Shot",20:"Shot",58:"Shot",19:"Shot",79:"Shot",
+  0:"Sniper",66:"Sniper",1:"Sniper",30:"Sniper",21:"Sniper",71:"Sniper",44:"Sniper",76:"Sniper",99:"Sniper",100:"Sniper"};
+const TIER={301:3,302:4,303:3,304:1,204:1,39:1,61:1,68:1,104:1,10:1,54:1,205:1,51:1,103:1, 70:2,43:2,202:3,32:2,3:3,52:2,20:3,58:3,19:3,79:3,
+  0:4,66:4,1:4,30:4,21:4,71:4,44:4,76:4,99:4,100:4};
 TOWERS.forEach(t=>{t.off=!ROLE[t.uid];
-  if(t.uid===88){t.aura={r:1,pow:.2};t.dmg=60;t.bonus=9;t.cd=18;t.splash=[0,0,0];t.noRescale=true} // light mage: blessing instead of attacking
-  if(t.uid===66)t.splash=[8,16,28];                             // wooden cannon now splashes
-  if(t.uid===52)t.curse={v:.15,dur:96};                         // venom witch curses what she hits
-  if(t.uid===67)t.slow={v:.35,dur:48}});                         // storm sage slows inside the storm
+  if(t.uid===39)t.splash=[16,32,48];   // greatsword sweeps around the target
+  if(t.uid===68)t.splash=[20,40,60];   // hammer shockwave
+  if(t.uid===66)t.splash=[8,16,28];    // wooden cannon
+  if(t.uid===71)t.splash=[10,25,40];   // siege cannon
+  if(t.uid===76)t.splash=[10,25,40];   // missiles
+  if(t.uid===100)t.splash=[15,35,55]});// giant cannon
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 TOWERS.forEach((t,i)=>{t.i=i;t.head=HEAD[t.name]||"rifle";t.hue=(i*47+20)%360;t.name=(t.uid===79?"화염 군주":t.uid===44?"철갑탄 명사수":RENAME[t.uid]||t.name).replace("대검타워","대검 타워");t.short=t.name.replace(" 타워","").replace("타워","")});
 // ---------- range in whole cells (square, like the board) ----------
@@ -447,8 +459,7 @@ TOWERS.forEach((t,i)=>{t.i=i;t.head=HEAD[t.name]||"rifle";t.hue=(i*47+20)%360;t.
 // throw/spray = 2, mortar & siege cannon = 4 (long indirect/heavy guns), mages that cast at a spot = 3+
 const RANGE_OVERRIDE={2:2,46:2,10:2,32:2,62:2,30:4,71:4,81:3,67:3,79:3};
 // missiles explode: give the missile captain a small blast (it was single-target)
-TOWERS.forEach(t=>{if(t.uid===76)t.splash=[5,15,30]});
-const MELEE_UIDS=new Set([39,61,104,54,51,68]);
+const MELEE_UIDS=new Set([204,39,61,68,104,10,54,205,51,103]);
 function tierOf(t){if(TIER[t.uid])return TIER[t.uid];if(MELEE_UIDS.has(t.uid))return 1;if(RANGE_OVERRIDE[t.uid])return RANGE_OVERRIDE[t.uid];return t.range<=128?2:t.range<=192?3:4}
 function inSquare(N,dx,dy,pad){const h=(N+.5)*CELL+(pad||0);return Math.abs(dx)<=h&&Math.abs(dy)<=h}
 (function rescale(){
@@ -468,6 +479,23 @@ TOWERS.forEach(t=>{const f=TEMPO[t.uid];if(!f)return;t.cd=Math.max(3,Math.round(
 // goal: the five roles of a grade are about equal, and each grade is about twice the one below.
 var TUNE={0:2.5,66:1.2,30:4.5,1:1.3,202:.9,61:.85,3:2.6,21:1.7,10:1.7,104:1.17,52:.8,20:1.8,44:1.6,58:.6,82:12.5,99:8,79:1.1,51:.9};
 TOWERS.forEach(t=>{const f=TUNE[t.uid];if(!f)return;t.dmg=Math.round(t.dmg*f);t.bonus=Math.round(t.bonus*f)});
+// v6 roster pass (bench2, 6 characters per grade)
+var TUNE2={39:.75,204:.8,43:1.35,0:1.15,66:2.5, 61:.8,68:.65,32:2.8,1:1.1,30:1.35, 104:.85,10:.5,3:1.15,52:1.7,21:1.1,71:3.5,
+  54:.9,205:1.7,58:.9,76:3.5, 51:.92,103:.8,19:2.2,100:1.8};
+TOWERS.forEach(t=>{const f=TUNE2[t.uid];if(!f)return;t.dmg=Math.round(t.dmg*f);t.bonus=Math.round(t.bonus*f)});
+// ---------- damage rule: DPS (damage x attack speed) is set by grade x role. closer = stronger ----------
+// singles: 근접 1.0, 사격 0.8, 저격 0.62 / area: 근접 0.7, 사격 0.55, 저격 0.45 (area hits several, so lower per hit)
+// grade base = 근접 단발 DPS at upgrade level 3; each grade ~2.4x the one below, god ~3x legend
+const DPS_BASE=[100,240,520,1250,3000,9000];
+const DPS_ROLE={Melee:[1,.7],Shot:[.8,.55],Sniper:[.62,.45]};
+const AREA_SPLASH={Melee:[24,44,64],Shot:[16,32,48],Sniper:[16,32,48]};
+TOWERS.forEach(t=>{if(t.off||!ROLE[t.uid])return;
+  const area=t.splash[2]>0||t.weapon.startsWith("Glave")||t.weapon==="Subterranean_Spines";t.area=area;
+  if(area&&t.splash[2]>0)t.splash=AREA_SPLASH[ROLE[t.uid]].slice();
+  const want=DPS_BASE[t.grade]*DPS_ROLE[ROLE[t.uid]][area?1:0];
+  const per=(t.factor||1)*(t.shots||1)/(t.cd/24);   // DPS per point of (dmg + 3 bonus)
+  const hit=want/per;const share=t.bonus/(t.dmg+3*t.bonus||1)||.12;
+  t.bonus=Math.max(0,Math.round(hit*share));t.dmg=Math.max(1,Math.round(hit-3*t.bonus))});
 const byGrade=g=>TOWERS.filter(t=>t.grade===g&&!t.off);
 const UID=uid=>TOWERS.findIndex(t=>t.uid===uid);
 
@@ -485,8 +513,8 @@ let speed=1,paused=false,running=false;
 const $=id=>document.getElementById(id);
 let lastToast="",lastToastT=0;function toast(msg,cls){const now=Date.now();if(msg===lastToast&&now-lastToastT<2500)return;lastToast=msg;lastToastT=now;const T=$("toast");const p=document.createElement("p");p.textContent=msg;if(cls)p.className=cls;T.appendChild(p);while(T.children.length>3)T.firstChild.remove();setTimeout(()=>p.remove(),2500)}
 function log(msg,cls){if(cls==="good"||cls==="warn")toast(msg,cls);const p=document.createElement("p");p.textContent=msg;if(cls)p.className=cls;const L=$("log");L.appendChild(p);while(L.children.length>80)L.firstChild.remove();L.scrollTop=L.scrollHeight}
-let bannerT=0;function banner(t,col){const b=$("banner");let img="",txt=t;const mw=/WAVE (\d+)/.exec(t),mc=/(\d+)라운드 클리어/.exec(t);
-  if(mw){img=/BOSS/.test(t)?"boss":/HELL/.test(t)?"hell":"wave";txt=+mw[1]>40?mw[1]:mw[1]+" / 40"}else if(mc){img="clear";txt=mc[1]+"라운드"}
+let bannerT=0;function banner(t,col){const b=$("banner");let img="",txt=t;const mg=/^신 강림 · (.+)/.exec(t),mw=/WAVE (\d+)/.exec(t),mc=/(\d+)라운드 클리어/.exec(t);
+  if(mg){img="god";txt=mg[1]}else if(mw){img=/BOSS/.test(t)?"boss":/HELL/.test(t)?"hell":"wave";txt=+mw[1]>40?mw[1]:mw[1]+" / 40"}else if(mc){img="clear";txt=mc[1]+"라운드"}
   b.innerHTML=(img?`<img alt="" src="ui/banners/banner_${img}.png">`:"")+`<span></span>`;b.querySelector("span").textContent=txt;b.classList.toggle("img",!!img);b.style.color=col||"var(--fg)";b.classList.add("show");clearTimeout(bannerT);bannerT=setTimeout(()=>b.classList.remove("show"),1800)}
 function fmt(n){n=Math.round(n);return n>=1e6?(n/1e6).toFixed(2)+"M":n>=1e4?(n/1e3).toFixed(1)+"k":String(n)}
 function lvl(t){return S.upg[t.upg]??0}
@@ -494,7 +522,7 @@ function hitDmg(t){return t.dmg+t.bonus*lvl(t)}
 // HP multiplier curve: [wave index (0-based), multiplier], linear in between
 // tuned with 16-seed bot runs to the target play time at x3 speed: usual run ~5 min, lucky/strong run ~15 min.
 // the 28-slot board can't grow as strong as the original's, so later waves are scaled down hard.
-var HPC=[[0,.5],[10,1.45],[16,1.2],[20,.8],[30,.75],[39,.85]];
+var HPC=[[0,.6],[10,1.8],[16,1.5],[20,1],[30,.9],[39,1]];
 const PREP_K=0.8; // shorter breaks between waves (time only; combat unchanged)
 const ease=i=>{for(let k=1;k<HPC.length;k++)if(i<=HPC[k][0]){const[a,x]=HPC[k-1],[b,y]=HPC[k];return x+(y-x)*(i-a)/(b-a)}return HPC[HPC.length-1][1]};
 function waveHP(i,def){let hp=def.hp;if(i>=30&&i<=38)hp+=(i-30)*4000;return Math.round(hp*ease(i))}
@@ -630,7 +658,8 @@ function addTower(slot,type,msg){
   const tw={id:S.nextId++,type,slot,x:slot.x,y:slot.y,ang:-Math.PI/2,cool:0,target:null,kick:0,born:S.frame};
   slot.tower=tw;S.towers.push(tw);const t=TOWERS[type];
   if(msg!==false)log(`[${GRADE[t.grade]}] ${t.name} 건설`,t.grade>=3?"hi":"");
-  if(t.grade>=3)banner(`${GRADE[t.grade]} · ${t.name}`,GCOL[t.grade]);
+  if(t.grade>=5){banner(`신 강림 · ${t.name}`,GCOL[5]);const f=document.createElement("div");f.className="miracleFx";document.body.appendChild(f);setTimeout(()=>f.remove(),1600)}
+  else if(t.grade>=3)banner(`${GRADE[t.grade]} · ${t.name}`,GCOL[t.grade]);
   S.fx.push({k:"pop",x:slot.x,y:slot.y,r:40,c:GCOL[t.grade],life:14,max:14});
   return tw;
 }
@@ -644,7 +673,7 @@ function build(slot){
 }
 function merge(tw){
   const t=TOWERS[tw.type];
-  if(t.grade>=4){log("전설은 더 이상 합성할 수 없어요","warn");return}
+  if(t.grade>=5){log("신은 더 이상 합성할 수 없어요","warn");return}
   const partner=S.towers.filter(o=>o!==tw&&o.type===tw.type).sort((a,b)=>a.born-b.born)[0];
   if(!partner){log("타워 업그레이드에 실패하였습니다. 같은 타워가 하나 더 필요합니다.","warn");return}
   const slot=tw.slot;removeTower(partner);removeTower(tw);
@@ -786,15 +815,15 @@ let rewardOpen=false;
 // ---------- animated hero & legend sprites ----------
 // Each: base (fixed) + idle/attack(6f, 300ms, release on frame 3) rotating around center (facing right = 0),
 // impact(4f, 300ms) and projectile(2f loop). Damage values/cycles stay the original game's.
-const SPRITE_IDS={201:"apprentice_mage",202:"crossbowman",203:"time_archmage",39:"greatsword_soldier",38:"blowdart_hunter",8:"archer",2:"iron_ball_thrower",70:"dual_pistol_gunner",66:"wooden_cannoneer",43:"shuriken_thrower",0:"matchlock_musketeer",54:"twin_blade_master",44:"antimateriel_marksman",20:"gatling_brute",58:"rocket_captain",76:"missile_captain",53:"harpoon_hunter",81:"bomb_goblin",67:"storm_sage",
+const SPRITE_IDS={301:"god_gunner",302:"god_archer",303:"god_sun",304:"god_sword",201:"apprentice_mage",202:"crossbowman",203:"time_archmage",39:"greatsword_soldier",38:"blowdart_hunter",8:"archer",2:"iron_ball_thrower",70:"dual_pistol_gunner",66:"wooden_cannoneer",43:"shuriken_thrower",0:"matchlock_musketeer",54:"twin_blade_master",44:"antimateriel_marksman",20:"gatling_brute",58:"rocket_captain",76:"missile_captain",53:"harpoon_hunter",81:"bomb_goblin",67:"storm_sage",
   82:"beekeeper_monarch",19:"minigun_war_god",79:"fire_mage",55:"shadow_ninja_king",100:"cannon_general",51:"dragon_berserker",99:"wraith_sniper_king",103:"lava_spear_king",
   16:"lightning_mage",3:"heavy_machinegunner",71:"siege_cannon_knight",62:"acid_alchemist",52:"venom_witch",21:"laser_knight",104:"flail_knight",78:"energy_gunner",10:"flamethrower_trooper",30:"mortar_gunner",61:"lightsaber_knight",88:"light_mage",68:"hammer_warrior",1:"sniper",46:"poison_gas_sprayer",32:"demolition_expert"};
-const MODE={201:"aura",203:"aura",88:"aura",104:"melee",10:"flame",46:"spray",62:"spray",39:"melee",54:"melee",51:"melee",61:"melee",68:"self",67:"targeted",16:"targeted",103:"line"}; // others: projectile
-const PSPD={202:22,71:14,62:13,52:12,21:28,78:16,30:13,32:12,88:20,1:30,46:12,2:13,66:15,43:14,81:11,79:12,58:14,76:16,82:10,55:15,100:20}; // px per game frame (default 24)
-const FXCOL={202:"#cfd8e0",3:"#ffd27a",71:"#9aa4ae",62:"#9dff5a",52:"#c04cff",21:"#5ab8ff",104:"#cfd8e0",78:"#5ab8ff",10:"#ff5a2a",16:"#ffe45a",30:"#ff9a3c",61:"#fff3c4",88:"#ffffff",68:"#b98a5a",1:"#e6eef5",46:"#b06cff",32:"#ff7a3c",39:"#e6eef5",38:"#b06cff",8:"#cfa36a",2:"#9aa4ae",70:"#ffd27a",66:"#9aa4ae",43:"#d8dce6",0:"#ffd27a",82:"#ffd23f",19:"#ffe08a",79:"#ff8a2a",55:"#d8dce6",100:"#ffb547",51:"#ff5a3c",99:"#4fe0c8",103:"#ff6a1f",54:"#e6eef5",44:"#e6eef5",20:"#ffd27a",58:"#ff9a3c",76:"#ff9a3c",53:"#cfd8e0",81:"#ff9a3c",67:"#ffe45a"};
+const MODE={303:"targeted",304:"self",205:"self",201:"aura",203:"aura",88:"aura",104:"melee",10:"flame",46:"spray",62:"spray",39:"melee",54:"melee",51:"melee",61:"melee",68:"self",67:"targeted",16:"targeted",103:"line"}; // others: projectile
+const PSPD={301:26,302:30,202:22,71:14,62:13,52:12,21:28,78:16,30:13,32:12,88:20,1:30,46:12,2:13,66:15,43:14,81:11,79:12,58:14,76:16,82:10,55:15,100:20}; // px per game frame (default 24)
+const FXCOL={301:"#ffd34f",302:"#9fe8ff",303:"#ff9a2a",304:"#fff3c4",202:"#cfd8e0",3:"#ffd27a",71:"#9aa4ae",62:"#9dff5a",52:"#c04cff",21:"#5ab8ff",104:"#cfd8e0",78:"#5ab8ff",10:"#ff5a2a",16:"#ffe45a",30:"#ff9a3c",61:"#fff3c4",88:"#ffffff",68:"#b98a5a",1:"#e6eef5",46:"#b06cff",32:"#ff7a3c",39:"#e6eef5",38:"#b06cff",8:"#cfa36a",2:"#9aa4ae",70:"#ffd27a",66:"#9aa4ae",43:"#d8dce6",0:"#ffd27a",82:"#ffd23f",19:"#ffe08a",79:"#ff8a2a",55:"#d8dce6",100:"#ffb547",51:"#ff5a3c",99:"#4fe0c8",103:"#ff6a1f",54:"#e6eef5",44:"#e6eef5",20:"#ffd27a",58:"#ff9a3c",76:"#ff9a3c",53:"#cfd8e0",81:"#ff9a3c",67:"#ffe45a"};
 const SPR={};const BASE={};
 function loadSprites(done){
-  const list=["apprentice","skilled","elite","hero","legend"].map((id,i)=>["b:"+i,`sprites/base_${id}.png`]);
+  const list=["apprentice","skilled","elite","hero","legend","god"].map((id,i)=>["b:"+i,`sprites/base_${id}.png`]);
   for(const[u,id]of Object.entries(SPRITE_IDS))if(!(TOWERS[UID(+u)]||{}).off)for(const p of["idle","attack","impact","proj"])if(!(p==="proj"&&MODE[u]&&MODE[u]!=="proj"))list.push([u+":"+p,`sprites/${id}/${p}.png`]);
   let left=list.length;
   for(const[k,src]of list){const im=new Image();im.onload=im.onerror=()=>{if(im.naturalWidth){const[a,b]=k.split(":");if(a==="b")BASE[b]=im;else(SPR[a]=SPR[a]||{})[b]=im}if(--left===0)done()};im.src=src}
@@ -948,7 +977,7 @@ function render(){
   // small upgrade-line badge under each character (sword = 근접, gun = 사격, cannon = 범위)
   for(const tw of S.towers){if(tdrag&&tdrag.active&&tdrag.tw===tw)continue;const im=UPG_IMG[TOWERS[tw.type].upg];if(!im||!im.complete)continue;const bx=tw.x*K,by=tw.y*K+TS*.86,br=TS*.3;
     c.beginPath();c.arc(bx,by,br,0,7);c.fillStyle=UPG_COL[TOWERS[tw.type].upg];c.fill();c.lineWidth=Math.max(1.5,TS*.05);c.strokeStyle="#fff";c.stroke();c.drawImage(im,bx-br*.72,by-br*.72,br*1.44,br*1.44)}
-  for(const tw of S.towers){if(tc[tw.type]<2||TOWERS[tw.type].grade>=4)continue;const bx=tw.x*K+TS*.78,by=tw.y*K-TS*.78+Math.sin(time*.15)*TS*.04,br=TS*.24;
+  for(const tw of S.towers){if(tc[tw.type]<2||TOWERS[tw.type].grade>=5)continue;const bx=tw.x*K+TS*.78,by=tw.y*K-TS*.78+Math.sin(time*.15)*TS*.04,br=TS*.24;
     if(BADGE.complete&&BADGE.naturalWidth){c.drawImage(BADGE,bx-br*1.2,by-br*1.2,br*2.4,br*2.4);continue}
     c.beginPath();c.arc(bx,by,br,0,7);c.fillStyle="#2bd889";c.fill();c.lineWidth=TS*.05;c.strokeStyle="#0d3b26";c.stroke();
     c.beginPath();c.moveTo(bx,by-br*.55);c.lineTo(bx+br*.5,by+br*.05);c.lineTo(bx+br*.2,by+br*.05);c.lineTo(bx+br*.2,by+br*.55);c.lineTo(bx-br*.2,by+br*.55);c.lineTo(bx-br*.2,by+br*.05);c.lineTo(bx-br*.5,by+br*.05);c.closePath();c.fillStyle="#fff";c.fill()}
@@ -1018,7 +1047,7 @@ function renderBubble(){
   const bb=$("bubble"),tw=S&&S.sel;if(!tw){bb.hidden=true;bb.dataset.id="";return}
   const t=TOWERS[tw.type],key=[tw.id,sameCount(tw),lvl(t),tw.bSpd,tw.bPow].join(":");
   if(bb.dataset.id!==key){
-    bb.dataset.id=key;const can=t.grade<4&&sameCount(tw)>=2,sv=t.uid===81?1000:SELL[t.grade];
+    bb.dataset.id=key;const can=t.grade<5&&sameCount(tw)>=2,sv=t.uid===81?1000:SELL[t.grade];
     const area=t.splash[2]>0?"범위":"1명";
     bb.innerHTML=`<div class="bh"><span class="gchip" style="background:${GCOL[t.grade]}">${GRADE[t.grade]}</span><b>${t.name}</b><span class="uchip" style="background:${UPG_COL[t.upg]}">${UPGS.find(u=>u[0]===t.upg)[1]}</span></div>
     ${`<div class="stats"><div><small>공격력</small><b>${fmt(hitDmg(t)*t.factor*(tw.bPow||1))}</b></div><div><small>공격 속도</small><b>${(t.cd/24/(tw.bSpd||1)).toFixed(1)}초</b></div><div><small>사거리</small><b>${t.rt}칸</b></div><div><small>대상</small><b>${area}</b></div></div>`}
@@ -1113,7 +1142,7 @@ cv.addEventListener("click",e=>{if(!S)return;const s=slotAt(e);viewType=null;
   if(!s){S.sel=null;renderPanels();return}
   if(s.tower){const tw=s.tower,now=performance.now();
     // double tap on a character that has a partner = merge right away
-    if(lastTap.tw===tw&&now-lastTap.t<380&&TOWERS[tw.type].grade<4&&sameCount(tw)>=2){lastTap={};merge(tw);if(rail.dataset.view==="sel")closeSheet();renderPanels();return}
+    if(lastTap.tw===tw&&now-lastTap.t<380&&TOWERS[tw.type].grade<5&&sameCount(tw)>=2){lastTap={};merge(tw);if(rail.dataset.view==="sel")closeSheet();renderPanels();return}
     lastTap={tw,t:now};S.sel=S.sel===tw?null:tw}else{if(S.sel){S.sel=null}else build(s)}if(rail.dataset.view==="sel")closeSheet();renderPanels()});
 const rail=$("rail");
 const SHEET_TITLE={sel:"캐릭터 정보",pUpg:"업그레이드·도전",codex:"도감"};
@@ -1145,7 +1174,7 @@ function start(d){
 }
 
 // ---------- boot ----------
-function buildCodex(){makeIcons();$("codex").innerHTML=[0,1,2,3,4].map(g=>`<div class="crow"><span class="glab" style="color:${GCOL[g]}">${GRADE[g]}</span><div class="cgrid">${byGrade(g).map(t=>`<button type="button" class="ci" data-t="${t.i}" title="${t.name}" style="--gc:${GCOL[g]}"><img alt="${t.name}" src="${ICON[t.i]}"><span class="cnt"></span></button>`).join("")}</div></div>`).join("");
+function buildCodex(){makeIcons();$("codex").innerHTML=[0,1,2,3,4,5].map(g=>`<div class="crow"><span class="glab" style="color:${GCOL[g]}">${GRADE[g]}</span><div class="cgrid">${byGrade(g).map(t=>`<button type="button" class="ci" data-t="${t.i}" title="${t.name}" style="--gc:${GCOL[g]}"><img alt="${t.name}" src="${ICON[t.i]}"><span class="cnt"></span></button>`).join("")}</div></div>`).join("");
 document.querySelectorAll("#codex .ci").forEach(im=>im.onclick=()=>{if(S)S.sel=null;viewType=+im.dataset.t;renderSel();if(MQ.matches)openSheet("sel");else viewType=null});if(S)renderPanels()}
 buildCodex();loadSprites(buildCodex);
 let last=performance.now(),acc=0,uiT=0;
