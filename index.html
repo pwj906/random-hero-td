@@ -438,6 +438,11 @@ body{background:#243D83}
 .augDet .ad img{width:40px;height:40px;flex:none}.augDet .ad b{display:block;font-size:14px}.augDet .ad small{color:var(--muted);font-size:12px}
 </style>
 <style>@media (max-width:700px){#augCard>h3{display:none}}</style>
+<style>
+#pMis{display:none!important}
+@media (max-width:700px){.mergeAll{display:none}.mnav #navMerge:disabled{opacity:.45}.mnav #navMerge .dot{top:5px}}
+</style>
+<style>@media (max-width:700px){#tabCard>h3{display:none}}</style>
 <div class="app">
   <header class="hud">
     <div class="brand"><img alt="랜덤 히어로 디펜스" src="ui/logo_horizontal.png"></div>
@@ -506,7 +511,7 @@ body{background:#243D83}
       <div id="selBody"><p class="hint">빈 발판을 누르면 타워를 짓습니다. 타워를 누르면 합성·판매할 수 있습니다.</p></div>
     </section>
     <section class="card" id="tabCard">
-      <div class="seg" role="tablist"><button type="button" role="tab" aria-selected="true" data-p="pUpg">업그레이드</button><button type="button" role="tab" aria-selected="false" data-p="pMis">도전 미션</button></div>
+      <h3>업그레이드</h3>
       <div id="pUpg"></div>
       <div id="pMis" hidden></div>
     </section>
@@ -522,7 +527,7 @@ body{background:#243D83}
 </div>
 <nav class="mnav" aria-label="메뉴">
   <button type="button" data-sheet="pUpg" aria-pressed="false"><img alt="" src="ui/icons/icon_upgrade.svg">업그레이드</button>
-  <button type="button" data-sheet="pMis" aria-pressed="false"><img alt="" src="ui/icons/icon_mission.svg">도전</button>
+  <button type="button" id="navMerge" aria-label="일괄 합성"><img alt="" src="ui/icons/icon_merge_all.svg">일괄 합성<span class="dot" id="navMergeN" hidden>0</span></button>
   <button type="button" class="mlotto" id="navLotto" aria-label="보석 복권, 골드 100"><span class="orb"><b>복권</b><small>골드 100</small></span></button>
   <button type="button" data-sheet="pAug" aria-pressed="false"><img alt="" src="ui/icons/icon_aug.svg">증강</button>
   <button type="button" data-sheet="codex" aria-pressed="false"><img alt="" src="ui/icons/icon_codex.svg">도감</button>
@@ -1319,7 +1324,7 @@ function renderPanels(){
   $("pMis").innerHTML=`<div class="rows">${MISSIONS.map((d,i)=>`<div class="row mis"><img class="mi" alt="" src="ui/missions/icon_mission_${i+1}.png"><div>${i+1}단계 · ${d.name}<small>권장 ${MIS_REC[i]}웨이브부터 · 보상 골드 +${d.reward}</small><small>놓치면 목숨 -10</small></div><span class="lv misLv">${misLeft(i)>0?misLeft(i)+"웨이브 뒤":""}</span><button class="btn" data-m="${i}" ${misLeft(i)>0||!running?"disabled":""}>도전</button></div>`).join("")}</div>`;
   $("pMis").querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>mission(+b.dataset.m));
   {const fr=S.freeTix>0,dis=(!fr&&S.ore<100)||lottoBusy;$("lottoBtn").disabled=dis;$("navLotto").disabled=dis;const lb=fr?`무료 ${S.freeTix}장`:"골드 100";$("lottoBtn").querySelector("span").textContent=lb;$("navLotto").querySelector("small").textContent=lb}
-  {const n=mergeablePairs();$("mergeAll").disabled=!n||!running;$("mergeAllN").textContent=n}
+  {const n=mergeablePairs();$("mergeAll").disabled=!n||!running;$("mergeAllN").textContent=n;$("navMerge").disabled=!n||!running;$("navMergeN").textContent=n;$("navMergeN").hidden=!n}
   if(rail.dataset.view==="sel"&&!S.sel&&viewType==null)closeSheet();
   // codex
   const oc={};for(const o of S.towers)oc[o.type]=(oc[o.type]||0)+1;
@@ -1397,7 +1402,7 @@ $("spP").onclick=()=>{paused=!paused;$("spP").setAttribute("aria-pressed",paused
 document.addEventListener("keydown",e=>{if(!S||!S.sel)return;if(e.key==="q"||e.key==="Q")merge(S.sel);if(e.key==="s"||e.key==="S")sell(S.sel)});
 $("dNormal").onclick=()=>start("normal");
 $("skipBtn").onclick=()=>{if(S&&running&&S.phase==="prep")S.cd=1};
-$("mergeAll").onclick=()=>{if(S)mergeAll()};
+$("mergeAll").onclick=$("navMerge").onclick=()=>{if(S)mergeAll()};
 $("lottoBtn").onclick=$("navLotto").onclick=()=>{if(S&&running)lotto()};
 document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".seg button").forEach(o=>o.setAttribute("aria-selected",o===b));$("pUpg").hidden=b.dataset.p!=="pUpg";$("pMis").hidden=b.dataset.p!=="pMis"});
 $("restart").onclick=()=>{$("endOv").hidden=true;$("rewardOv").hidden=true;rewardOpen=false;start("normal")};
