@@ -316,6 +316,7 @@ body{background:radial-gradient(ellipse at 30% 0%,#A5D9E8 0%,#6CA9D5 42%,#527CB4
 .bubble .bb{margin-top:4px}
 .bubble .bb .btn{flex:1}
 </style>
+<style>.bubble .uchip{margin-left:auto;padding:2px 9px;border-radius:999px;color:#fff;font-size:12px;font-weight:800}</style>
 <div class="app">
   <header class="hud">
     <div class="brand"><img alt="랜덤 히어로 디펜스" src="ui/logo_horizontal.png"></div>
@@ -410,6 +411,7 @@ const SELL=[50,100,200,400,0];
 // upgrades: 3 lines instead of the original 9 StarCraft weapon groups (casual readability).
 // melee = 1-cell weapons, area = splash/bounce/line, shot = everything else. cost is scaled up because each line covers ~3x more characters.
 const UPG_ICON={Melee:"sword",Shot:"gun",Area:"artillery"};
+const UPG_COL={Melee:"#FF5A5F",Shot:"#3D8BFF",Area:"#FFA62B"}; // red = 근접, blue = 사격, orange = 범위
 const UPGS=[["Melee","근접"],["Shot","사격"],["Area","범위"]];
 const UPG_K=1.5;const upgCost=lv=>Math.round(UPG_K*(7+lv));
 const MULT={Normal:[1,1,1,1],Ignore_Armor:[1,1,1,1],Concussive:[1,1,.5,.25],Explosive:[1,.5,.75,1],Independent:[1,1,1,1]};
@@ -895,8 +897,8 @@ function render(){
   if(tdrag&&tdrag.active){const o=tdrag.over;if(o&&o!==tdrag.tw.slot){c.fillStyle=o.tower?"rgba(255,194,58,.28)":"rgba(78,240,176,.28)";c.strokeStyle=o.tower?"#ffc23a":"#4ef0b0";c.lineWidth=3;c.fillRect(o.x*K-TS+3,o.y*K-TS+3,TS*2-6,TS*2-6);c.strokeRect(o.x*K-TS+3,o.y*K-TS+3,TS*2-6,TS*2-6)}
     c.globalAlpha=.9;drawTower(c,TOWERS[tdrag.tw.type],tdrag.cx,tdrag.cy-TS*.4,TS*1.38,tdrag.tw.ang,time,0,null);c.globalAlpha=1}
   // small upgrade-line badge under each character (sword = 근접, gun = 사격, cannon = 범위)
-  for(const tw of S.towers){if(tdrag&&tdrag.active&&tdrag.tw===tw)continue;const im=UPG_IMG[TOWERS[tw.type].upg];if(!im||!im.complete)continue;const bx=tw.x*K,by=tw.y*K+TS*.86,br=TS*.26;
-    c.beginPath();c.arc(bx,by,br,0,7);c.fillStyle="#fff";c.fill();c.lineWidth=Math.max(1,TS*.035);c.strokeStyle="#213365";c.stroke();c.drawImage(im,bx-br*.72,by-br*.72,br*1.44,br*1.44)}
+  for(const tw of S.towers){if(tdrag&&tdrag.active&&tdrag.tw===tw)continue;const im=UPG_IMG[TOWERS[tw.type].upg];if(!im||!im.complete)continue;const bx=tw.x*K,by=tw.y*K+TS*.86,br=TS*.3;
+    c.beginPath();c.arc(bx,by,br,0,7);c.fillStyle=UPG_COL[TOWERS[tw.type].upg];c.fill();c.lineWidth=Math.max(1.5,TS*.05);c.strokeStyle="#fff";c.stroke();c.drawImage(im,bx-br*.72,by-br*.72,br*1.44,br*1.44)}
   for(const tw of S.towers){if(tc[tw.type]<2||TOWERS[tw.type].grade>=4)continue;const bx=tw.x*K+TS*.78,by=tw.y*K-TS*.78+Math.sin(time*.15)*TS*.04,br=TS*.24;
     if(BADGE.complete&&BADGE.naturalWidth){c.drawImage(BADGE,bx-br*1.2,by-br*1.2,br*2.4,br*2.4);continue}
     c.beginPath();c.arc(bx,by,br,0,7);c.fillStyle="#2bd889";c.fill();c.lineWidth=TS*.05;c.strokeStyle="#0d3b26";c.stroke();
@@ -964,7 +966,7 @@ function renderBubble(){
   if(bb.dataset.id!==key){
     bb.dataset.id=key;const can=t.grade<4&&sameCount(tw)>=2,sv=t.uid===81?1000:SELL[t.grade];
     const area=t.splash[2]>0?"범위":"1명";
-    bb.innerHTML=`<div class="bh"><span class="gchip" style="background:${GCOL[t.grade]}">${GRADE[t.grade]}</span><b>${t.name}</b></div>
+    bb.innerHTML=`<div class="bh"><span class="gchip" style="background:${GCOL[t.grade]}">${GRADE[t.grade]}</span><b>${t.name}</b><span class="uchip" style="background:${UPG_COL[t.upg]}">${UPGS.find(u=>u[0]===t.upg)[1]}</span></div>
     <div class="stats"><div><small>공격력</small><b>${fmt(hitDmg(t)*t.factor)}</b></div><div><small>공격 속도</small><b>${(t.cd/24).toFixed(1)}초</b></div><div><small>사거리</small><b>${t.rt}칸</b></div><div><small>대상</small><b>${area}</b></div></div>
     ${traitTags(t).map(x=>`<span class="tag">${x}</span>`).join("")}
     <div class="bb"><button type="button" class="btn" id="bbS" ${sv?"":"disabled"}>판매${sv?" +"+sv:""}</button><button type="button" class="btn primary" id="bbM" ${can?"":"disabled"}>합성</button></div>`;
@@ -995,7 +997,7 @@ function renderPanels(){
   const ownTypes=new Set(S.towers.map(o=>o.type));
   const order=UPGS.map((u,i)=>[u,i]).sort((a,b)=>((ownCnt[b[0][0]]?1:0)-(ownCnt[a[0][0]]?1:0))||a[1]-b[1]).map(x=>x[0]);
   $("pUpg").innerHTML=`<div class="rows">${order.map(([k,n])=>{const lv=S.upg[k],cost=upgCost(lv);const mine=TOWERS.filter(t=>t.upg===k&&ownTypes.has(t.i));
-    return `<div class="row up ${mine.length?"":"dim"}"><img class="gi" alt="" src="ui/icons/icon_${UPG_ICON[k]}.svg"><div><b class="un">${n}</b><span class="ui">${mine.length?mine.slice(0,4).map(t=>`<img alt="${t.name}" src="${ICON[t.i]}">`).join(""):`<small>보유 캐릭터 없음</small>`}</span></div><span class="lv">Lv${lv}</span><button class="btn gem" data-u="${k}" ${S.gas<cost?"disabled":""}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12l4 6-10 11L2 10z"/></svg>${cost}</button></div>`}).join("")}</div>`;
+    return `<div class="row up ${mine.length?"":"dim"}"><img class="gi" alt="" style="background:${UPG_COL[k]};border-radius:50%;padding:4px;box-sizing:border-box" src="ui/icons/icon_${UPG_ICON[k]}.svg"><div><b class="un" style="color:${UPG_COL[k]}">${n}</b><span class="ui">${mine.length?mine.slice(0,4).map(t=>`<img alt="${t.name}" src="${ICON[t.i]}">`).join(""):`<small>보유 캐릭터 없음</small>`}</span></div><span class="lv">Lv${lv}</span><button class="btn gem" data-u="${k}" ${S.gas<cost?"disabled":""}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12l4 6-10 11L2 10z"/></svg>${cost}</button></div>`}).join("")}</div>`;
   $("pUpg").querySelectorAll("[data-u]").forEach(b=>b.onclick=()=>buyUpg(b.dataset.u));
   // missions
   $("pMis").innerHTML=`<div class="rows">${MISSIONS.map((d,i)=>`<div class="row mis"><img class="mi" alt="" src="ui/missions/icon_mission_${i+1}.png"><div>${i+1}단계 · ${d.name}<small>잡으면 골드 +${d.reward} · 놓치면 목숨 -10</small></div><span class="lv">${S.mis[i]>0?Math.ceil(S.mis[i]/24)+"s":""}</span><button class="btn" data-m="${i}" ${S.mis[i]>0||!running?"disabled":""}>도전</button></div>`).join("")}</div>`;
