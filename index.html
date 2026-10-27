@@ -407,7 +407,10 @@ buildBoard();
 function pathAt(d){for(const s of SEG){if(d<=s.s+s.l){const f=(d-s.s)/s.l;return[s.a[0]+(s.b[0]-s.a[0])*f,s.a[1]+(s.b[1]-s.a[1])*f,Math.atan2(s.b[1]-s.a[1],s.b[0]-s.a[0])]}}const e=PATH[PATH.length-1];return[e[0],e[1],Math.PI/2]}
 
 // ---------- rules ----------
-const MON_NAMES=["들쥐", "붕대병", "좀비", "뿔소", "사냥개", "장갑차", "일꾼 로봇", "그림자 검객", "새끼 벌레", "거대 풍선벌레", "수송선", "털북숭이", "수호 비행선", "여왕벌", "일벌", "거대 집게벌레", "암살자", "정찰 드론", "자폭벌", "거대 전함", "연구선", "화물선", "들소", "탐사선", "장수풍뎅이", "마녀벌", "산호새", "황금 기사", "에이스 전투기", "거대 굴착기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 모함"];WAVES.forEach((w,i)=>w.name=MON_NAMES[i]);["공룡","강철 기사","거대 비행체"].forEach((n,i)=>MISSIONS[i].name=n);
+const MON_NAMES=["들쥐", "붕대병", "좀비", "뿔소", "사냥개", "장갑차", "일꾼 로봇", "그림자 검객", "새끼 벌레", "거대 풍선벌레", "수송선", "털북숭이", "수호 비행선", "여왕벌", "일벌", "거대 집게벌레", "암살자", "정찰 드론", "자폭벌", "거대 전함", "연구선", "화물선", "들소", "탐사선", "장수풍뎅이", "마녀벌", "산호새", "황금 기사", "에이스 전투기", "거대 굴착기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 모함"];WAVES.forEach((w,i)=>w.name=MON_NAMES[i]);
+const WAVE_SPR=["m_rat","m_zombie","m_zombie","m_bull","m_hound","m_wagon","m_robot","m_assassin","m_bug","b_balloon","m_airship","m_yeti","m_airship","m_queen","m_bug","m_beetle","m_assassin","m_robot","m_bug","b_battleship","m_airship","m_wagon","m_bull","m_airship","m_beetle","m_queen","m_bird","m_knight","m_fighter","b_driller","m_fighter","m_fighter","m_fighter","m_fighter","m_fighter","m_fighter","m_fighter","m_fighter","m_fighter","b_hell_carrier"];
+const MON_TITLE={m_rat:"들쥐",m_zombie:"좀비",m_bull:"뿔소",m_hound:"사냥개",m_wagon:"장갑 수레",m_robot:"고철 로봇",m_assassin:"그림자 암살자",m_bug:"벌레",b_balloon:"거대 풍선벌레",m_airship:"비행선",m_yeti:"털북숭이",m_queen:"여왕벌",m_beetle:"딱정벌레",b_battleship:"거대 전함",m_bird:"산호새",m_knight:"황금 기사",m_fighter:"지옥 전투기",b_driller:"거대 굴착기",b_hell_carrier:"지옥 모함",b_endless:"혼돈의 황제",q_dino:"공룡",q_steel_knight:"강철 기사",q_flyer:"거대 비행체"};
+WAVES.forEach((w,i)=>{w.spr=WAVE_SPR[i];w.name=MON_TITLE[w.spr]});["공룡","강철 기사","거대 비행체"].forEach((n,i)=>MISSIONS[i].name=n);["q_dino","q_steel_knight","q_flyer"].forEach((k,i)=>MISSIONS[i].spr=k);
 const GRADE=["견습","숙련","정예","영웅","전설","신"];
 const GCOL=["#aab7c0","#428dff","#9b4dff","#ff573d","#ffd34f","#ff5cc8"];
 const SELL=[50,100,200,400,0,0];
@@ -542,7 +545,8 @@ function waveDef(i){
   S.gen=S.gen||{};if(S.gen[i])return S.gen[i];
   const n=i-WAVES.length,boss=(i+1)%10===0,base=WAVES[ENDLESS_POOL[n%ENDLESS_POOL.length]];
   const d=Object.assign({},base,{idx:i,boss:boss?1:0,name:(boss?"무한 보스 · ":"무한 · ")+base.name,
-    hp:Math.round(160000*Math.pow(1.12,n)*(boss?25:1)),ar:Math.min(250,40+3*n),sh:0,size:boss?3:base.size,spd:boss?2:base.spd});
+    hp:Math.round(160000*Math.pow(1.12,n)*(boss?25:1)),ar:Math.min(250,40+3*n),sh:0,size:boss?3:base.size,spd:boss?2:base.spd,spr:boss?"b_endless":base.spr});
+  if(boss)d.name="무한 보스 · 혼돈의 황제";
   return S.gen[i]=d}
 function startWave(){
   const def=waveDef(S.wi);S.phase="wave";
@@ -571,7 +575,8 @@ function leak(m){
 }
 function kill(m){
   if(m.dead)return;m.dead=true;S.kills++;
-  S.fx.push({k:"pop",x:m.x,y:m.y,r:monR(m)*1.6,c:`hsl(${m.hue} 80% 60%)`,life:12,max:12});
+  if(m.def.spr&&MSPR[m.def.spr]&&MSPR[m.def.spr].death)S.fx.push({k:"mdie",spr:m.def.spr,x:m.x,y:m.y,a:m.a,z:monR(m)*1.45*(MQ.matches?1.1:1)*(m.def.boss?1.6:1)*(m.kind==="mission"?1.4:1)*2.9*(m.def.boss?.78:1),life:8,max:8});
+  else S.fx.push({k:"pop",x:m.x,y:m.y,r:monR(m)*1.6,c:`hsl(${m.hue} 80% 60%)`,life:12,max:12});
   if(m.kind==="mission"){S.ore+=m.def.reward;log("도전 미션 클리어! 골드 +"+m.def.reward,"good");return}
   if(m.def.boss===1){S.tok.boss++;const r=(m.def.idx!=null?m.def.idx:WAVES.indexOf(m.def))+1;banner(r+"라운드 클리어!","var(--ore)");showReward()}
   if(m.def.boss===2){S.tok.boss++;banner("무한 모드 시작!","var(--ore)");log("40웨이브 클리어! 이제부터 끝없는 웨이브가 몰려와요","good");showReward()}
@@ -835,6 +840,9 @@ function loadSprites(done){
   let left=list.length;
   for(const[k,src]of list){const im=new Image();im.onload=im.onerror=()=>{if(im.naturalWidth){const[a,b]=k.split(":");if(a==="b")BASE[b]=im;else(SPR[a]=SPR[a]||{})[b]=im}if(--left===0)done()};im.src=src}
 }
+const MSPR={};
+function loadMonsters(){for(const k of new Set([...WAVE_SPR,"b_endless","q_dino","q_steel_knight","q_flyer"]))for(const p of["walk","death"]){const im=new Image();im.onload=()=>{(MSPR[k]=MSPR[k]||{})[p]=im};im.src=`sprites/mon/${k}/${p}.png`}}
+loadMonsters();
 function cell(c,im,i,n,dx,dy,w,h){const cw=im.naturalWidth/n;c.drawImage(im,i*cw,0,cw,im.naturalHeight,dx,dy,w,h)}
 function drawSprite(c,t,x,y,R,ang,kick,tw){
   const sp=SPR[t.uid],base=BASE[t.grade];if(!sp||!sp.idle||!base)return false;
@@ -1001,14 +1009,19 @@ function render(){
 function drawMon(c,m,time){
   const r=monR(m)*K*1.45*(MQ.matches?1.1:1)*(m.def.boss?1.6:1)*(m.kind==="mission"?1.4:1),x=m.x*K,y=m.y*K;
   c.save();c.translate(x,y);
-  if(m.def.boss||m.kind==="mission"){c.beginPath();c.arc(0,0,r*1.45,0,7);c.strokeStyle=m.kind==="mission"?"#ffb547":"#ff6f7d";c.lineWidth=2;c.globalAlpha=.6+Math.sin(time*.2)*.3;c.stroke();c.globalAlpha=1}
+  if(m.def.boss||m.kind==="mission"){c.beginPath();c.arc(0,0,r*(m.def.spr&&MSPR[m.def.spr]?1.05:1.45),0,7);c.strokeStyle=m.kind==="mission"?"#ffb547":"#ff6f7d";c.lineWidth=2;c.globalAlpha=.6+Math.sin(time*.2)*.3;c.stroke();c.globalAlpha=1}
   c.rotate(m.a);
+  const ms=m.def.spr&&MSPR[m.def.spr];
+  if(ms&&ms.walk){const z=r*2.9*(m.def.boss?.78:1);cell(c,ms.walk,Math.floor((time+m.id*2)/3)%4,4,-z/2,-z/2,z,z);c.restore();drawMonBars(c,m,x,y,r);return}
   const wob=Math.sin(time*.4+m.id)*r*.08;
   c.beginPath();const n=m.def.boss?10:6+(m.def.u%4);
   for(let k=0;k<n*2;k++){const a=k*Math.PI/n,rr=k%2?r*.78:r*(1.08)+(k===0?r*.25:0);c.lineTo(Math.cos(a)*rr+wob*(k%2),Math.sin(a)*rr)}
   c.closePath();c.fillStyle=`hsl(${m.hue} 55% 38%)`;c.fill();c.strokeStyle=`hsl(${m.hue} 70% 62%)`;c.lineWidth=1.5;c.stroke();
   disc(c,r*.35,0,r*.22,"#f4f1e8");disc(c,r*.42,0,r*.1,"#111");
   c.restore();
+  drawMonBars(c,m,x,y,r);
+}
+function drawMonBars(c,m,x,y,r){
   if(m.acid){c.fillStyle="#7dff6a";for(let k=0;k<Math.min(m.acid,5);k++)c.fillRect(x-r+k*4,y+r+3,3,3)}
   if(m.hp<m.maxhp||m.sh<m.maxsh){const w=Math.max(18,r*2.2);c.fillStyle="#000a";c.fillRect(x-w/2,y-r-8,w,4);c.fillStyle=m.hp/m.maxhp>.4?"#5ee6a8":"#ff6f7d";c.fillRect(x-w/2,y-r-8,w*Math.max(0,m.hp/m.maxhp),4);if(m.maxsh){c.fillStyle="#5aa9ff";c.fillRect(x-w/2,y-r-12,w*m.sh/m.maxsh,3)}}
 }
@@ -1016,7 +1029,8 @@ const FLAME_PAL={fire:["rgba(255,245,170,1)","rgba(255,150,30,.95)","rgba(225,50
   gas:["rgba(240,215,255,.95)","rgba(180,90,240,.8)","rgba(120,40,170,.5)","rgba(90,20,130,0)"],acid:["rgba(240,255,200,.95)","rgba(160,240,60,.85)","rgba(80,170,30,.5)","rgba(50,120,20,0)"]};
 function drawFx(c,f){
   const a=f.life/f.max;c.save();c.globalAlpha=Math.min(1,a*1.4);c.strokeStyle=f.c;c.fillStyle=f.c;
-  if(f.k==="bolt"||f.k==="beam"){c.lineWidth=(f.w||2)*(f.k==="beam"?1.6:1)*a+.5;c.beginPath();c.moveTo(f.x*K,f.y*K);c.lineTo(f.x2*K,f.y2*K);c.stroke();if(f.k==="beam"){c.globalAlpha*=.3;c.lineWidth*=3;c.stroke()}disc(c,f.x2*K,f.y2*K,3+3*a,f.c)}
+  if(f.k==="mdie"){c.globalAlpha=1;const z=f.z*K;c.translate(f.x*K,f.y*K);c.rotate(f.a);cell(c,MSPR[f.spr].death,Math.min(3,Math.floor((1-a)*4)),4,-z/2,-z/2,z,z)}
+  else if(f.k==="bolt"||f.k==="beam"){c.lineWidth=(f.w||2)*(f.k==="beam"?1.6:1)*a+.5;c.beginPath();c.moveTo(f.x*K,f.y*K);c.lineTo(f.x2*K,f.y2*K);c.stroke();if(f.k==="beam"){c.globalAlpha*=.3;c.lineWidth*=3;c.stroke()}disc(c,f.x2*K,f.y2*K,3+3*a,f.c)}
   else if(f.k==="slash"){c.lineWidth=3;c.beginPath();c.arc(f.x2*K,f.y2*K,12,a*4,a*4+2.2);c.stroke()}
   else if(f.k==="swarm"){for(let k=0;k<8;k++){const t=1-a,ang=k*.8;const px=f.x+(f.x2-f.x)*t+Math.cos(ang+t*6)*20,py=f.y+(f.y2-f.y)*t+Math.sin(ang+t*6)*20;disc(c,px*K,py*K,2.5,f.c)}}
   else if(f.k==="ring"){c.lineWidth=3*a+1;c.beginPath();c.arc(f.x*K,f.y*K,f.r*K*(1.15-a*.4),0,7);c.stroke();c.globalAlpha*=.15;c.fill()}
