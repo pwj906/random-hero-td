@@ -607,21 +607,22 @@ let rewardOpen=false;
 // Each: base (fixed) + idle/attack(6f, 300ms, release on frame 3) rotating around center (facing right = 0),
 // impact(4f, 300ms) and projectile(2f loop). Damage values/cycles stay the original game's.
 const SPRITE_IDS={39:"greatsword_soldier",38:"blowdart_hunter",8:"archer",2:"iron_ball_thrower",70:"dual_pistol_gunner",66:"wooden_cannoneer",43:"shuriken_thrower",0:"matchlock_musketeer",54:"twin_blade_master",44:"antimateriel_marksman",20:"gatling_brute",58:"rocket_captain",76:"missile_captain",53:"harpoon_hunter",81:"bomb_goblin",67:"storm_sage",
-  82:"beekeeper_monarch",19:"minigun_war_god",79:"fire_mage",55:"shadow_ninja_king",100:"cannon_general",51:"dragon_berserker",99:"wraith_sniper_king",103:"lava_spear_king"};
-const MODE={39:"melee",54:"melee",51:"melee",67:"targeted",103:"line"}; // others: projectile
-const PSPD={2:13,66:15,43:14,81:11,79:12,58:14,76:16,82:10,55:15,100:20}; // px per game frame (default 24)
-const FXCOL={39:"#e6eef5",38:"#b06cff",8:"#cfa36a",2:"#9aa4ae",70:"#ffd27a",66:"#9aa4ae",43:"#d8dce6",0:"#ffd27a",82:"#ffd23f",19:"#ffe08a",79:"#ff8a2a",55:"#d8dce6",100:"#ffb547",51:"#ff5a3c",99:"#4fe0c8",103:"#ff6a1f",54:"#e6eef5",44:"#e6eef5",20:"#ffd27a",58:"#ff9a3c",76:"#ff9a3c",53:"#cfd8e0",81:"#ff9a3c",67:"#ffe45a"};
+  82:"beekeeper_monarch",19:"minigun_war_god",79:"fire_mage",55:"shadow_ninja_king",100:"cannon_general",51:"dragon_berserker",99:"wraith_sniper_king",103:"lava_spear_king",
+  16:"lightning_mage",30:"mortar_gunner",61:"lightsaber_knight",88:"light_mage",68:"hammer_warrior",1:"sniper",46:"poison_gas_sprayer",32:"demolition_expert"};
+const MODE={39:"melee",54:"melee",51:"melee",61:"melee",68:"self",67:"targeted",16:"targeted",103:"line"}; // others: projectile
+const PSPD={30:13,32:12,88:20,1:30,46:12,2:13,66:15,43:14,81:11,79:12,58:14,76:16,82:10,55:15,100:20}; // px per game frame (default 24)
+const FXCOL={16:"#ffe45a",30:"#ff9a3c",61:"#fff3c4",88:"#ffffff",68:"#b98a5a",1:"#e6eef5",46:"#b06cff",32:"#ff7a3c",39:"#e6eef5",38:"#b06cff",8:"#cfa36a",2:"#9aa4ae",70:"#ffd27a",66:"#9aa4ae",43:"#d8dce6",0:"#ffd27a",82:"#ffd23f",19:"#ffe08a",79:"#ff8a2a",55:"#d8dce6",100:"#ffb547",51:"#ff5a3c",99:"#4fe0c8",103:"#ff6a1f",54:"#e6eef5",44:"#e6eef5",20:"#ffd27a",58:"#ff9a3c",76:"#ff9a3c",53:"#cfd8e0",81:"#ff9a3c",67:"#ffe45a"};
 const SPR={};const BASE={};
 function loadSprites(done){
   const list=["apprentice","skilled","elite","hero","legend"].map((id,i)=>["b:"+i,`sprites/base_${id}.png`]);
-  for(const[u,id]of Object.entries(SPRITE_IDS))for(const p of["idle","attack","impact","proj"])if(!(p==="proj"&&MODE[u]==="melee"))list.push([u+":"+p,`sprites/${id}/${p}.png`]);
+  for(const[u,id]of Object.entries(SPRITE_IDS))for(const p of["idle","attack","impact","proj"])if(!(p==="proj"&&MODE[u]&&MODE[u]!=="proj"))list.push([u+":"+p,`sprites/${id}/${p}.png`]);
   let left=list.length;
   for(const[k,src]of list){const im=new Image();im.onload=im.onerror=()=>{if(im.naturalWidth){const[a,b]=k.split(":");if(a==="b")BASE[b]=im;else(SPR[a]=SPR[a]||{})[b]=im}if(--left===0)done()};im.src=src}
 }
 function cell(c,im,i,n,dx,dy,w,h){const cw=im.naturalWidth/n;c.drawImage(im,i*cw,0,cw,im.naturalHeight,dx,dy,w,h)}
 function drawSprite(c,t,x,y,R,ang,kick,tw){
   const sp=SPR[t.uid],base=BASE[t.grade];if(!sp||!sp.idle||!base)return false;
-  const sz=R*2.6;c.save();c.translate(x,y);
+  const sz=R*3.1;c.save();c.translate(x,y);
   const bsz=R*1.55;c.drawImage(base,-bsz/2,-bsz/2+bsz*.015,bsz,bsz);c.rotate(ang);
   if(tw&&tw.atk!=null&&sp.attack){const f=Math.min(5,Math.floor(tw.atk/tw.atkDur*6));cell(c,sp.attack,f,6,-sz/2,-sz/2,sz,sz)}
   else c.drawImage(sp.idle,-sz/2,-sz/2,sz,sz);
@@ -634,6 +635,7 @@ const ANIM={
     let m=tw.pend;if(!m||m.dead||!inRange(t,tw,m))m=tw.target;if(!m||m.dead)return;
     const mode=MODE[t.uid]||"proj",R=TS*1.38;
     if(mode==="melee"){fire(tw,t,m,true);ANIM.impact(t,m.x,m.y,1);return}
+    if(mode==="self"){fire(tw,t,m,true);ANIM.impact(t,tw.x,tw.y,(t.splash[2]*2+40)/96);return}
     if(mode==="targeted"){fire(tw,t,m,true);ANIM.impact(t,m.x,m.y,(t.splash[2]*2+40)/96);return}
     if(mode==="line"){fire(tw,t,m,true);return}
     const n=t.uid===82?(t.shots||8):1,spd=PSPD[t.uid]||24,mx=tw.x+Math.cos(tw.ang)*R*.9/K,my=tw.y+Math.sin(tw.ang)*R*.9/K;
