@@ -811,19 +811,19 @@ function build(slot){
   const type=S.picks.length?S.picks.shift():pick(byGrade(has("summon_bless")&&Math.random()<.1?1:0)).i;
   addTower(slot,type);renderPanels(); // a new character is not auto-selected
 }
-function merge(tw,quiet){
+function merge(tw,quiet,noSel){
   const t=TOWERS[tw.type];
   const partner=S.towers.filter(o=>o!==tw&&o.type===tw.type).sort((a,b)=>(a.conc||0)-(b.conc||0)||a.born-b.born)[0];
   if(!partner){log("같은 캐릭터가 하나 더 필요해요","warn");return}
   // gods concentrate instead: the two become one, keeping both powers (농축 n = attack x(n+1))
   if(t.grade>=5){tw.conc=(tw.conc||0)+(partner.conc||0)+1;removeTower(partner);sfx("merge");
-    S.fx.push({k:"pop",x:tw.x,y:tw.y,r:48,c:GCOL[5],life:16,max:16});banner(`농축 ${tw.conc}단계 · ${t.name}`,GCOL[5]);applyAuras();if(!quiet)S.sel=tw;renderPanels();return}
+    S.fx.push({k:"pop",x:tw.x,y:tw.y,r:48,c:GCOL[5],life:16,max:16});banner(`농축 ${tw.conc}단계 · ${t.name}`,GCOL[5]);applyAuras();S.sel=quiet||noSel?null:tw;renderPanels();return}
   sfx("merge");
   const done=line=>{
     const slot=tw.slot;if(!(has("recycle")&&Math.random()<.25))removeTower(partner);else log("재활용! 재료 1명이 남았어요","good");removeTower(tw);
     let g=t.grade+1;if(S.godCall&&t.grade>=3){g=5;S.godCall=0}else if(has("double_up")&&t.grade+2<=4&&Math.random()<.15){g=t.grade+2;log("겹경사! 두 등급 위","good")}
     let pool=byGrade(g);if(line&&g<5){const f=pool.filter(o=>ROLE[o.uid]===line);if(f.length)pool=f}
-    const nt=addTower(slot,pick(pool).i);if(!quiet)S.sel=nt;renderPanels()};
+    const nt=addTower(slot,pick(pool).i);S.sel=quiet||noSel?null:nt;renderPanels()};
   if(!quiet&&has("choose_line")&&t.grade<4&&!(S.godCall&&t.grade>=3)&&!window.AUG_AUTO)askLine(done);else done(null);
 }
 function mergeablePairs(){const by={};for(const tw of S.towers){const t=TOWERS[tw.type];if(t.grade<=3)(by[tw.type]=by[tw.type]||[]).push(tw)}
@@ -832,9 +832,12 @@ function mergeAll(){
   if(!running)return;const by={};for(const tw of S.towers){const t=TOWERS[tw.type];if(t.grade<=3)(by[tw.type]=by[tw.type]||[]).push(tw)}
   let n=0;const keep=S.sel;for(const list of Object.values(by)){list.sort((a,b)=>a.born-b.born);for(let i=0;i+1<list.length;i+=2){if(!S.towers.includes(list[i])||!S.towers.includes(list[i+1]))continue;merge(list[i],true);n++}}
   S.sel=null;if(n)log(`일괄 합성 ${n}번`,"good");renderPanels()}
+function exchange(tw){ // 고물상 augment: swap for a different character of the same grade (gold 50)
+  const t=TOWERS[tw.type];if(t.grade>=5||!has("junk"))return;if(S.ore<50){log("골드가 부족해요 (교환 50)","warn");return}
+  const opts=byGrade(t.grade).filter(o=>o.i!==t.i);if(!opts.length)return;S.ore-=50;const sl=tw.slot;removeTower(tw);S.sel=addTower(sl,pick(opts).i,false);sfx("coin");renderPanels()}
 function sell(tw){
   const t=TOWERS[tw.type];if(t.grade>=4){log("전설은 팔 수 없어요","warn");return}
-  const v=(t.uid===81?1000:SELL[t.grade])*(has("junk")?2:1);removeTower(tw);S.ore+=v;
+  const v=t.uid===81?1000:SELL[t.grade];removeTower(tw);S.ore+=v;
   log(`${t.name}을(를) 팔고 ${v}원을 얻었습니다.`);sfx("coin");renderPanels();
 }
 function buyUpg(key){
@@ -1240,15 +1243,15 @@ function traitTags(t){const tags=[];const a=t.aura,pc=v=>Math.round(v*100)+"%";
   return tags}
 function renderBubble(){
   const bb=$("bubble"),tw=S&&S.sel;if(!tw){bb.hidden=true;bb.dataset.id="";return}
-  const t=TOWERS[tw.type],key=[tw.id,sameCount(tw),lvl(t),tw.bSpd,tw.bPow,tw.conc||0].join(":");
+  const t=TOWERS[tw.type],key=[tw.id,sameCount(tw),lvl(t),tw.bSpd,tw.bPow,tw.conc||0,S.ore>=50].join(":");
   if(bb.dataset.id!==key){
     bb.dataset.id=key;const can=sameCount(tw)>=2,sv=t.uid===81?1000:SELL[t.grade];
     const area=`${mh(t)}명`;
     bb.innerHTML=`<div class="bh"><span class="gchip" style="background:${GCOL[t.grade]}">${GRADE[t.grade]}</span><b>${t.name}${tw.conc?` <span class="conc">★${tw.conc}</span>`:""}</b><span class="uchip" style="background:${UPG_COL[t.upg]}">${UPGS.find(u=>u[0]===t.upg)[1]}</span></div>
     ${`<div class="stats"><div><small>공격력</small><b>${fmt(hitDmg(t)*t.factor*(tw.bPow||1))}</b></div><div><small>공격 속도</small><b>${(t.cd/24/(tw.bSpd||1)).toFixed(1)}초</b></div><div><small>사거리</small><b>${rtOf(t)}칸</b></div><div><small>대상</small><b>${area}</b></div></div>`}
     ${traitTags(t).map(x=>`<span class="tag">${x}</span>`).join("")}
-    <div class="bb"><button type="button" class="btn" id="bbS" ${sv?"":"disabled"}>판매${sv?" +"+sv:""}</button><button type="button" class="btn primary" id="bbM" ${can?"":"disabled"}>${t.grade>=5?"농축":"합성"}</button></div>`;
-    $("bbM").onclick=()=>{merge(tw)};$("bbS").onclick=()=>{sell(tw)};
+    <div class="bb"><button type="button" class="btn" id="bbS" ${sv?"":"disabled"}>판매${sv?" +"+sv:""}</button>${has("junk")&&t.grade<5?`<button type="button" class="btn" id="bbX" ${S.ore<50?"disabled":""}>교환 -50</button>`:""}<button type="button" class="btn primary" id="bbM" ${can?"":"disabled"}>${t.grade>=5?"농축":"합성"}</button></div>`;
+    $("bbM").onclick=()=>{merge(tw)};if($("bbX"))$("bbX").onclick=()=>{exchange(tw)};$("bbS").onclick=()=>{sell(tw)};
   }
   bb.hidden=false;placeBubble();
 }
@@ -1338,7 +1341,7 @@ cv.addEventListener("click",e=>{if(!S)return;const s=slotAt(e);viewType=null;
   if(!s){S.sel=null;renderPanels();return}
   if(s.tower){const tw=s.tower,now=performance.now();
     // double tap on a character that has a partner = merge right away
-    if(lastTap.tw===tw&&now-lastTap.t<380&&sameCount(tw)>=2){lastTap={};merge(tw);if(rail.dataset.view==="sel")closeSheet();renderPanels();return}
+    if(lastTap.tw===tw&&now-lastTap.t<380&&sameCount(tw)>=2){lastTap={};merge(tw,false,true);S.sel=null;if(rail.dataset.view==="sel")closeSheet();renderPanels();return}
     lastTap={tw,t:now};S.sel=S.sel===tw?null:tw}else{if(S.sel){S.sel=null}else build(s)}if(rail.dataset.view==="sel")closeSheet();renderPanels()});
 const rail=$("rail");
 const SHEET_TITLE={sel:"캐릭터 정보",pUpg:"업그레이드·도전",codex:"도감"};
@@ -1417,7 +1420,7 @@ const AUGS=[
   {id:"gem_mine",tier:0,name:"보석 광산",desc:"웨이브 끝마다 보석 +15"},
   {id:"cash_now",tier:0,name:"즉시 현금",desc:"지금 바로 골드 +1000"},
   {id:"cheap_upg",tier:0,name:"짠돌이",desc:"업그레이드 비용 -25%"},
-  {id:"junk",tier:0,name:"고물상",desc:"판매 금액 2배"},
+  {id:"junk",tier:0,name:"고물상",desc:"캐릭터를 같은 등급 다른 캐릭터로 교환 (골드 50)"},
   {id:"lucky_coin",tier:0,name:"행운의 동전",desc:"복권 꽝 확률 절반"},
   {id:"jackpot",tier:1,name:"잭팟 체질",desc:"복권 기적 확률 3배"},
   {id:"free_ticket",tier:1,name:"공짜 한 장",desc:"웨이브 끝마다 무료 복권 1장"},
