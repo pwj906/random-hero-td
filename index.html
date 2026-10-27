@@ -844,9 +844,12 @@ const MSPR={};
 function loadMonsters(){for(const k of new Set([...WAVE_SPR,"b_endless","q_dino","q_steel_knight","q_flyer"]))for(const p of["walk","death"]){const im=new Image();im.onload=()=>{(MSPR[k]=MSPR[k]||{})[p]=im};im.src=`sprites/mon/${k}/${p}.png`}}
 loadMonsters();
 function cell(c,im,i,n,dx,dy,w,h){const cw=im.naturalWidth/n;c.drawImage(im,i*cw,0,cw,im.naturalHeight,dx,dy,w,h)}
+// visible size of each idle sprite (sqrt of opaque px at 192px), used to even out how big characters look
+const SPR_AREA={305:112.7,306:92.1,204:75.4,205:79.7,301:105.4,302:105.0,303:99.7,304:102.5,201:43.5,202:56.3,203:81.4,39:33.3,38:39.8,8:40.1,2:44.2,70:41.0,66:39.4,43:42.5,0:34.7,54:71.7,44:57.6,20:68.0,58:71.6,76:68.3,53:61.0,81:63.6,67:75.7,82:73.6,19:82.8,79:72.9,55:77.3,100:73.5,51:91.4,99:72.7,103:58.4,16:32.0,3:52.4,71:58.0,62:54.4,52:68.8,21:53.1,104:49.8,78:52.2,10:53.9,30:32.8,61:30.5,88:31.1,68:33.7,1:31.9,46:33.6,32:32.2};
+const SIZE_GOAL=[50,52,55,58,61,68];
 function drawSprite(c,t,x,y,R,ang,kick,tw){
   const sp=SPR[t.uid],base=BASE[t.grade];if(!sp||!sp.idle||!base)return false;
-  const sz=R*3.1;c.save();c.translate(x,y);
+  const sk=SPR_AREA[t.uid]?Math.max(.55,Math.min(1.6,SIZE_GOAL[t.grade]/SPR_AREA[t.uid])):1,sz=R*3.1*sk;c.save();c.translate(x,y);
   const bsz=R*1.55;c.drawImage(base,-bsz/2,-bsz/2+bsz*.015,bsz,bsz);c.rotate(ang);
   if(tw&&tw.atk!=null&&sp.attack){const f=Math.min(5,Math.floor(tw.atk/tw.atkDur*6));cell(c,sp.attack,f,6,-sz/2,-sz/2,sz,sz)}
   else c.drawImage(sp.idle,-sz/2,-sz/2,sz,sz);
