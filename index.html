@@ -616,7 +616,7 @@ let rewardOpen=false;
 const SPRITE_IDS={39:"greatsword_soldier",38:"blowdart_hunter",8:"archer",2:"iron_ball_thrower",70:"dual_pistol_gunner",66:"wooden_cannoneer",43:"shuriken_thrower",0:"matchlock_musketeer",54:"twin_blade_master",44:"antimateriel_marksman",20:"gatling_brute",58:"rocket_captain",76:"missile_captain",53:"harpoon_hunter",81:"bomb_goblin",67:"storm_sage",
   82:"beekeeper_monarch",19:"minigun_war_god",79:"fire_mage",55:"shadow_ninja_king",100:"cannon_general",51:"dragon_berserker",99:"wraith_sniper_king",103:"lava_spear_king",
   16:"lightning_mage",3:"heavy_machinegunner",71:"siege_cannon_knight",62:"acid_alchemist",52:"venom_witch",21:"laser_knight",104:"flail_knight",78:"energy_gunner",10:"flamethrower_trooper",30:"mortar_gunner",61:"lightsaber_knight",88:"light_mage",68:"hammer_warrior",1:"sniper",46:"poison_gas_sprayer",32:"demolition_expert"};
-const MODE={104:"melee",10:"targeted",39:"melee",54:"melee",51:"melee",61:"melee",68:"self",67:"targeted",16:"targeted",103:"line"}; // others: projectile
+const MODE={104:"melee",10:"flame",39:"melee",54:"melee",51:"melee",61:"melee",68:"self",67:"targeted",16:"targeted",103:"line"}; // others: projectile
 const PSPD={71:14,62:13,52:12,21:28,78:16,30:13,32:12,88:20,1:30,46:12,2:13,66:15,43:14,81:11,79:12,58:14,76:16,82:10,55:15,100:20}; // px per game frame (default 24)
 const FXCOL={3:"#ffd27a",71:"#9aa4ae",62:"#9dff5a",52:"#c04cff",21:"#5ab8ff",104:"#cfd8e0",78:"#5ab8ff",10:"#ff5a2a",16:"#ffe45a",30:"#ff9a3c",61:"#fff3c4",88:"#ffffff",68:"#b98a5a",1:"#e6eef5",46:"#b06cff",32:"#ff7a3c",39:"#e6eef5",38:"#b06cff",8:"#cfa36a",2:"#9aa4ae",70:"#ffd27a",66:"#9aa4ae",43:"#d8dce6",0:"#ffd27a",82:"#ffd23f",19:"#ffe08a",79:"#ff8a2a",55:"#d8dce6",100:"#ffb547",51:"#ff5a3c",99:"#4fe0c8",103:"#ff6a1f",54:"#e6eef5",44:"#e6eef5",20:"#ffd27a",58:"#ff9a3c",76:"#ff9a3c",53:"#cfd8e0",81:"#ff9a3c",67:"#ffe45a"};
 const SPR={};const BASE={};
@@ -642,6 +642,9 @@ const ANIM={
     let m=tw.pend;if(!m||m.dead||!inRange(t,tw,m))m=tw.target;if(!m||m.dead)return;
     const mode=MODE[t.uid]||"proj",R=TS*1.38;
     if(mode==="melee"){fire(tw,t,m,true);ANIM.impact(t,m.x,m.y,1);return}
+    if(mode==="flame"){fire(tw,t,m,true);const a=Math.atan2(m.y-tw.y,m.x-tw.x);
+      S.fx.push({k:"flame",x:tw.x+Math.cos(a)*22,y:tw.y+Math.sin(a)*22,x2:m.x+Math.cos(a)*14,y2:m.y+Math.sin(a)*14,life:10,max:10});
+      ANIM.impact(t,m.x,m.y,(t.splash[2]*2+40)/96);return}
     if(mode==="self"){fire(tw,t,m,true);ANIM.impact(t,tw.x,tw.y,(t.splash[2]*2+40)/96);return}
     if(mode==="targeted"){fire(tw,t,m,true);ANIM.impact(t,m.x,m.y,(t.splash[2]*2+40)/96);return}
     if(mode==="line"){fire(tw,t,m,true);return}
@@ -792,6 +795,10 @@ function drawFx(c,f){
   else if(f.k==="slash"){c.lineWidth=3;c.beginPath();c.arc(f.x2*K,f.y2*K,12,a*4,a*4+2.2);c.stroke()}
   else if(f.k==="swarm"){for(let k=0;k<8;k++){const t=1-a,ang=k*.8;const px=f.x+(f.x2-f.x)*t+Math.cos(ang+t*6)*20,py=f.y+(f.y2-f.y)*t+Math.sin(ang+t*6)*20;disc(c,px*K,py*K,2.5,f.c)}}
   else if(f.k==="ring"){c.lineWidth=3*a+1;c.beginPath();c.arc(f.x*K,f.y*K,f.r*K*(1.15-a*.4),0,7);c.stroke();c.globalAlpha*=.15;c.fill()}
+  else if(f.k==="flame"){ // flamethrower jet: a widening, flickering stream from the nozzle to the target
+    const life=1-a,len=Math.min(1,life*3.5);c.globalAlpha=Math.min(1,a*2.2);const n=18;
+    for(let k=0;k<=n*len;k++){const u=k/n,x=(f.x+(f.x2-f.x)*u)*K+(Math.random()-.5)*TS*.12,y=(f.y+(f.y2-f.y)*u)*K+(Math.random()-.5)*TS*.12,r=TS*(.12+.42*u)*(0.8+Math.random()*.4);
+      const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,"rgba(255,245,170,1)");g.addColorStop(.35,"rgba(255,150,30,.95)");g.addColorStop(.75,"rgba(225,50,15,.6)");g.addColorStop(1,"rgba(180,30,10,0)");c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,7);c.fill()}}
   else if(f.k==="spine"){c.lineWidth=6*a+1;c.setLineDash([8,5]);c.beginPath();c.moveTo(f.x*K,f.y*K);c.lineTo(f.x2*K,f.y2*K);c.stroke()}
   else if(f.k==="imp"){const fr=Math.min(3,Math.floor((1-f.life/f.max)*4)),z=TS*1.5*f.s;c.globalAlpha=1;cell(c,f.im,fr,4,f.x*K-z/2,f.y*K-z/2,z,z)}
   else if(f.k==="spike"){const el=f.max-f.life;if(el<f.del*.6||!f.im){c.restore();return}c.globalAlpha=Math.min(1,f.life/5);const z=TS*.95;cell(c,f.im,f.v,2,f.x*K-z/2,f.y*K-z*.75,z,z)}
