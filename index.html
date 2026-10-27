@@ -670,6 +670,7 @@ function endWave(){
   if(has("hunter"))ore=Math.round(ore*1.3);
   let extra="";if(has("interest")){const v=Math.min(100,Math.floor(S.ore*.1));S.ore+=v;extra+=` · 이자 +${v}`}
   if(has("gem_mine")){S.gas+=15;extra+=" · 보석 +15"}if(has("free_ticket")){S.freeTix=(S.freeTix||0)+1;extra+=" · 무료 복권 +1"}
+  const gem=(i+1)%10===0?30:10;S.gas+=gem;extra=` · 보석 +${gem}`+extra;
   sfx("clear");bgmMode("calm");S.ore+=ore;log("Wave "+(i+1)+" 종료 · 골드 +"+ore+extra+" · 준비 "+cd+"초","good");
   S.wi++;S.phase="prep";S.cd=Math.round(cd*24*PREP_K);
   if(S.wi%5===0)augOffer();
