@@ -375,8 +375,11 @@ const MON_NAMES=["들쥐", "붕대병", "좀비", "뿔소", "사냥개", "장갑
 const GRADE=["견습","숙련","정예","영웅","전설"];
 const GCOL=["#aab7c0","#428dff","#9b4dff","#ff573d","#ffd34f"];
 const SELL=[50,100,200,400,0];
-const UPG_ICON={TInf:"gun",TVeh:"artillery",TShip:"advanced",ZMelee:"melee",ZMissile:"poison",ZFlyer:"throwing",PGround:"energy",PAir:"light",Scarab:"pouch"};
-const UPGS=[["TInf","총기"],["TVeh","포격"],["TShip","첨단 무기"],["ZMelee","근접 공격"],["ZMissile","독·가시"],["ZFlyer","투척"],["PGround","에너지"],["PAir","광선"],["Scarab","복주머니 폭탄"]];
+// upgrades: 3 lines instead of the original 9 StarCraft weapon groups (casual readability).
+// melee = 1-cell weapons, area = splash/bounce/line, shot = everything else. cost is scaled up because each line covers ~3x more characters.
+const UPG_ICON={Melee:"melee",Shot:"gun",Area:"artillery"};
+const UPGS=[["Melee","근접"],["Shot","사격"],["Area","범위"]];
+const UPG_K=1.5;const upgCost=lv=>Math.round(UPG_K*(7+lv));
 const MULT={Normal:[1,1,1,1],Ignore_Armor:[1,1,1,1],Concussive:[1,1,.5,.25],Explosive:[1,.5,.75,1],Independent:[1,1,1,1]};
 const MISSION_CD=7600; // 3800 trigger cycles
 const HEAD={"대검타워":"blade","독침 타워":"spike","레이저 타워":"laser","바이클 타워":"grenade","스카웃 타워":"twin","캐논 타워":"cannon","표창 타워":"glaive","피스톨 타워":"rifle","EMP 타워":"orb","대포 타워":"mortar","블레이드 타워":"blade","빔 타워":"prism","쇼크 타워":"shock","스나이퍼 타워":"sniper","포이즌 타워":"venom","폭발 타워":"mortar","고철 타워":"gatling","광폭 타워":"cannon","맹독 타워":"venom","블러드 타워":"orb","빔소드 타워":"laser","촉수 타워":"tentacle","포토캐논 타워":"cannon","광자포 타워":"cannon","플레임 타워":"flame","학살 타워":"blade","저격 타워":"sniper","불릿 타워":"gatling","폭격 타워":"missile","미사일 타워":"missile","니들 타워":"spike","복 주머니":"bag","폭풍 타워":"shock","거인 타워":"hangar","래피드 타워":"gatling","핵 타워":"orb","수리검 타워":"glaive","야마토 타워":"cannon","여왕 타워":"crown","유령 타워":"sniper","지옥불 타워":"flame"};
@@ -397,7 +400,8 @@ function inSquare(N,dx,dy,pad){const h=(N+.5)*CELL+(pad||0);return Math.abs(dx)<
   const sq={};for(let N=1;N<=4;N++)sq[N]=top8((dx,dy)=>inSquare(N,dx,dy));
   const circ={};
   TOWERS.forEach(t=>{const N=tierOf(t);const r=t.range+24;const c=circ[r]||(circ[r]=top8((dx,dy)=>dx*dx+dy*dy<=r*r));
-    const m=c/sq[N];t.rt=N;t.melee=N===1&&MELEE_UIDS.has(t.uid);t.cd=Math.max(4,Math.round(t.cd/m));t.range=(N+.5)*CELL-16});
+    const m=c/sq[N];t.rt=N;t.melee=N===1&&MELEE_UIDS.has(t.uid);t.cd=Math.max(4,Math.round(t.cd/m));t.range=(N+.5)*CELL-16;
+    t.upg=MELEE_UIDS.has(t.uid)?"Melee":(t.splash[2]>0||t.weapon.startsWith("Glave")||t.weapon==="Subterranean_Spines")?"Area":"Shot"});
 })();
 const byGrade=g=>TOWERS.filter(t=>t.grade===g);
 const UID=uid=>TOWERS.findIndex(t=>t.uid===uid);
@@ -559,8 +563,8 @@ function sell(tw){
   log(`${t.name}을(를) 팔고 ${v}원을 얻었습니다.`);renderPanels();
 }
 function buyUpg(key){
-  const lv=S.upg[key],cost=key==="Scarab"?30:7+lv;
-  if(S.gas<cost){log("보석가 부족합니다.","warn");return}
+  const lv=S.upg[key],cost=upgCost(lv);
+  if(S.gas<cost){log("보석이 부족해요","warn");return}
   if(lv>=255)return;S.gas-=cost;S.upg[key]++;renderPanels();
 }
 const LOTTO=[["ore",100,"꽝! 저런..."],["gas",40,"당첨!"],["gas",60,"당첨!"],["gas",80,"당첨!"],["gas",120,"당첨!"],["gas",140,"당첨!"],["gas",160,"당첨!"],["gas",240,"대박 당첨!"]];
@@ -837,7 +841,7 @@ function renderPanels(){
   const ownCnt={};for(const tw of S.towers){const k=TOWERS[tw.type].upg;ownCnt[k]=(ownCnt[k]||0)+1}
   const ownTypes=new Set(S.towers.map(o=>o.type));
   const order=UPGS.map((u,i)=>[u,i]).sort((a,b)=>((ownCnt[b[0][0]]?1:0)-(ownCnt[a[0][0]]?1:0))||a[1]-b[1]).map(x=>x[0]);
-  $("pUpg").innerHTML=`<div class="rows">${order.map(([k,n])=>{const lv=S.upg[k],cost=k==="Scarab"?30:7+lv;const mine=TOWERS.filter(t=>t.upg===k&&ownTypes.has(t.i));
+  $("pUpg").innerHTML=`<div class="rows">${order.map(([k,n])=>{const lv=S.upg[k],cost=upgCost(lv);const mine=TOWERS.filter(t=>t.upg===k&&ownTypes.has(t.i));
     return `<div class="row up ${mine.length?"":"dim"}"><img class="gi" alt="" src="ui/icons/icon_${UPG_ICON[k]}.svg"><div><b class="un">${n}</b><span class="ui">${mine.length?mine.slice(0,4).map(t=>`<img alt="${t.name}" src="${ICON[t.i]}">`).join(""):`<small>보유 캐릭터 없음</small>`}</span></div><span class="lv">Lv${lv}</span><button class="btn gem" data-u="${k}" ${S.gas<cost?"disabled":""}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12l4 6-10 11L2 10z"/></svg>${cost}</button></div>`}).join("")}</div>`;
   $("pUpg").querySelectorAll("[data-u]").forEach(b=>b.onclick=()=>buyUpg(b.dataset.u));
   // missions
