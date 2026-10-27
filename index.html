@@ -307,6 +307,15 @@ body{background:radial-gradient(ellipse at 30% 0%,#A5D9E8 0%,#6CA9D5 42%,#527CB4
 .miracleFx{position:fixed;inset:0;z-index:39;pointer-events:none;background:radial-gradient(circle,rgba(255,240,170,.95),rgba(255,190,40,.55) 40%,rgba(255,190,40,0) 75%);animation:mfx 1.6s ease-out forwards}
 @keyframes mfx{0%{opacity:0}12%{opacity:1}100%{opacity:0}}
 </style>
+<style>/* compact character card */
+.bubble .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:8px 0 6px}
+.bubble .stats div{background:#EEF3FC;border-radius:9px;padding:5px 2px;text-align:center}
+.bubble .stats small{display:block;font-size:10.5px;color:#6a78a6;line-height:1.2}
+.bubble .stats b{font-size:15px;color:#213365;font-variant-numeric:tabular-nums}
+.bubble .tag{display:inline-block;margin:0 4px 6px 0;padding:2px 8px;border-radius:999px;background:#FFF1CC;color:#7a5200;font-size:11.5px;font-weight:700}
+.bubble .bb{margin-top:4px}
+.bubble .bb .btn{flex:1}
+</style>
 <div class="app">
   <header class="hud">
     <div class="brand"><img alt="랜덤 히어로 디펜스" src="ui/logo_horizontal.png"></div>
@@ -583,7 +592,7 @@ function build(slot){
   if(S.ore<100){log("골드가 부족합니다 (건설 100).","warn");return}
   S.ore-=100;
   const type=S.picks.length?S.picks.shift():byGrade(0)[Math.floor(Math.random()*8)].i;
-  S.sel=addTower(slot,type);renderPanels();
+  addTower(slot,type);renderPanels(); // a new character is not auto-selected
 }
 function merge(tw){
   const t=TOWERS[tw.type];
@@ -943,14 +952,23 @@ function desc(t){
     s=t.splash[2]>0?`${rg}적 무리를 ${sp}범위 공격`:`${rg}적 1명을 ${sp}공격`}
   if(t.dtype==="Ignore_Armor")s+=" · 방어 무시";return s}
 function sameCount(tw){return S.towers.filter(o=>o.type===tw.type).length}
+// character card: four numbers + at most two short trait tags, then 판매 / 합성
+function traitTags(t){const tags=[];
+  if(t.weapon.startsWith("Glave"))tags.push("튕김 3명");else if(t.weapon==="Subterranean_Spines")tags.push("일직선 관통");else if(t.shots>1)tags.push(`벌떼 ${t.shots}마리`);
+  if(t.dtype==="Ignore_Armor")tags.push("방어 무시");if(t.exp==="Corrosive_Acid")tags.push("방어 녹임");
+  if(t.dtype==="Concussive")tags.push("작은 적에 강함");else if(t.dtype==="Explosive")tags.push("큰 적에 강함");
+  return tags}
 function renderBubble(){
   const bb=$("bubble"),tw=S&&S.sel;if(!tw){bb.hidden=true;bb.dataset.id="";return}
-  const t=TOWERS[tw.type];
-  if(bb.dataset.id!==String(tw.id)+":"+sameCount(tw)){
-    bb.dataset.id=String(tw.id)+":"+sameCount(tw);const n=sameCount(tw),can=t.grade<4&&n>=2;
-    bb.innerHTML=`<div class="bh"><span class="gchip" style="background:${GCOL[t.grade]}">${GRADE[t.grade]}</span><b>${t.name}</b></div><p>${desc(t)} · 사거리 ${t.rt}칸</p><p class="hint2">끌어서 다른 칸으로 옮길 수 있어요</p>
-    <div class="bb"><button type="button" class="btn primary" id="bbM" ${can?"":"disabled"}>${t.grade>=4?"최고 등급":can?"합성하기":"같은 캐릭터 1명 더 필요"}</button>${t.grade>=4?"":`<button type="button" class="btn" id="bbS">판매 +${t.uid===81?1000:SELL[t.grade]}</button>`}</div>`;
-    $("bbM").onclick=()=>{merge(tw)};if($("bbS"))$("bbS").onclick=()=>{sell(tw)};
+  const t=TOWERS[tw.type],key=[tw.id,sameCount(tw),lvl(t)].join(":");
+  if(bb.dataset.id!==key){
+    bb.dataset.id=key;const can=t.grade<4&&sameCount(tw)>=2,sv=t.uid===81?1000:SELL[t.grade];
+    const area=t.splash[2]>0?"범위":"1명";
+    bb.innerHTML=`<div class="bh"><span class="gchip" style="background:${GCOL[t.grade]}">${GRADE[t.grade]}</span><b>${t.name}</b></div>
+    <div class="stats"><div><small>공격력</small><b>${fmt(hitDmg(t)*t.factor)}</b></div><div><small>공격 속도</small><b>${(t.cd/24).toFixed(1)}초</b></div><div><small>사거리</small><b>${t.rt}칸</b></div><div><small>대상</small><b>${area}</b></div></div>
+    ${traitTags(t).map(x=>`<span class="tag">${x}</span>`).join("")}
+    <div class="bb"><button type="button" class="btn" id="bbS" ${sv?"":"disabled"}>판매${sv?" +"+sv:""}</button><button type="button" class="btn primary" id="bbM" ${can?"":"disabled"}>합성</button></div>`;
+    $("bbM").onclick=()=>{merge(tw)};$("bbS").onclick=()=>{sell(tw)};
   }
   bb.hidden=false;placeBubble();
 }
