@@ -418,7 +418,7 @@ const UID=uid=>TOWERS.findIndex(t=>t.uid===uid);
 let S;
 function fresh(diff){
   SLOTS.forEach(s=>s.tower=null);
-  return {diff,ore:500,gas:0,life:30,kills:0,frame:0,wi:0,phase:"prep",cd:50*24,spawnLeft:0,spawnT:0,
+  return {diff,ore:500,gas:0,life:30,kills:0,frame:0,wi:0,phase:"prep",cd:Math.round(50*24*PREP_K),spawnLeft:0,spawnT:0,
     upg:Object.fromEntries(UPGS.map(u=>[u[0],3])),towers:[],mons:[],fx:[],proj:[],picks:[],
     tok:{boss:0,rare:0,unique:0,epic:0},mis:[0,0,0],ach:{},sel:null,over:false,nextId:1};
 }
@@ -434,9 +434,12 @@ let bannerT=0;function banner(t,col){const b=$("banner");let img="",txt=t;const 
 function fmt(n){n=Math.round(n);return n>=1e6?(n/1e6).toFixed(2)+"M":n>=1e4?(n/1e3).toFixed(1)+"k":String(n)}
 function lvl(t){return S.upg[t.upg]??0}
 function hitDmg(t){return t.dmg+t.bonus*lvl(t)}
-// early-game easing (casual onboarding): wave 1 HP x0.4, rising to the original HP by wave 21; start gold 500 (orig 400).
-// tuned with a random-placement bot: before, it died around wave 8; now it reaches ~13 and keeps its lives through wave 10.
-const EASE0=0.4,EASE_N=20;const ease=i=>i>=EASE_N?1:EASE0+(1-EASE0)*i/EASE_N;
+// HP multiplier curve: [wave index (0-based), multiplier], linear in between
+// tuned with 16-seed bot runs to the target play time at x3 speed: usual run ~5 min, lucky/strong run ~15 min.
+// the 28-slot board can't grow as strong as the original's, so later waves are scaled down hard.
+var HPC=[[0,.5],[10,.9],[20,.35],[30,.25],[39,.2]];
+const PREP_K=0.8; // shorter breaks between waves (time only; combat unchanged)
+const ease=i=>{for(let k=1;k<HPC.length;k++)if(i<=HPC[k][0]){const[a,x]=HPC[k-1],[b,y]=HPC[k];return x+(y-x)*(i-a)/(b-a)}return HPC[HPC.length-1][1]};
 function waveHP(i,def){let hp=def.hp;if(i>=30&&i<=38)hp+=(i-30)*4000;return Math.round(hp*ease(i))}
 function monR(m){return [0,8,12,16][m.size]||10}
 
@@ -455,7 +458,7 @@ function endWave(){
   const i=S.wi;let ore=250,cd=35;
   if(i===9){ore=450;cd=70}else if(i>=10&&i<=18)cd=40;else if(i===19){ore=450;cd=80}else if(i>=20&&i<=28)cd=45;else if(i===29)cd=100;else if(i>=30)cd=50;
   S.ore+=ore;log("Wave "+(i+1)+" 종료 · 골드 +"+ore+" · 준비 "+cd+"초","good");
-  S.wi++;S.phase="prep";S.cd=cd*24;
+  S.wi++;S.phase="prep";S.cd=Math.round(cd*24*PREP_K);
 }
 function leak(m){
   m.dead=true;
