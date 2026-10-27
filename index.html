@@ -408,6 +408,14 @@ body{background:radial-gradient(ellipse at 30% 0%,#A5D9E8 0%,#6CA9D5 42%,#527CB4
 .retryBtn{width:min(70vw,290px)}.homeBtn{width:min(38vw,150px)}
 body.atHome .mnav{visibility:hidden}
 </style>
+<style>
+:root{--themeBg:url(ui/maps/map_meadow/bg.jpg)}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:#243D83 var(--themeBg) center/cover no-repeat;transition:background-image .8s}
+body{background:#243D83}
+.regionBan{position:absolute;left:50%;top:30%;z-index:8;width:min(80%,360px);transform:translate(-50%,0) scale(.6);opacity:0;pointer-events:none}
+.regionBan.show{animation:regionIn 2.6s ease-out forwards}
+@keyframes regionIn{0%{opacity:0;transform:translate(-50%,10px) scale(.6)}12%{opacity:1;transform:translate(-50%,0) scale(1.06)}20%{transform:translate(-50%,0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-14px) scale(1)}}
+</style>
 <div class="app">
   <header class="hud">
     <div class="brand"><img alt="랜덤 히어로 디펜스" src="ui/logo_horizontal.png"></div>
@@ -659,7 +667,7 @@ function waveDef(i){
   if(boss)d.name="무한 보스 · 혼돈의 황제";
   return S.gen[i]=d}
 function startWave(){
-  const def=waveDef(S.wi);S.phase="wave";sfx(def.boss?"boss":"wave");bgmMode(def.boss?"boss":"calm");
+  const def=waveDef(S.wi);S.phase="wave";if(themeOf(S.wi)!==themeI)setTheme(themeOf(S.wi),true);sfx(def.boss?"boss":"wave");bgmMode(def.boss?"boss":"calm");
   S.spawnLeft=def.boss?1:30;S.spawnT=0;
   banner((def.boss===2?"HELL BOSS · ":def.boss?"BOSS · ":S.wi>=30?"HELL MODE · ":"")+"WAVE "+(S.wi+1),def.boss?"var(--life)":"var(--fg)");
   log("Wave "+(S.wi+1)+" · "+def.name+" (HP "+fmt(waveHP(S.wi,def))+(def.ar?", 방어 "+def.ar:"")+")","hi");
@@ -1095,7 +1103,18 @@ let mapLayer=null;
 const UPG_IMG={};for(const[k,v]of Object.entries(UPG_ICON)){UPG_IMG[k]=new Image();UPG_IMG[k].src=`ui/icons/icon_${v}.svg`}
 const STAT_IMG={};for(const k of["status_slow","status_curse","buff_speed","buff_power"]){STAT_IMG[k]=new Image();STAT_IMG[k].src=`ui/status/${k}.png`}
 const BADGE=new Image();BADGE.src="ui/badge_merge.png";
-const MAP_TEXTURE=new Image();MAP_TEXTURE.onload=()=>{mapLayer=null};MAP_TEXTURE.src="ui/map_board_v4.jpg"; // 6x9 board art v4 (768x1152, 128px per cell)
+// themed boards (6x9, 128px per cell): 1~10 meadow, 11~20 snowy forest, 21~30 canyon, 31~ hell fortress
+const THEMES=[{id:"map_meadow",name:"성 앞 초원"},{id:"map_forest",name:"눈 덮인 숲"},{id:"map_canyon",name:"사막 협곡"},{id:"map_hell",name:"지옥 요새"}];
+for(const th of THEMES){th.img=new Image();th.img.onload=()=>{if(MAP_TEXTURE===th.img)mapLayer=null};th.img.src=`ui/maps/${th.id}/board.jpg`;new Image().src=`ui/maps/${th.id}/bg.jpg`}
+let MAP_TEXTURE=THEMES[0].img,themeI=0,oldLayer=null,fadeT=0;
+const themeOf=wi=>wi<10?0:wi<20?1:wi<30?2:3;
+function setTheme(k,announce){
+  if(k===themeI&&!announce&&MAP_TEXTURE===THEMES[k].img)return;
+  if(announce&&mapLayer){oldLayer=mapLayer;fadeT=1}
+  themeI=k;MAP_TEXTURE=THEMES[k].img;mapLayer=null;document.documentElement.style.setProperty("--themeBg",`url(ui/maps/${THEMES[k].id}/bg.jpg)`);
+  if(announce){let el=$("regionBan");if(!el){el=document.createElement("img");el.id="regionBan";el.className="regionBan";el.alt="";document.querySelector(".stage").appendChild(el)}
+    el.src=`ui/maps/${THEMES[k].id}/banner.png`;el.alt=THEMES[k].name;el.classList.remove("show");setTimeout(()=>{void el.offsetWidth;el.classList.add("show");sfx("rare")},1700);log(`새 지역 · ${THEMES[k].name}`,"good")}
+}
 
 const MQ=matchMedia("(max-width:700px)");
 function sizeCanvas(){TS=MQ.matches?56:36;K=TS/WT;cv.width=COLS*TS;cv.height=ROWS*TS;mapLayer=null}
@@ -1118,6 +1137,7 @@ function buildMap(){
 function render(){
   const c=ctx,time=S?S.frame:0;
   if(!mapLayer)buildMap();c.drawImage(mapLayer,0,0);
+  if(oldLayer&&fadeT>0){c.globalAlpha=fadeT;c.drawImage(oldLayer,0,0);c.globalAlpha=1;fadeT-=.02;if(fadeT<=0)oldLayer=null}
   // path flow: moving chevrons show the route direction
   c.save();const step=TS*2.4,off=(time*.9)%step;c.fillStyle="rgba(166,128,64,.24)";
   for(const s of SEG){const ang=Math.atan2(s.b[1]-s.a[1],s.b[0]-s.a[0]),len=s.l*K;for(let d=off;d<len;d+=step){const x=s.a[0]*K+Math.cos(ang)*d,y=s.a[1]*K+Math.sin(ang)*d;
@@ -1348,7 +1368,7 @@ $("goHome").onclick=()=>{$("endOv").hidden=true;$("rewardOv").hidden=true;reward
 function start(d){
   audioInit();
   S=null;running=false;fitVp();
-  closeAug();S=fresh(d);$("startOv").hidden=true;document.body.classList.remove("atHome");$("endOv").hidden=true;$("log").innerHTML="";running=true;
+  closeAug();setTheme(0,false);S=fresh(d);$("startOv").hidden=true;document.body.classList.remove("atHome");$("endOv").hidden=true;$("log").innerHTML="";running=true;
   log("50초 뒤 첫 웨이브가 옵니다. 빈 발판을 눌러 타워를 지으세요.");renderPanels();
 }
 
