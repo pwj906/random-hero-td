@@ -410,7 +410,7 @@ const UID=uid=>TOWERS.findIndex(t=>t.uid===uid);
 let S;
 function fresh(diff){
   SLOTS.forEach(s=>s.tower=null);
-  return {diff,ore:400,gas:0,life:30,kills:0,frame:0,wi:0,phase:"prep",cd:50*24,spawnLeft:0,spawnT:0,
+  return {diff,ore:500,gas:0,life:30,kills:0,frame:0,wi:0,phase:"prep",cd:50*24,spawnLeft:0,spawnT:0,
     upg:Object.fromEntries(UPGS.map(u=>[u[0],3])),towers:[],mons:[],fx:[],proj:[],picks:[],
     tok:{boss:0,rare:0,unique:0,epic:0},mis:[0,0,0],ach:{},sel:null,over:false,nextId:1};
 }
@@ -426,7 +426,10 @@ let bannerT=0;function banner(t,col){const b=$("banner");let img="",txt=t;const 
 function fmt(n){n=Math.round(n);return n>=1e6?(n/1e6).toFixed(2)+"M":n>=1e4?(n/1e3).toFixed(1)+"k":String(n)}
 function lvl(t){return S.upg[t.upg]??0}
 function hitDmg(t){return t.dmg+t.bonus*lvl(t)}
-function waveHP(i,def){let hp=def.hp;if(i>=30&&i<=38)hp+=(i-30)*4000;return hp}
+// early-game easing (casual onboarding): wave 1 HP x0.4, rising to the original HP by wave 21; start gold 500 (orig 400).
+// tuned with a random-placement bot: before, it died around wave 8; now it reaches ~13 and keeps its lives through wave 10.
+const EASE0=0.4,EASE_N=20;const ease=i=>i>=EASE_N?1:EASE0+(1-EASE0)*i/EASE_N;
+function waveHP(i,def){let hp=def.hp;if(i>=30&&i<=38)hp+=(i-30)*4000;return Math.round(hp*ease(i))}
 function monR(m){return [0,8,12,16][m.size]||10}
 
 // ---------- waves ----------
@@ -612,10 +615,10 @@ let rewardOpen=false;
 // impact(4f, 300ms) and projectile(2f loop). Damage values/cycles stay the original game's.
 const SPRITE_IDS={39:"greatsword_soldier",38:"blowdart_hunter",8:"archer",2:"iron_ball_thrower",70:"dual_pistol_gunner",66:"wooden_cannoneer",43:"shuriken_thrower",0:"matchlock_musketeer",54:"twin_blade_master",44:"antimateriel_marksman",20:"gatling_brute",58:"rocket_captain",76:"missile_captain",53:"harpoon_hunter",81:"bomb_goblin",67:"storm_sage",
   82:"beekeeper_monarch",19:"minigun_war_god",79:"fire_mage",55:"shadow_ninja_king",100:"cannon_general",51:"dragon_berserker",99:"wraith_sniper_king",103:"lava_spear_king",
-  16:"lightning_mage",30:"mortar_gunner",61:"lightsaber_knight",88:"light_mage",68:"hammer_warrior",1:"sniper",46:"poison_gas_sprayer",32:"demolition_expert"};
-const MODE={39:"melee",54:"melee",51:"melee",61:"melee",68:"self",67:"targeted",16:"targeted",103:"line"}; // others: projectile
-const PSPD={30:13,32:12,88:20,1:30,46:12,2:13,66:15,43:14,81:11,79:12,58:14,76:16,82:10,55:15,100:20}; // px per game frame (default 24)
-const FXCOL={16:"#ffe45a",30:"#ff9a3c",61:"#fff3c4",88:"#ffffff",68:"#b98a5a",1:"#e6eef5",46:"#b06cff",32:"#ff7a3c",39:"#e6eef5",38:"#b06cff",8:"#cfa36a",2:"#9aa4ae",70:"#ffd27a",66:"#9aa4ae",43:"#d8dce6",0:"#ffd27a",82:"#ffd23f",19:"#ffe08a",79:"#ff8a2a",55:"#d8dce6",100:"#ffb547",51:"#ff5a3c",99:"#4fe0c8",103:"#ff6a1f",54:"#e6eef5",44:"#e6eef5",20:"#ffd27a",58:"#ff9a3c",76:"#ff9a3c",53:"#cfd8e0",81:"#ff9a3c",67:"#ffe45a"};
+  16:"lightning_mage",3:"heavy_machinegunner",71:"siege_cannon_knight",62:"acid_alchemist",52:"venom_witch",21:"laser_knight",104:"flail_knight",78:"energy_gunner",10:"flamethrower_trooper",30:"mortar_gunner",61:"lightsaber_knight",88:"light_mage",68:"hammer_warrior",1:"sniper",46:"poison_gas_sprayer",32:"demolition_expert"};
+const MODE={104:"melee",10:"targeted",39:"melee",54:"melee",51:"melee",61:"melee",68:"self",67:"targeted",16:"targeted",103:"line"}; // others: projectile
+const PSPD={71:14,62:13,52:12,21:28,78:16,30:13,32:12,88:20,1:30,46:12,2:13,66:15,43:14,81:11,79:12,58:14,76:16,82:10,55:15,100:20}; // px per game frame (default 24)
+const FXCOL={3:"#ffd27a",71:"#9aa4ae",62:"#9dff5a",52:"#c04cff",21:"#5ab8ff",104:"#cfd8e0",78:"#5ab8ff",10:"#ff5a2a",16:"#ffe45a",30:"#ff9a3c",61:"#fff3c4",88:"#ffffff",68:"#b98a5a",1:"#e6eef5",46:"#b06cff",32:"#ff7a3c",39:"#e6eef5",38:"#b06cff",8:"#cfa36a",2:"#9aa4ae",70:"#ffd27a",66:"#9aa4ae",43:"#d8dce6",0:"#ffd27a",82:"#ffd23f",19:"#ffe08a",79:"#ff8a2a",55:"#d8dce6",100:"#ffb547",51:"#ff5a3c",99:"#4fe0c8",103:"#ff6a1f",54:"#e6eef5",44:"#e6eef5",20:"#ffd27a",58:"#ff9a3c",76:"#ff9a3c",53:"#cfd8e0",81:"#ff9a3c",67:"#ffe45a"};
 const SPR={};const BASE={};
 function loadSprites(done){
   const list=["apprentice","skilled","elite","hero","legend"].map((id,i)=>["b:"+i,`sprites/base_${id}.png`]);
