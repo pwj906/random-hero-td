@@ -1,5 +1,19 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>랜덤 히어로 디펜스</title>
+<meta name="description" content="뽑고, 합치고, 버티기. 랜덤 영웅을 뽑아 합성하며 몰려오는 적을 막는 디펜스 게임">
+<meta name="theme-color" content="#243D83">
+<link rel="icon" type="image/png" href="ui/icon/icon_48.png">
+<link rel="apple-touch-icon" href="ui/icon/icon_180.png">
+<link rel="manifest" href="ui/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="랜덤 히어로">
+<meta property="og:type" content="website">
+<meta property="og:title" content="랜덤 히어로 디펜스">
+<meta property="og:description" content="뽑고, 합치고, 버티기">
+<meta property="og:url" content="https://pwj906.github.io/random-hero-td/">
+<meta property="og:image" content="https://pwj906.github.io/random-hero-td/ui/icon/og_image.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
@@ -360,6 +374,40 @@ body{background:radial-gradient(ellipse at 30% 0%,#A5D9E8 0%,#6CA9D5 42%,#527CB4
 .mergeAll:disabled{filter:grayscale(1);opacity:.55;cursor:default}
 .bubble .conc{color:#c23bd6;font-weight:900}
 </style>
+<style>
+.homeOv{position:fixed;inset:0;z-index:25;display:flex;flex-direction:column;align-items:center;justify-content:space-between;overflow:hidden;background:#243D83;padding:max(18px,env(safe-area-inset-top,0px)) 16px max(16px,env(safe-area-inset-bottom,0px))}
+.homeOv[hidden]{display:none}
+.homeOv::before{content:"";position:absolute;inset:-1%;background:url(ui/home/bg_home.jpg) center 58%/cover no-repeat;animation:homeBreath 4.5s ease-in-out infinite;z-index:-1}
+@keyframes homeBreath{50%{transform:scale(1.018) translateY(-.4%)}}
+@media (prefers-reduced-motion:reduce){.homeOv::before{animation:none}}
+.homeLogo{position:relative;width:min(62vw,280px,30dvh);height:auto;filter:drop-shadow(0 6px 10px rgba(0,0,0,.3));margin-top:1dvh}
+.homeLow{position:relative;display:flex;flex-direction:column;align-items:center;gap:min(14px,1.6dvh);width:100%}
+.recPlate{position:relative;width:min(78vw,320px);aspect-ratio:600/140;background:url(ui/home/record_plate.png) center/contain no-repeat}
+.recPlate span{position:absolute;left:21.7%;top:15.7%;width:73.3%;height:57%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:min(17px,4.3vw);color:#5a3a00}
+.imgBtn{border:0;background:none;padding:0;cursor:pointer;line-height:0}.imgBtn img{width:100%;height:auto;display:block}
+.imgBtn:active{transform:translateY(2px) scale(.98)}
+.startBtn{width:min(80vw,330px);filter:drop-shadow(0 6px 8px rgba(0,0,0,.3));animation:startPulse 1.8s ease-in-out infinite}
+@keyframes startPulse{50%{transform:scale(1.04)}}
+.homeBtns{display:flex;gap:18px}.homeBtns .imgBtn{width:min(15vw,64px)}
+.homeModal{position:fixed;inset:0;z-index:28;display:flex;align-items:center;justify-content:center;background:rgba(15,22,55,.7);padding:16px}
+.homeModal[hidden]{display:none}
+.homeModal .hm{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;width:min(380px,100%);max-height:88dvh;overflow:auto;display:flex;flex-direction:column;gap:14px}
+.homeModal .hm.wide{width:min(560px,100%)}.homeModal h2{margin:0;font-family:var(--display);font-size:24px;text-align:center}
+#endOv{flex-direction:column}
+.result{display:flex;flex-direction:column;align-items:center;gap:min(12px,1.4dvh);width:100%}
+.resBanner{width:min(86vw,360px);height:auto;margin-bottom:-4px;position:relative;z-index:1}
+.resPanel{position:relative;width:min(78vw,330px,46dvh);aspect-ratio:900/1100;background:url(ui/result/panel.png) center/contain no-repeat;color:#26314f}
+.resPanel .rz{position:absolute;display:flex;align-items:center;justify-content:center}
+.rz.wave{left:8%;top:11.6%;width:84%;height:20.2%;gap:6px;align-items:baseline}
+.rz.wave b{font-family:var(--display);font-size:min(64px,15vw);line-height:1;color:#2a3a8a}.rz.wave small{font-size:min(18px,4.4vw);font-weight:900;color:#4a5677}
+.rz.best{left:18.3%;top:34.1%;width:63.3%;height:6.6%;font-weight:900;font-size:min(14px,3.5vw);color:#7a5200}
+.rz.augs{left:7.3%;top:46.4%;width:85.3%;height:13%;flex-wrap:wrap;gap:3px;padding:4px;align-content:center}
+.rz.augs img{width:min(26px,6vw);height:min(26px,6vw)}.rz.augs small{color:#7a849c;font-size:12px}
+.rz.hero{left:32.9%;top:62.2%;width:34.2%;height:28%;flex-direction:column;gap:2px}
+.rz.hero img{width:72%;height:auto}.rz.hero small{font-size:11px;font-weight:900;white-space:nowrap}
+.retryBtn{width:min(70vw,290px)}.homeBtn{width:min(38vw,150px)}
+body.atHome .mnav{visibility:hidden}
+</style>
 <div class="app">
   <header class="hud">
     <div class="brand"><img alt="랜덤 히어로 디펜스" src="ui/logo_horizontal.png"></div>
@@ -383,22 +431,38 @@ body{background:radial-gradient(ellipse at 30% 0%,#A5D9E8 0%,#6CA9D5 42%,#527CB4
     <button type="button" class="lotto" id="lottoBtn" aria-label="보석 복권, 골드 100"><b>복권</b><span>골드 100</span></button>
     <button type="button" class="mergeAll" id="mergeAll" disabled aria-label="일괄 합성"><b>일괄 합성</b><span id="mergeAllN">0</span></button>
     <div class="overlay" id="rewardOv" hidden><div class="box" id="rewardBox"></div></div>
-    <div class="overlay" id="startOv">
-      <div class="start">
-        <h2 class="logo"><img alt="랜덤 히어로 디펜스" src="ui/logo_vertical.png"></h2>
+    <div class="homeOv" id="startOv">
+      <img class="homeLogo" alt="랜덤 히어로 디펜스" src="ui/logo_vertical.png">
+      <div class="homeLow">
+        <div class="recPlate"><span id="homeBest">아직 기록이 없어요</span></div>
+        <button type="button" class="imgBtn startBtn" id="dNormal" data-d="normal" aria-label="게임 시작"><img alt="" src="ui/home/btn_start.png"></button>
+        <div class="homeBtns">
+          <button type="button" class="imgBtn" id="homeCodex" aria-label="도감"><img alt="" src="ui/home/btn_codex.png"></button>
+          <button type="button" class="imgBtn" id="homeHelp" aria-label="게임 방법"><img alt="" src="ui/home/btn_help.png"></button>
+          <button type="button" class="imgBtn" id="homeSnd" aria-label="소리 끄기"><img alt="" id="homeSndImg" src="ui/home/btn_sound_on.png"></button>
+        </div>
+      </div>
+      <div class="homeModal" id="helpModal" hidden><div class="hm"><h2>게임 방법</h2>
         <ol class="steps">
           <li><img alt="" src="ui/icons/icon_guide_draw.svg">빈 칸을 눌러 캐릭터 뽑기</li>
           <li><img alt="" src="ui/icons/icon_guide_merge.svg">같은 캐릭터 2명을 합성</li>
           <li><img alt="" src="ui/icons/icon_guide_survive.svg">최대한 오래 버티기 (40웨이브 뒤 무한 모드)</li>
-        </ol>
-        <button type="button" class="go" id="dNormal" data-d="normal">게임 시작</button>
-      </div>
+          <li><img alt="" src="ui/aug/icons/pure.png">5웨이브마다 증강 1개 고르기</li>
+        </ol><button type="button" class="btn primary" data-close>닫기</button></div></div>
+      <div class="homeModal" id="codexModal" hidden><div class="hm wide"><h2>도감</h2><div id="codexSlot"></div><button type="button" class="btn primary" data-close>닫기</button></div></div>
     </div>
     <div class="overlay" id="endOv" hidden>
-      <div class="box">
-        <h2 id="endTitle">패배</h2>
-        <p id="endText"></p>
-        <div class="actions"><button class="btn primary" id="restart" type="button">다시 하기</button></div>
+      <div class="result">
+        <img class="resBanner" id="resBanner" alt="기록" src="ui/result/banner_record.png">
+        <div class="resPanel">
+          <div class="rz wave"><b id="resWave">0</b><small>웨이브</small></div>
+          <div class="rz best" id="resBest">최고 기록 0 웨이브</div>
+          <div class="rz augs" id="resAugs"></div>
+          <div class="rz hero" id="resHero"></div>
+        </div>
+        <button type="button" class="imgBtn retryBtn" id="restart" aria-label="다시 하기"><img alt="" src="ui/result/btn_retry.png"></button>
+        <button type="button" class="imgBtn homeBtn" id="goHome" aria-label="홈으로"><img alt="" src="ui/result/btn_home.png"></button>
+        <span id="endTitle" hidden></span><p id="endText" hidden></p>
       </div>
     </div>
    </div>
@@ -629,6 +693,7 @@ function kill(m){
 }
 function finish(win){
   if(S.over)return;S.over=true;running=false;sfx("over");
+  showResult();
   $("endTitle").textContent=win?"승리":"패배";$("endOv").style.backgroundImage=`url(ui/screens/bg_${win?"victory":"defeat"}.jpg)`;
   $("endText").textContent=win?`40라운드 클리어. ${S.kills}킬, 남은 목숨 ${S.life}.`:`Wave ${S.wi+1}에서 목숨을 모두 잃었습니다. ${S.kills}킬.`;
   $("endOv").hidden=false;
@@ -796,7 +861,7 @@ function lotto(){
   else if(o.k==="hero")pr.type=pick(byGrade(3)).i;
   else if(o.k==="legend"||o.k==="miracle")pr.type=pick(byGrade(4)).i;
   if(window.FAST_LOTTO){givePrize(pr);return}
-  slotSpin(pr);
+  lottoShow(pr);
 }
 function placePrize(type){
   const t=TOWERS[type],empty=SLOTS.filter(s=>!s.tower);
@@ -830,6 +895,21 @@ function symHTML(kind,type){
 }
 const REEL_KINDS=["miss","gold","gem","big","char","hero","legend"];
 function randSym(){const k=REEL_KINDS[Math.floor(Math.random()*REEL_KINDS.length)];const g={char:0,hero:3,legend:4}[k];return symHTML(k,g!=null?pick(byGrade(g)).i:null)}
+// the result shows at once (no spinning); tapping again right away is fine
+let lottoHide=0;
+function lottoShow(pr){
+  let box=$("slotM");if(!box){box=document.createElement("div");box.id="slotM";box.className="slotm";document.body.appendChild(box)}
+  const rare=["elite","hero","legend","miracle","big"].includes(pr.k),t=pr.type!=null?TOWERS[pr.type]:null;
+  const face=pr.k==="miss"?null:symHTML(pr.k==="elite"?"char":pr.k,pr.type);
+  const faces=face?[face,face,face]:[symHTML("gem"),symHTML("miss"),symHTML("gold")];
+  box.innerHTML=`<div class="res"></div>${faces.map(f=>`<div class="reel hit">${f}</div>`).join("")}`;
+  const txt={miss:"꽝",gold:`골드 +${pr.gold}`,gem:`보석 +${pr.gem}`,big:pr.gold?`대박! 골드 +${pr.gold}`:`대박! 보석 +${pr.gem}`,char:t&&`${t.name} 당첨!`,elite:t&&`초대박! ${t.name}`,hero:t&&`초대박! ${t.name}`,legend:t&&`기적! ${t.name}`,miracle:t&&`신의 기적! ${t.name}`}[pr.k];
+  box.querySelector(".res").textContent=txt;box.className="slotm show "+(pr.k==="miss"?"lose":rare?"jackpot":"win");
+  sfx(pr.k==="miss"?"miss":rare?"jackpot":"win");
+  if(pr.k==="legend"||pr.k==="miracle"){const f=document.createElement("div");f.className="miracleFx";document.body.appendChild(f);setTimeout(()=>f.remove(),1600)}
+  if(S)givePrize(pr);
+  clearTimeout(lottoHide);lottoHide=setTimeout(()=>{box.className="slotm"},rare?1600:900);
+}
 function slotSpin(pr){
   lottoBusy=true;let box=$("slotM");if(!box){box=document.createElement("div");box.id="slotM";box.className="slotm";document.body.appendChild(box)}
   box.className="slotm show";box.innerHTML=`<div class="res"></div><div class="reel"></div><div class="reel"></div><div class="reel"></div>`;
@@ -1256,12 +1336,13 @@ $("skipBtn").onclick=()=>{if(S&&running&&S.phase==="prep")S.cd=1};
 $("mergeAll").onclick=()=>{if(S)mergeAll()};
 $("lottoBtn").onclick=$("navLotto").onclick=()=>{if(S&&running)lotto()};
 document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".seg button").forEach(o=>o.setAttribute("aria-selected",o===b));$("pUpg").hidden=b.dataset.p!=="pUpg";$("pMis").hidden=b.dataset.p!=="pMis"});
-$("restart").onclick=()=>{$("endOv").hidden=true;$("rewardOv").hidden=true;rewardOpen=false;$("startOv").hidden=false;S=null;render()};
+$("restart").onclick=()=>{$("endOv").hidden=true;$("rewardOv").hidden=true;rewardOpen=false;start("normal")};
+$("goHome").onclick=()=>{$("endOv").hidden=true;$("rewardOv").hidden=true;rewardOpen=false;showHome();S=null;render()};
 
 function start(d){
   audioInit();
   S=null;running=false;fitVp();
-  closeAug();S=fresh(d);$("startOv").hidden=true;$("log").innerHTML="";running=true;
+  closeAug();S=fresh(d);$("startOv").hidden=true;document.body.classList.remove("atHome");$("endOv").hidden=true;$("log").innerHTML="";running=true;
   log("50초 뒤 첫 웨이브가 옵니다. 빈 발판을 눌러 타워를 지으세요.");renderPanels();
 }
 
@@ -1537,4 +1618,26 @@ function bgmPump(){
   b.onclick=()=>{audioInit();setSound(!SND.on)};document.querySelector(".stage").appendChild(b);setSound(SND.on)})();
 // browsers only allow sound after a tap: unlock on the first one
 addEventListener("pointerdown",audioInit,{once:false,passive:true});
+
+// ---------- home screen and result screen ----------
+function bestWave(){try{return +localStorage.getItem("rhd_best")||0}catch(e){return 0}}
+function showHome(){
+  $("startOv").hidden=false;document.body.classList.add("atHome");const b=bestWave();
+  $("homeBest").textContent=b?`최고 기록 ${b} 웨이브`:"아직 기록이 없어요";homeSndSync();
+}
+function homeSndSync(){const on=SND.on;$("homeSndImg").src=`ui/home/btn_sound_${on?"on":"off"}.png`;$("homeSnd").setAttribute("aria-label",on?"소리 끄기":"소리 켜기")}
+$("homeSnd").onclick=()=>{audioInit();setSound(!SND.on);homeSndSync()};
+$("homeHelp").onclick=()=>{$("helpModal").hidden=false};
+$("homeCodex").onclick=()=>{$("codexSlot").appendChild($("codex"));$("codexModal").hidden=false};
+document.querySelectorAll(".homeModal [data-close]").forEach(b=>b.onclick=()=>{const m=b.closest(".homeModal");m.hidden=true;if(m.id==="codexModal")$("codexCard").appendChild($("codex"))});
+document.querySelectorAll(".homeModal").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)m.querySelector("[data-close]").click()}));
+function showResult(){
+  const wave=S.wi+1,prev=bestWave(),isNew=wave>prev;if(isNew)try{localStorage.setItem("rhd_best",wave)}catch(e){}
+  $("resBanner").src=`ui/result/banner_${isNew?"newrecord":"record"}.png`;$("resBanner").alt=isNew?"신기록!":"기록";
+  $("resWave").textContent=wave;$("resBest").textContent=`최고 기록 ${Math.max(prev,wave)} 웨이브`;
+  $("resAugs").innerHTML=S.aug.length?S.aug.map(id=>`<img alt="${AUG[id].name}" title="${AUG[id].name}" src="ui/aug/icons/${id}.png">`).join(""):`<small>고른 증강 없음</small>`;
+  const top=[...S.towers].sort((a,b)=>TOWERS[b.type].grade-TOWERS[a.type].grade||(b.conc||0)-(a.conc||0))[0];
+  $("resHero").innerHTML=top?`<img alt="${TOWERS[top.type].name}" src="${ICON[top.type]}"><small>${TOWERS[top.type].name}${top.conc?" ★"+top.conc:""}</small>`:"";
+}
+showHome();
 </script>
