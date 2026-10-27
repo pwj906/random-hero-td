@@ -377,7 +377,7 @@ const GCOL=["#aab7c0","#428dff","#9b4dff","#ff573d","#ffd34f"];
 const SELL=[50,100,200,400,0];
 // upgrades: 3 lines instead of the original 9 StarCraft weapon groups (casual readability).
 // melee = 1-cell weapons, area = splash/bounce/line, shot = everything else. cost is scaled up because each line covers ~3x more characters.
-const UPG_ICON={Melee:"melee",Shot:"gun",Area:"artillery"};
+const UPG_ICON={Melee:"sword",Shot:"gun",Area:"artillery"};
 const UPGS=[["Melee","근접"],["Shot","사격"],["Area","범위"]];
 const UPG_K=1.5;const upgCost=lv=>Math.round(UPG_K*(7+lv));
 const MULT={Normal:[1,1,1,1],Ignore_Armor:[1,1,1,1],Concussive:[1,1,.5,.25],Explosive:[1,.5,.75,1],Independent:[1,1,1,1]};
@@ -390,7 +390,11 @@ TOWERS.forEach((t,i)=>{t.i=i;t.head=HEAD[t.name]||"rifle";t.hue=(i*47+20)%360;t.
 // tiers follow the weapon: melee 1, short (pistol/throw/flame) 2, rifle/bow 3, sniper/artillery 4.
 // attack speed is rescaled so each character's best slots deal the same total as with its original circular range
 // (speed, not damage, so armor still works like the original).
-const RANGE_OVERRIDE={2:2,46:2,10:2}; // thrower, gas sprayer, flamethrower
+// weapon-fit pass: reach follows the weapon in the picture.
+// throw/spray = 2, mortar & siege cannon = 4 (long indirect/heavy guns), mages that cast at a spot = 3+
+const RANGE_OVERRIDE={2:2,46:2,10:2,32:2,62:2,30:4,71:4,81:3,67:3,79:3};
+// missiles explode: give the missile captain a small blast (it was single-target)
+TOWERS.forEach(t=>{if(t.uid===76)t.splash=[5,15,30]});
 const MELEE_UIDS=new Set([39,61,104,54,51,68]);
 function tierOf(t){if(MELEE_UIDS.has(t.uid))return 1;if(RANGE_OVERRIDE[t.uid])return RANGE_OVERRIDE[t.uid];return t.range<=128?2:t.range<=192?3:4}
 function inSquare(N,dx,dy,pad){const h=(N+.5)*CELL+(pad||0);return Math.abs(dx)<=h&&Math.abs(dy)<=h}
@@ -403,6 +407,10 @@ function inSquare(N,dx,dy,pad){const h=(N+.5)*CELL+(pad||0);return Math.abs(dx)<
     const m=c/sq[N];t.rt=N;t.melee=N===1&&MELEE_UIDS.has(t.uid);t.cd=Math.max(4,Math.round(t.cd/m));t.range=(N+.5)*CELL-16;
     t.upg=MELEE_UIDS.has(t.uid)?"Melee":(t.splash[2]>0||t.weapon.startsWith("Glave")||t.weapon==="Subterranean_Spines")?"Area":"Shot"});
 })();
+// tempo fixes (same damage per second, different rhythm): x<1 = faster & lighter hits, x>1 = slower & heavier
+// gatling/minigun spin fast, shuriken & bow fire quicker, the spiked flail and the giant cannon hit slow and hard
+const TEMPO={20:.5,19:.5,43:.5,8:.6,104:2,100:3,30:.7,71:.6,67:.7}; // mortar/siege/storm got slow from their longer reach
+TOWERS.forEach(t=>{const f=TEMPO[t.uid];if(!f)return;t.cd=Math.max(3,Math.round(t.cd*f));t.dmg=Math.round(t.dmg*f);t.bonus=Math.round(t.bonus*f)});
 const byGrade=g=>TOWERS.filter(t=>t.grade===g);
 const UID=uid=>TOWERS.findIndex(t=>t.uid===uid);
 
@@ -616,7 +624,7 @@ let rewardOpen=false;
 const SPRITE_IDS={39:"greatsword_soldier",38:"blowdart_hunter",8:"archer",2:"iron_ball_thrower",70:"dual_pistol_gunner",66:"wooden_cannoneer",43:"shuriken_thrower",0:"matchlock_musketeer",54:"twin_blade_master",44:"antimateriel_marksman",20:"gatling_brute",58:"rocket_captain",76:"missile_captain",53:"harpoon_hunter",81:"bomb_goblin",67:"storm_sage",
   82:"beekeeper_monarch",19:"minigun_war_god",79:"fire_mage",55:"shadow_ninja_king",100:"cannon_general",51:"dragon_berserker",99:"wraith_sniper_king",103:"lava_spear_king",
   16:"lightning_mage",3:"heavy_machinegunner",71:"siege_cannon_knight",62:"acid_alchemist",52:"venom_witch",21:"laser_knight",104:"flail_knight",78:"energy_gunner",10:"flamethrower_trooper",30:"mortar_gunner",61:"lightsaber_knight",88:"light_mage",68:"hammer_warrior",1:"sniper",46:"poison_gas_sprayer",32:"demolition_expert"};
-const MODE={104:"melee",10:"flame",39:"melee",54:"melee",51:"melee",61:"melee",68:"self",67:"targeted",16:"targeted",103:"line"}; // others: projectile
+const MODE={104:"melee",10:"flame",46:"spray",62:"spray",39:"melee",54:"melee",51:"melee",61:"melee",68:"self",67:"targeted",16:"targeted",103:"line"}; // others: projectile
 const PSPD={71:14,62:13,52:12,21:28,78:16,30:13,32:12,88:20,1:30,46:12,2:13,66:15,43:14,81:11,79:12,58:14,76:16,82:10,55:15,100:20}; // px per game frame (default 24)
 const FXCOL={3:"#ffd27a",71:"#9aa4ae",62:"#9dff5a",52:"#c04cff",21:"#5ab8ff",104:"#cfd8e0",78:"#5ab8ff",10:"#ff5a2a",16:"#ffe45a",30:"#ff9a3c",61:"#fff3c4",88:"#ffffff",68:"#b98a5a",1:"#e6eef5",46:"#b06cff",32:"#ff7a3c",39:"#e6eef5",38:"#b06cff",8:"#cfa36a",2:"#9aa4ae",70:"#ffd27a",66:"#9aa4ae",43:"#d8dce6",0:"#ffd27a",82:"#ffd23f",19:"#ffe08a",79:"#ff8a2a",55:"#d8dce6",100:"#ffb547",51:"#ff5a3c",99:"#4fe0c8",103:"#ff6a1f",54:"#e6eef5",44:"#e6eef5",20:"#ffd27a",58:"#ff9a3c",76:"#ff9a3c",53:"#cfd8e0",81:"#ff9a3c",67:"#ffe45a"};
 const SPR={};const BASE={};
@@ -642,8 +650,8 @@ const ANIM={
     let m=tw.pend;if(!m||m.dead||!inRange(t,tw,m))m=tw.target;if(!m||m.dead)return;
     const mode=MODE[t.uid]||"proj",R=TS*1.38;
     if(mode==="melee"){fire(tw,t,m,true);ANIM.impact(t,m.x,m.y,1);return}
-    if(mode==="flame"){fire(tw,t,m,true);const a=Math.atan2(m.y-tw.y,m.x-tw.x);
-      S.fx.push({k:"flame",x:tw.x+Math.cos(a)*22,y:tw.y+Math.sin(a)*22,x2:m.x+Math.cos(a)*14,y2:m.y+Math.sin(a)*14,life:10,max:10});
+    if(mode==="flame"||mode==="spray"){fire(tw,t,m,true);const a=Math.atan2(m.y-tw.y,m.x-tw.x);
+      S.fx.push({k:"flame",pal:mode==="spray"?(t.uid===46?"gas":"acid"):"fire",x:tw.x+Math.cos(a)*22,y:tw.y+Math.sin(a)*22,x2:m.x+Math.cos(a)*14,y2:m.y+Math.sin(a)*14,life:10,max:10});
       ANIM.impact(t,m.x,m.y,(t.splash[2]*2+40)/96);return}
     if(mode==="self"){fire(tw,t,m,true);ANIM.impact(t,tw.x,tw.y,(t.splash[2]*2+40)/96);return}
     if(mode==="targeted"){fire(tw,t,m,true);ANIM.impact(t,m.x,m.y,(t.splash[2]*2+40)/96);return}
@@ -722,6 +730,7 @@ function makeIcons(){for(const t of TOWERS){const cv=document.createElement("can
 const cv=$("cv"),ctx=cv.getContext("2d");
 let TS=36,K=TS/WT; // canvas px per tile, world→canvas
 let mapLayer=null;
+const UPG_IMG={};for(const[k,v]of Object.entries(UPG_ICON)){UPG_IMG[k]=new Image();UPG_IMG[k].src=`ui/icons/icon_${v}.svg`}
 const BADGE=new Image();BADGE.src="ui/badge_merge.png";
 const MAP_TEXTURE=new Image();MAP_TEXTURE.onload=()=>{mapLayer=null};MAP_TEXTURE.src="ui/map_board_v4.jpg"; // 6x9 board art v4 (768x1152, 128px per cell)
 
@@ -760,11 +769,17 @@ function render(){
   // hover
   if(hover&&!hover.tower&&running){c.fillStyle=S.ore>=100?"#ffb54722":"#ff6f7d22";c.fillRect(hover.x*K-TS+4,hover.y*K-TS+4,TS*2-8,TS*2-8);c.strokeStyle=S.ore>=100?"#ffb547":"#ff6f7d";c.lineWidth=2;c.strokeRect(hover.x*K-TS+4,hover.y*K-TS+4,TS*2-8,TS*2-8)}
   // selection range
-  if(S.sel){const t=TOWERS[S.sel.type],h=(t.rt+.5)*CELL*K,x0=Math.max(0,S.sel.x*K-h),y0=Math.max(0,S.sel.y*K-h),x1=Math.min(cv.width,S.sel.x*K+h),y1=Math.min(cv.height,S.sel.y*K+h);c.fillStyle="rgba(255,255,255,.3)";c.fillRect(x0,y0,x1-x0,y1-y0);c.strokeStyle="rgba(28,58,96,.85)";c.setLineDash([TS*.25,TS*.18]);c.lineWidth=Math.max(2,TS*.08);c.strokeRect(x0+1,y0+1,x1-x0-2,y1-y0-2);c.setLineDash([])}
+  // range square: shown for the selected character, and while dragging it shows where it would reach from the slot under the finger
+  const drawRange=(wx,wy,rt)=>{const h=(rt+.5)*CELL*K,x0=Math.max(0,wx*K-h),y0=Math.max(0,wy*K-h),x1=Math.min(cv.width,wx*K+h),y1=Math.min(cv.height,wy*K+h);c.fillStyle="rgba(255,255,255,.3)";c.fillRect(x0,y0,x1-x0,y1-y0);c.strokeStyle="rgba(28,58,96,.85)";c.setLineDash([TS*.25,TS*.18]);c.lineWidth=Math.max(2,TS*.08);c.strokeRect(x0+1,y0+1,x1-x0-2,y1-y0-2);c.setLineDash([])};
+  if(tdrag&&tdrag.active){const o=tdrag.over||tdrag.tw.slot;drawRange(o.x,o.y,TOWERS[tdrag.tw.type].rt)}
+  else if(S.sel)drawRange(S.sel.x,S.sel.y,TOWERS[S.sel.type].rt);
   const tc={};for(const tw of S.towers)tc[tw.type]=(tc[tw.type]||0)+1;
   for(const tw of S.towers){const dragging=tdrag&&tdrag.active&&tdrag.tw===tw;if(dragging)c.globalAlpha=.35;drawTower(c,TOWERS[tw.type],tw.x*K,tw.y*K,TS*1.38,tw.ang,time,tw.kick,tw);c.globalAlpha=1}
   if(tdrag&&tdrag.active){const o=tdrag.over;if(o&&o!==tdrag.tw.slot){c.fillStyle=o.tower?"rgba(255,194,58,.28)":"rgba(78,240,176,.28)";c.strokeStyle=o.tower?"#ffc23a":"#4ef0b0";c.lineWidth=3;c.fillRect(o.x*K-TS+3,o.y*K-TS+3,TS*2-6,TS*2-6);c.strokeRect(o.x*K-TS+3,o.y*K-TS+3,TS*2-6,TS*2-6)}
     c.globalAlpha=.9;drawTower(c,TOWERS[tdrag.tw.type],tdrag.cx,tdrag.cy-TS*.4,TS*1.38,tdrag.tw.ang,time,0,null);c.globalAlpha=1}
+  // small upgrade-line badge under each character (sword = 근접, gun = 사격, cannon = 범위)
+  for(const tw of S.towers){if(tdrag&&tdrag.active&&tdrag.tw===tw)continue;const im=UPG_IMG[TOWERS[tw.type].upg];if(!im||!im.complete)continue;const bx=tw.x*K,by=tw.y*K+TS*.86,br=TS*.26;
+    c.beginPath();c.arc(bx,by,br,0,7);c.fillStyle="#fff";c.fill();c.lineWidth=Math.max(1,TS*.035);c.strokeStyle="#213365";c.stroke();c.drawImage(im,bx-br*.72,by-br*.72,br*1.44,br*1.44)}
   for(const tw of S.towers){if(tc[tw.type]<2||TOWERS[tw.type].grade>=4)continue;const bx=tw.x*K+TS*.78,by=tw.y*K-TS*.78+Math.sin(time*.15)*TS*.04,br=TS*.24;
     if(BADGE.complete&&BADGE.naturalWidth){c.drawImage(BADGE,bx-br*1.2,by-br*1.2,br*2.4,br*2.4);continue}
     c.beginPath();c.arc(bx,by,br,0,7);c.fillStyle="#2bd889";c.fill();c.lineWidth=TS*.05;c.strokeStyle="#0d3b26";c.stroke();
@@ -789,6 +804,8 @@ function drawMon(c,m,time){
   if(m.acid){c.fillStyle="#7dff6a";for(let k=0;k<Math.min(m.acid,5);k++)c.fillRect(x-r+k*4,y+r+3,3,3)}
   if(m.hp<m.maxhp||m.sh<m.maxsh){const w=Math.max(18,r*2.2);c.fillStyle="#000a";c.fillRect(x-w/2,y-r-8,w,4);c.fillStyle=m.hp/m.maxhp>.4?"#5ee6a8":"#ff6f7d";c.fillRect(x-w/2,y-r-8,w*Math.max(0,m.hp/m.maxhp),4);if(m.maxsh){c.fillStyle="#5aa9ff";c.fillRect(x-w/2,y-r-12,w*m.sh/m.maxsh,3)}}
 }
+const FLAME_PAL={fire:["rgba(255,245,170,1)","rgba(255,150,30,.95)","rgba(225,50,15,.6)","rgba(180,30,10,0)"],
+  gas:["rgba(240,215,255,.95)","rgba(180,90,240,.8)","rgba(120,40,170,.5)","rgba(90,20,130,0)"],acid:["rgba(240,255,200,.95)","rgba(160,240,60,.85)","rgba(80,170,30,.5)","rgba(50,120,20,0)"]};
 function drawFx(c,f){
   const a=f.life/f.max;c.save();c.globalAlpha=Math.min(1,a*1.4);c.strokeStyle=f.c;c.fillStyle=f.c;
   if(f.k==="bolt"||f.k==="beam"){c.lineWidth=(f.w||2)*(f.k==="beam"?1.6:1)*a+.5;c.beginPath();c.moveTo(f.x*K,f.y*K);c.lineTo(f.x2*K,f.y2*K);c.stroke();if(f.k==="beam"){c.globalAlpha*=.3;c.lineWidth*=3;c.stroke()}disc(c,f.x2*K,f.y2*K,3+3*a,f.c)}
@@ -798,7 +815,7 @@ function drawFx(c,f){
   else if(f.k==="flame"){ // flamethrower jet: a widening, flickering stream from the nozzle to the target
     const life=1-a,len=Math.min(1,life*3.5);c.globalAlpha=Math.min(1,a*2.2);const n=18;
     for(let k=0;k<=n*len;k++){const u=k/n,x=(f.x+(f.x2-f.x)*u)*K+(Math.random()-.5)*TS*.12,y=(f.y+(f.y2-f.y)*u)*K+(Math.random()-.5)*TS*.12,r=TS*(.12+.42*u)*(0.8+Math.random()*.4);
-      const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,"rgba(255,245,170,1)");g.addColorStop(.35,"rgba(255,150,30,.95)");g.addColorStop(.75,"rgba(225,50,15,.6)");g.addColorStop(1,"rgba(180,30,10,0)");c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,7);c.fill()}}
+      const g=c.createRadialGradient(x,y,0,x,y,r);const P=FLAME_PAL[f.pal||"fire"];g.addColorStop(0,P[0]);g.addColorStop(.35,P[1]);g.addColorStop(.75,P[2]);g.addColorStop(1,P[3]);c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,7);c.fill()}}
   else if(f.k==="spine"){c.lineWidth=6*a+1;c.setLineDash([8,5]);c.beginPath();c.moveTo(f.x*K,f.y*K);c.lineTo(f.x2*K,f.y2*K);c.stroke()}
   else if(f.k==="imp"){const fr=Math.min(3,Math.floor((1-f.life/f.max)*4)),z=TS*1.5*f.s;c.globalAlpha=1;cell(c,f.im,fr,4,f.x*K-z/2,f.y*K-z/2,z,z)}
   else if(f.k==="spike"){const el=f.max-f.life;if(el<f.del*.6||!f.im){c.restore();return}c.globalAlpha=Math.min(1,f.life/5);const z=TS*.95;cell(c,f.im,f.v,2,f.x*K-z/2,f.y*K-z*.75,z,z)}
@@ -814,7 +831,7 @@ function desc(t){
   else if(w==="Subterranean_Spines")s="일직선으로 꿰뚫어 여러 명 공격";
   else if(t.exp==="Corrosive_Acid")s="맞은 적의 방어를 녹여요";
   else if(t.shots>1)s="벌떼를 날려 여러 번 공격";
-  else{const sp=t.cd<=10?"아주 빠르게 ":t.cd<=15?"빠르게 ":t.cd>=45?"느리지만 세게 ":"";const rg=t.rt<=1?"바로 옆 ":t.rt>=4?"멀리 있는 ":"";
+  else{const sp=t.cd<=10?"아주 빠르게 ":t.cd<=17?"빠르게 ":t.cd>=40?"느리지만 세게 ":"";const rg=t.rt<=1?"바로 옆 ":t.rt>=4?"멀리 있는 ":"";
     s=t.splash[2]>0?`${rg}적 무리를 ${sp}범위 공격`:`${rg}적 1명을 ${sp}공격`}
   if(t.dtype==="Ignore_Armor")s+=" · 방어 무시";return s}
 function sameCount(tw){return S.towers.filter(o=>o.type===tw.type).length}
