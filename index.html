@@ -1328,7 +1328,7 @@ function closeSheet(){rail.classList.remove("open");rail.dataset.view="none";doc
 document.querySelectorAll(".mnav button[data-sheet]").forEach(b=>b.onclick=()=>{const v=b.dataset.sheet;if(rail.classList.contains("open")&&rail.dataset.view===v)closeSheet();else openSheet(v)});
 $("sheetClose").onclick=()=>{closeSheet();if(S&&rail.dataset.view==="none"){}};
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>selectTab(b.dataset.p));
-const SPEEDS=[1,1.45,2,3,5],SPL=["x1","x1.5","x2","x3","x5"];let spI=0;$("spX").onclick=()=>{spI=(spI+1)%SPEEDS.length;speed=SPEEDS[spI];$("spX").textContent=SPL[spI]};
+const SPEEDS=[1,2,3,5],SPL=["x1","x2","x3","x5"];let spI=0;$("spX").onclick=()=>{spI=(spI+1)%SPEEDS.length;speed=SPEEDS[spI];$("spX").textContent=SPL[spI]};
 $("spP").onclick=()=>{paused=!paused;$("spP").setAttribute("aria-pressed",paused);$("spP").setAttribute("aria-label",paused?"계속하기":"일시정지")};
 document.addEventListener("keydown",e=>{if(!S||!S.sel)return;if(e.key==="q"||e.key==="Q")merge(S.sel);if(e.key==="s"||e.key==="S")sell(S.sel)});
 $("dNormal").onclick=()=>start("normal");
