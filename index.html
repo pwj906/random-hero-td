@@ -423,7 +423,6 @@ body{background:#243D83}
 @keyframes dangerPulse{to{box-shadow:0 0 0 3px rgba(255,77,109,.7)}}
 .stage.crisis::after{content:"";position:absolute;inset:0;z-index:5;pointer-events:none;border-radius:14px;box-shadow:inset 0 0 40px 12px rgba(255,40,60,.55);animation:crisisPulse 1s ease-in-out infinite alternate}
 @keyframes crisisPulse{from{opacity:.45}to{opacity:1}}
-.res.life img{content:url(ui/icons/icon_mon.svg)}
 </style>
 <style>
 @media (max-width:700px){
@@ -443,7 +442,7 @@ body{background:#243D83}
   <header class="hud">
     <div class="brand"><img alt="랜덤 히어로 디펜스" src="ui/logo_horizontal.png"></div>
     <div class="wavebox"><b>WAVE <span id="sWave">0/40</span></b><small><span id="sTimerLbl">다음 웨이브</span> <span id="sTimer">--</span> <button type="button" id="skipBtn" class="skip" hidden>바로 시작 ▶</button></small></div>
-    <div class="res life" title="필드 위 적 / 한도"><img alt="" src="ui/icons/icon_mon.svg"><b id="sLife">0/100</b><span class="sr">필드 위 적</span></div>
+    <div class="res life" title="목숨"><img alt="" src="ui/icons/icon_life.svg"><b id="sLife">30</b><span class="sr">목숨</span></div>
     <div class="res ore" title="골드"><img alt="" src="ui/icons/icon_gold.svg"><b id="sOre">0</b><span class="sr">골드</span></div>
     <div class="res gas" title="보석"><img alt="" src="ui/icons/icon_gem.svg"><b id="sGas">0</b><span class="sr">보석</span></div>
     <b id="sKill" hidden>0</b>
@@ -477,7 +476,7 @@ body{background:#243D83}
         <ol class="steps">
           <li><img alt="" src="ui/icons/icon_guide_draw.svg">빈 칸을 눌러 캐릭터 뽑기</li>
           <li><img alt="" src="ui/icons/icon_guide_merge.svg">같은 캐릭터 2명을 합성</li>
-          <li><img alt="" src="ui/icons/icon_guide_survive.svg">적은 길을 계속 돌아요. 100마리 넘게 쌓이면 패배</li>
+          <li><img alt="" src="ui/icons/icon_guide_survive.svg">최대한 오래 버티기 (40웨이브 뒤 무한 모드)</li>
           <li><img alt="" src="ui/aug/icons/pure.png">5웨이브마다 증강 1개 고르기</li>
         </ol><button type="button" class="btn primary" data-close>닫기</button></div></div>
       <div class="homeModal" id="codexModal" hidden><div class="hm wide"><h2>도감</h2><div id="codexSlot"></div><button type="button" class="btn primary" data-close>닫기</button></div></div>
@@ -540,13 +539,13 @@ const GRID=[],RECTS=[],PATH=[],SEG=[],SLOTS=[];let PATHLEN=0,SPEED_K=1;
 function buildBoard(){
   GRID.length=0;for(let y=0;y<ROWS;y++)GRID.push(y<2||y>=ROWS-2?"#".repeat(COLS):"##"+"P".repeat(COLS-4)+"##");
   RECTS.length=0;RECTS.push([2,2,COLS-4,ROWS-4]);
-  const rp=[[1,1],[COLS-1,1],[COLS-1,ROWS-1],[1,ROWS-1],[1,1]];/* closed loop: the entrance is also the exit */PATH.length=0;for(const p of rp)PATH.push([p[0]*WT,p[1]*WT]);
+  const rp=[[1,1],[COLS-1,1],[COLS-1,ROWS-1],[1,ROWS-1],[1,2.3]];/* ends inside the exit gate (the cell under the entrance) */PATH.length=0;for(const p of rp)PATH.push([p[0]*WT,p[1]*WT]);
   SEG.length=0;PATHLEN=0;for(let i=0;i<PATH.length-1;i++){const a=PATH[i],b=PATH[i+1],l=Math.hypot(b[0]-a[0],b[1]-a[1]);SEG.push({a,b,l,s:PATHLEN});PATHLEN+=l}
   SPEED_K=0.43; // tuned by bot simulation to match the original early-game difficulty
   SLOTS.length=0;for(const[x,y,w,h]of RECTS)for(let sy=y;sy<y+h;sy+=2)for(let sx=x;sx<x+w;sx+=2)SLOTS.push({x:(sx+1)*WT,y:(sy+1)*WT,tower:null});
 }
 buildBoard();
-function pathAt(d){d=((d%PATHLEN)+PATHLEN)%PATHLEN;for(const s of SEG){if(d<=s.s+s.l){const f=(d-s.s)/s.l;return[s.a[0]+(s.b[0]-s.a[0])*f,s.a[1]+(s.b[1]-s.a[1])*f,Math.atan2(s.b[1]-s.a[1],s.b[0]-s.a[0])]}}const e=PATH[PATH.length-1];return[e[0],e[1],Math.PI/2]}
+function pathAt(d){for(const s of SEG){if(d<=s.s+s.l){const f=(d-s.s)/s.l;return[s.a[0]+(s.b[0]-s.a[0])*f,s.a[1]+(s.b[1]-s.a[1])*f,Math.atan2(s.b[1]-s.a[1],s.b[0]-s.a[0])]}}const e=PATH[PATH.length-1];return[e[0],e[1],Math.PI/2]}
 
 // ---------- rules ----------
 const MON_NAMES=["들쥐", "붕대병", "좀비", "뿔소", "사냥개", "장갑차", "일꾼 로봇", "그림자 검객", "새끼 벌레", "거대 풍선벌레", "수송선", "털북숭이", "수호 비행선", "여왕벌", "일벌", "거대 집게벌레", "암살자", "정찰 드론", "자폭벌", "거대 전함", "연구선", "화물선", "들소", "탐사선", "장수풍뎅이", "마녀벌", "산호새", "황금 기사", "에이스 전투기", "거대 굴착기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 전투기", "지옥 모함"];WAVES.forEach((w,i)=>w.name=MON_NAMES[i]);
@@ -653,7 +652,7 @@ const UID=uid=>TOWERS.findIndex(t=>t.uid===uid);
 let S;
 function fresh(diff){
   SLOTS.forEach(s=>s.tower=null);
-  return {diff,ore:500,gas:0,gSlow:0,life:30,kills:0,frame:0,wi:0,phase:"prep",cd:24*25,wt:0,limit:MON_LIMIT,peak:0,spawnLeft:0,spawnT:0,
+  return {diff,ore:500,gas:0,gSlow:0,life:30,kills:0,frame:0,wi:0,phase:"prep",cd:Math.round(50*24*PREP_K),spawnLeft:0,spawnT:0,
     upg:Object.fromEntries(UPGS.map(u=>[u[0],3])),towers:[],mons:[],fx:[],proj:[],picks:[],
     tok:{boss:0,rare:0,unique:0,epic:0},mis:[0,0,0],ach:{},sel:null,over:false,nextId:1,aug:[],augPending:false,augOffer:null,freeTix:0,allIn:1,props:null};
 }
@@ -695,29 +694,27 @@ function waveDef(i){
     hp:Math.round(125000*Math.pow(1.1,n+1)*4.5/(boss?2:base.spd)*(boss?12:1)),ar:Math.min(250,110+3*n),sh:0,size:boss?3:base.size,spd:boss?2:base.spd,spr:boss?"b_endless":base.spr});
   if(boss)d.name="무한 보스 · 혼돈의 황제";
   return S.gen[i]=d}
-// ---------- loop rules: monsters keep circling; too many on the field = defeat. waves come on a timer ----------
-const MON_LIMIT=100,WAVE_T=34*24,BOSS_T=50*24,BOSS_W=20,MIS_TTL=60*24,KILL_GOLD=4,WAVE_GOLD=150;
-const monWeight=m=>m.kind==="mission"?0:m.def.boss?BOSS_W:1;
-function fieldCount(){let n=0;for(const m of S.mons)if(!m.dead)n+=monWeight(m);return n}
 function startWave(){
   const def=waveDef(S.wi);S.phase="wave";if(themeOf(S.wi)!==themeI)setTheme(themeOf(S.wi),true);sfx(def.boss?"boss":"wave");bgmMode(def.boss?"boss":"calm");
-  S.spawnLeft=def.boss?1:30;S.spawnT=0;S.wt=def.boss?BOSS_T:WAVE_T;S.spawnGap=Math.floor(WAVE_T*.8/30);S.cleared=false;
+  S.spawnLeft=def.boss?1:30;S.spawnT=0;
   banner((def.boss===2?"HELL BOSS · ":def.boss?"BOSS · ":S.wi>=30?"HELL MODE · ":"")+"WAVE "+(S.wi+1),def.boss?"var(--life)":"var(--fg)");
   log("Wave "+(S.wi+1)+" · "+def.name+" (HP "+fmt(waveHP(S.wi,def))+(def.ar?", 방어 "+def.ar:"")+")","hi");
 }
 function spawn(def,hp,kind){
   const p=pathAt(0);
-  S.mons.push({id:S.nextId++,def,kind,hp,maxhp:hp,sh:def.sh,maxsh:def.sh,ar:def.ar,size:def.size,spd:def.spd,d:0,x:p[0],y:p[1],a:p[2],acid:0,acidT:0,trav:0,ttl:kind==="mission"?MIS_TTL:0,hue:kind==="mission"?40:(S.wi*37)%360});
+  S.mons.push({id:S.nextId++,def,kind,hp,maxhp:hp,sh:def.sh,maxsh:def.sh,ar:def.ar,size:def.size,spd:def.spd,d:0,x:p[0],y:p[1],a:p[2],acid:0,acidT:0,hue:kind==="mission"?40:(S.wi*37)%360});
   augSpawn(S.mons[S.mons.length-1]);
 }
 function endWave(){
-  const i=S.wi;let ore=WAVE_GOLD;
+  const i=S.wi;let ore=250,cd=35;
+  if(i===9){ore=450;cd=70}else if(i>=10&&i<=18)cd=40;else if(i===19){ore=450;cd=80}else if(i>=20&&i<=28)cd=45;else if(i===29)cd=100;else if(i>=30)cd=50;if(i>=40)cd=(i+1)%10===9?60:45;
   if(has("hunter"))ore=Math.round(ore*1.3);
   let extra="";if(has("interest")){const v=Math.min(100,Math.floor(S.ore*.1));S.ore+=v;extra+=` · 이자 +${v}`}
   if(has("gem_mine")){S.gas+=15;extra+=" · 보석 +15"}if(has("free_ticket")){S.freeTix=(S.freeTix||0)+1;extra+=" · 무료 복권 +1"}
   const gem=(i+1)%10===0?30:10;S.gas+=gem;extra=` · 보석 +${gem}`+extra;
-  S.ore+=ore;log("Wave "+(i+1)+" 보상 · 골드 +"+ore+extra);S.fx.push({k:"txt",t:`+${ore} 골드`,x:COLS*WT/2,y:ROWS*WT*.42,c:"#ffd34f",sc:"#5a3a00",big:true,life:30,max:30});
-  S.wi++;if(S.wi%5===0)augOffer();startWave();
+  sfx("clear");bgmMode("calm");S.ore+=ore;S.fx.push({k:"txt",t:`+${ore} 골드`,x:COLS*WT/2,y:ROWS*WT*.42,c:"#ffd34f",sc:"#5a3a00",big:true,life:30,max:30});log("Wave "+(i+1)+" 종료 · 골드 +"+ore+extra+" · 준비 "+cd+"초","good");
+  S.wi++;S.phase="prep";S.cd=Math.round(cd*24*PREP_K);
+  if(S.wi%5===0)augOffer();
 }
 function leak(m){
   m.dead=true;
@@ -732,7 +729,6 @@ function kill(m){
   if(m.dead)return;m.dead=true;S.kills++;sfx("pop");
   if(m.def.spr&&MSPR[m.def.spr]&&MSPR[m.def.spr].death)S.fx.push({k:"mdie",spr:m.def.spr,x:m.x,y:m.y,a:m.a,z:monR(m)*1.45*(MQ.matches?1.1:1)*(m.def.boss?1.6:1)*(m.kind==="mission"?1.4:1)*2.9*(m.def.boss?.78:1),life:8,max:8});
   else S.fx.push({k:"pop",x:m.x,y:m.y,r:monR(m)*1.6,c:`hsl(${m.hue} 80% 60%)`,life:12,max:12});
-  if(m.kind!=="mission"){const g=KILL_GOLD*(m.def.boss?25:1)*(has("hunter")?1.3:1)|0;S.ore+=g;killGold(m,g)}
   if(m.kind==="mission"){S.ore+=m.def.reward;log("도전 미션 클리어! 골드 +"+m.def.reward,"good");return}
   if(m.def.boss===1){S.tok.boss++;const r=(m.def.idx!=null?m.def.idx:WAVES.indexOf(m.def))+1;banner(r+"라운드 클리어!","var(--ore)");showReward()}
   if(m.def.boss===2){S.tok.boss++;banner("무한 모드 시작!","var(--ore)");log("40웨이브 클리어! 이제부터 끝없는 웨이브가 몰려와요","good");showReward()}
@@ -741,7 +737,7 @@ function finish(win){
   if(S.over)return;S.over=true;running=false;sfx("over");
   showResult();
   $("endTitle").textContent=win?"승리":"패배";$("endOv").style.backgroundImage=`url(ui/screens/bg_${win?"victory":"defeat"}.jpg)`;
-  $("endText").textContent=win?`40라운드 클리어. ${S.kills}킬, 남은 목숨 ${S.life}.`:`Wave ${S.wi+1}에서 적이 ${S.limit}마리를 넘었습니다. ${S.kills}킬.`;
+  $("endText").textContent=win?`40라운드 클리어. ${S.kills}킬, 남은 목숨 ${S.life}.`:`Wave ${S.wi+1}에서 목숨을 모두 잃었습니다. ${S.kills}킬.`;
   $("endOv").hidden=false;
 }
 
@@ -804,19 +800,15 @@ function tick(){
   S.frame++;
   if(S.phase==="prep"){if(--S.cd<=0)startWave()}
   else if(S.phase==="wave"){
-    if(S.spawnLeft>0){if(--S.spawnT<=0){const def=waveDef(S.wi);spawn(def,waveHP(S.wi,def),"wave");S.spawnLeft--;S.spawnT=S.spawnGap||20}}
-    else if(!S.cleared&&!S.mons.some(m=>!m.dead&&m.kind!=="mission")){S.cleared=true;allClear()}
-    if(--S.wt<=0)endWave();
+    if(S.spawnLeft>0){if(--S.spawnT<=0){const def=waveDef(S.wi);spawn(def,waveHP(S.wi,def),"wave");S.spawnLeft--;S.spawnT=24}}
+    else if(S.mons.length===0)endWave();
   }
-  for(const m of S.mons){if(m.dead)continue;if(m.frozen>0){m.frozen--;continue}{const st=m.spd*SPEED_K*(m.slowT>0?1-m.slowV:1)*(1-S.gSlow);m.d+=st;m.trav+=st}if(m.slowT>0)m.slowT--;if(m.curseT>0)m.curseT--;if(m.acidT>0&&--m.acidT===0)m.acid=0;
-    if(m.d>=PATHLEN){m.d-=PATHLEN;m.tr=null;m.lap=(m.lap||0)+1}
-    if(m.kind==="mission"&&--m.ttl<=0){m.dead=true;log(`도전 미션 실패 · ${m.def.name}이(가) 사라졌어요`,"warn");sfx("hurt");continue}
-    const p=pathAt(m.d);m.x=p[0];m.y=p[1];m.a=p[2]}
-  {const n=fieldCount();S.field=n;if(n>S.peak)S.peak=n;crisisCheck(n);if(n>=S.limit){finish(false);return}}
+  for(const m of S.mons){if(m.dead)continue;if(m.frozen>0){m.frozen--;continue}m.d+=m.spd*SPEED_K*(m.slowT>0?1-m.slowV:1)*(1-S.gSlow);if(m.slowT>0)m.slowT--;if(m.curseT>0)m.curseT--;if(m.acidT>0&&--m.acidT===0)m.acid=0;
+    if(m.d>=PATHLEN){leak(m);continue}const p=pathAt(m.d);m.x=p[0];m.y=p[1];m.a=p[2]}
   if(S.frame%6===0)applyAuras();
   for(const tw of S.towers){const t=TOWERS[tw.type];
     if(t.aura&&(tw.acool=(tw.acool||1)-1)<=0){tw.acool=72;ANIM.impact(t,tw.x,tw.y,t.aura.r>9?7:(t.aura.r*2+1)*2/1.5)} // buff ring every 3s; magic also attacks
-    let m=tw.target;if(!m||m.dead||!inRange(t,tw,m)){m=null;let best=-1;for(const o of S.mons){if(!o.dead&&o.trav>best&&inRange(t,tw,o)){best=o.trav;m=o}}tw.target=m}
+    let m=tw.target;if(!m||m.dead||!inRange(t,tw,m)){m=null;let best=-1;for(const o of S.mons){if(!o.dead&&o.d>best&&inRange(t,tw,o)){best=o.d;m=o}}tw.target=m}
     if(m){const want=Math.atan2(m.y-tw.y,m.x-tw.x);let da=((want-tw.ang+Math.PI*3)%(Math.PI*2))-Math.PI;tw.ang+=Math.max(-.35,Math.min(.35,da))}
     if(tw.atk!=null){tw.atk++;if(!tw.fired&&tw.atk>=tw.relAt){tw.fired=true;ANIM.release(tw,t)}if(tw.atk>=tw.atkDur)tw.atk=null}
     if(tw.cool>0){tw.cool--;continue}
@@ -990,12 +982,12 @@ function gachaFx(kind){const btn=MQ.matches?$("navLotto"):$("lottoBtn");const r=
   const d=document.createElement("div");d.className="gfx";d.style.backgroundImage=`url(ui/gacha/lotto_${kind}_4.png)`;
   d.style.left=(r.left+r.width/2)+"px";d.style.top=(r.top+r.height/2-(MQ.matches?60:40))+"px";document.body.appendChild(d);setTimeout(()=>d.remove(),400)}
 // missions recharge by waves (not seconds), so skipping the break costs nothing
-const MIS_WAVES=3,MIS_REC=[3,10,18]; // recommended wave to try each one
+const MIS_WAVES=3,MIS_REC=[4,12,21]; // recommended wave to try each one
 const misLeft=i=>Math.max(0,(S.mis[i]||0)-S.wi);
 function mission(i){
   if(!running)return;if(misLeft(i)>0){log(`${misLeft(i)}웨이브 뒤에 다시 도전할 수 있어요`,"warn");return}
   S.mis[i]=S.wi+MIS_WAVES;const d=MISSIONS[i];spawn(d,d.hp,"mission");
-  log(`${i+1}단계 도전 미션 시작 · ${d.name} HP ${fmt(d.hp)}. 60초 안에 잡으세요!`,"hi");renderPanels();
+  log(`${i+1}단계 도전 미션 시작 · ${d.name} HP ${fmt(d.hp)}. 막지 못하면 목숨 -10.`,"hi");renderPanels();
 }
 function useBoss(kind){
   if(S.tok.boss<1)return;S.tok.boss--;
@@ -1223,6 +1215,8 @@ function render(){
   for(const f of S.fx)drawFx(c,f);
 }
 function drawMon(c,m,time){
+  const fade=Math.min(1,(PATHLEN-m.d)/40);if(fade<1){c.save();c.globalAlpha=Math.max(0,fade);drawMon0(c,m,time);c.restore();return}drawMon0(c,m,time)}
+function drawMon0(c,m,time){
   const r=monR(m)*K*1.45*(MQ.matches?1.1:1)*(m.def.boss?1.6:1)*(m.kind==="mission"?1.4:1),x=m.x*K,y=m.y*K;
   c.save();c.translate(x,y);
   if(m.def.boss||m.kind==="mission"){c.beginPath();c.arc(0,0,r*(m.def.spr&&MSPR[m.def.spr]?1.05:1.45),0,7);c.strokeStyle=m.kind==="mission"?"#ffb547":"#ff6f7d";c.lineWidth=2;c.globalAlpha=.6+Math.sin(time*.2)*.3;c.stroke();c.globalAlpha=1}
@@ -1322,7 +1316,7 @@ function renderPanels(){
     return `<div class="row up ${mine.length?"":"dim"}"><img class="gi" alt="" style="background:${UPG_COL[k]};border-radius:50%;padding:4px;box-sizing:border-box" src="ui/icons/icon_${UPG_ICON[k]}.svg"><div><b class="un" style="color:${UPG_COL[k]}">${n}</b><small class="ud">${UPG_DESC[k]}</small><span class="ui">${mine.length?mine.slice(0,4).map(t=>`<img alt="${t.name}" src="${ICON[t.i]}">`).join(""):`<small>보유 캐릭터 없음</small>`}</span></div><span class="lv">Lv${lv}</span><button class="btn gem" data-u="${k}" ${S.gas<cost?"disabled":""}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12l4 6-10 11L2 10z"/></svg>${cost}</button></div>`}).join("")}</div>`;
   $("pUpg").querySelectorAll("[data-u]").forEach(b=>b.onclick=()=>buyUpg(b.dataset.u));
   // missions
-  $("pMis").innerHTML=`<div class="rows">${MISSIONS.map((d,i)=>`<div class="row mis"><img class="mi" alt="" src="ui/missions/icon_mission_${i+1}.png"><div>${i+1}단계 · ${d.name}<small>권장 ${MIS_REC[i]}웨이브부터 · 보상 골드 +${d.reward}</small><small>60초 안에 못 잡으면 실패</small></div><span class="lv misLv">${misLeft(i)>0?misLeft(i)+"웨이브 뒤":""}</span><button class="btn" data-m="${i}" ${misLeft(i)>0||!running?"disabled":""}>도전</button></div>`).join("")}</div>`;
+  $("pMis").innerHTML=`<div class="rows">${MISSIONS.map((d,i)=>`<div class="row mis"><img class="mi" alt="" src="ui/missions/icon_mission_${i+1}.png"><div>${i+1}단계 · ${d.name}<small>권장 ${MIS_REC[i]}웨이브부터 · 보상 골드 +${d.reward}</small><small>놓치면 목숨 -10</small></div><span class="lv misLv">${misLeft(i)>0?misLeft(i)+"웨이브 뒤":""}</span><button class="btn" data-m="${i}" ${misLeft(i)>0||!running?"disabled":""}>도전</button></div>`).join("")}</div>`;
   $("pMis").querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>mission(+b.dataset.m));
   {const fr=S.freeTix>0,dis=(!fr&&S.ore<100)||lottoBusy;$("lottoBtn").disabled=dis;$("navLotto").disabled=dis;const lb=fr?`무료 ${S.freeTix}장`:"골드 100";$("lottoBtn").querySelector("span").textContent=lb;$("navLotto").querySelector("small").textContent=lb}
   {const n=mergeablePairs();$("mergeAll").disabled=!n||!running;$("mergeAllN").textContent=n}
@@ -1335,9 +1329,9 @@ function renderPanels(){
 function hud(){
   if(!S)return;
   {const n=S.wi+(S.phase==="wave"?1:0);$("sWave").textContent=n>40?`${n}`:`${n}/40`}
-  $("sTimerLbl").textContent="다음 웨이브";
-  $("sTimer").textContent=Math.ceil((S.phase==="prep"?S.cd:S.wt)/24)+"s";$("skipBtn").hidden=S.phase!=="prep"||!running;
-  $("sLife").textContent=`${S.field||0}/${S.limit}`;$("sLife").parentElement.classList.toggle("danger",(S.field||0)>=S.limit*.7);const kf=n=>n>=10000?(n/1000).toFixed(1).replace(/\.0$/,"")+"k":String(n);$("sOre").textContent=kf(S.ore);$("sGas").textContent=kf(S.gas);$("sKill").textContent=S.kills;
+  $("sTimerLbl").textContent=S.phase==="prep"?"다음 웨이브":"남은 적";
+  $("sTimer").textContent=S.phase==="prep"?Math.ceil(S.cd/24)+"s":String(S.mons.length+S.spawnLeft);$("skipBtn").hidden=S.phase!=="prep"||!running;
+  $("sLife").textContent=S.life;const kf=n=>n>=10000?(n/1000).toFixed(1).replace(/\.0$/,"")+"k":String(n);$("sOre").textContent=kf(S.ore);$("sGas").textContent=kf(S.gas);$("sKill").textContent=S.kills;
 }
 
 // ---------- input ----------
@@ -1413,7 +1407,7 @@ function start(d){
   audioInit();
   S=null;running=false;fitVp();
   closeAug();setTheme(0,false);S=fresh(d);$("startOv").hidden=true;document.body.classList.remove("atHome");$("endOv").hidden=true;$("log").innerHTML="";running=true;
-  log("25초 뒤 첫 웨이브가 옵니다. 적이 100마리 넘게 쌓이면 패배해요.");renderPanels();
+  log("50초 뒤 첫 웨이브가 옵니다. 빈 발판을 눌러 타워를 지으세요.");renderPanels();
 }
 
 // ---------- boot ----------
@@ -1470,11 +1464,11 @@ const AUGS=[
   {id:"choose_line",tier:1,name:"원하는 대로",desc:"합성 결과를 근접·사격·저격 중에서 고름"},
   {id:"recycle",tier:0,name:"재활용",desc:"합성할 때 25% 확률로 재료 1명이 남음"},
   {id:"god_call",tier:2,name:"신의 부름",desc:"다음 영웅·전설 합성 1회는 바로 신"},
-  {id:"iron_wall",tier:0,name:"철벽",desc:"버틸 수 있는 적 수 +20"},
+  {id:"iron_wall",tier:0,name:"철벽",desc:"목숨 +10"},
   {id:"boss_hunter",tier:1,name:"보스 사냥꾼",desc:"보스에게 주는 피해 +50%"},
   {id:"execute",tier:1,name:"처형",desc:"체력 10% 이하 적 즉시 처치 (보스 제외)"},
-  {id:"last_stand",tier:0,name:"마지막 저항",desc:"적이 70% 넘게 차면 공속 +50%"},
-  {id:"devil_deal",tier:2,name:"악마의 거래",desc:"버틸 수 있는 적 수 -15, 대신 무작위 전설 1명"},
+  {id:"last_stand",tier:0,name:"마지막 저항",desc:"목숨 5 이하일 때 공속 +50%"},
+  {id:"devil_deal",tier:2,name:"악마의 거래",desc:"목숨 -10, 대신 무작위 전설 1명"},
   {id:"all_in",tier:2,name:"올인",desc:"골드를 모두 잃고 500당 공격력 +5% (영구)"},
   {id:"fate_dice",tier:2,name:"운명의 주사위",desc:"판의 캐릭터를 모두 다른 캐릭터로, 1명은 한 등급 위"},
 ];
@@ -1497,7 +1491,7 @@ function augMult(tw){
   if(r==="Sniper"){if(has("snipe_pow"))p*=1.2;if(has("snipe_spd"))s*=1.25}
   if(t.area){if(has("area_pow"))p*=1.15;if(has("area_spd"))s*=1.2}else{if(has("single_pow"))p*=1.15;if(has("single_spd"))s*=1.2}
   if(S.pureOn){p*=1.2;s*=1.2}if(S.trinOn){p*=1.1;s*=1.1}
-  if(has("last_stand")&&(S.field||0)>=S.limit*.7)s*=1.5;
+  if(has("last_stand")&&S.life<=5)s*=1.5;
   return[p,s]}
 function augAuras(){ // called from applyAuras: board-wide conditions, then each character's multipliers
   const roles={};for(const tw of S.towers){const r=ROLE[TOWERS[tw.type].uid];roles[r]=(roles[r]||0)+1}
@@ -1567,9 +1561,9 @@ function augOffer(){
 function augTake(id){
   const a=AUG[id];S.aug.push(id);sfx("pick");S.augOffer=null;S.augPending=false;
   if(id==="cash_now")S.ore+=1000;
-  if(id==="iron_wall")S.limit+=20;
+  if(id==="iron_wall")S.life+=10;
   if(id==="god_call")S.godCall=1;
-  if(id==="devil_deal"){S.limit=Math.max(60,S.limit-15);placePrize(pick(byGrade(4)).i)}
+  if(id==="devil_deal"){S.life=Math.max(1,S.life-10);placePrize(pick(byGrade(4)).i)}
   if(id==="all_in"){const n=Math.floor(S.ore/500);S.allIn=(S.allIn||1)+.05*n;S.ore=0;log(`올인! 공격력 +${n*5}% (영구)`,"good")}
   if(id==="fate_dice"){const tws=[...S.towers];for(const tw of tws){const t=TOWERS[tw.type],opts=byGrade(t.grade).filter(o=>o.i!==t.i);if(opts.length){const sl=tw.slot;removeTower(tw);addTower(sl,pick(opts).i,false)}}
     const up=S.towers.filter(tw=>TOWERS[tw.type].grade<5);if(up.length){const tw=pick(up),g=TOWERS[tw.type].grade,sl=tw.slot;removeTower(tw);addTower(sl,pick(byGrade(g+1)).i)}}
@@ -1718,12 +1712,5 @@ showHome();
 const CRIT_P=.08,CRIT_X=2.5;
 let lastCrit=0,coinAcc=0,lastCoin=0;
 function critFx(m,v){if(S.frame-lastCrit<4)return;lastCrit=S.frame;S.fx.push({k:"txt",t:fmt(v)+"!",x:m.x+(Math.random()-.5)*16,y:m.y-14,c:"#ffe14a",sc:"#8a2a00",big:true,life:22,max:22})}
-function killGold(m,g){coinAcc+=g;if(S.frame-lastCoin<5&&!m.def.boss)return;lastCoin=S.frame;
-  S.fx.push({k:"txt",t:"+"+coinAcc,x:m.x,y:m.y-6,c:"#ffd34f",sc:"#5a3a00",life:18,max:18});coinAcc=0;if(Math.random()<.35)sfx("coin")}
-function allClear(){const g=30+S.wi*3;S.ore+=g;banner("올 클리어!","var(--ore)");log(`올 클리어! 다음 웨이브 전에 다 잡았어요 · 골드 +${g}`);sfx("win")}
-function crisisCheck(n){
-  const st=document.querySelector(".stage");
-  if(!S.crisis&&n>=S.limit*.7){S.crisis=true;st&&st.classList.add("crisis");banner("위기!","var(--life)");sfx("boss")}
-  else if(S.crisis&&n<=S.limit*.35){S.crisis=false;st&&st.classList.remove("crisis");S.gas+=20;banner("위기 탈출!","var(--gas)");log("위기 탈출! 보석 +20","good");sfx("jackpot")}
-}
+
 </script>
