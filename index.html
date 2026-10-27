@@ -284,6 +284,29 @@ body{background:radial-gradient(ellipse at 30% 0%,#A5D9E8 0%,#6CA9D5 42%,#527CB4
 }
 </style>
 <style>@media (max-width:700px){body{margin:0;padding-left:6px;padding-right:6px}.vp{border:0}}</style>
+<style>/* lotto slot machine */
+.slotm{position:fixed;left:50%;bottom:calc(104px + env(safe-area-inset-bottom,0px));z-index:40;display:flex;gap:8px;padding:10px 12px;background:linear-gradient(#3a5bb0,#2a438a);border:3px solid #FFC23A;border-radius:18px;box-shadow:0 8px 24px rgba(20,30,70,.45);transform:translate(-50%,30px) scale(.9);opacity:0;pointer-events:none;transition:transform .18s,opacity .18s}
+@media (min-width:701px){.slotm{bottom:120px}}
+.slotm.show{transform:translate(-50%,0) scale(1);opacity:1}
+.slotm .reel{width:60px;height:60px;border-radius:12px;background:#fff;display:grid;place-items:center;overflow:hidden;box-shadow:inset 0 -4px 0 #d9e2f5}
+.slotm .reel img{width:46px;height:46px}
+.slotm .reel .sc{width:52px;height:52px;border:2px solid;border-radius:9px;background:#eef3ff center/185% no-repeat}
+.slotm .reel.hit{animation:reelhit .18s}
+@keyframes reelhit{0%{transform:translateY(-6px)}100%{transform:none}}
+.slotm .sx{font:900 22px var(--display,sans-serif);color:#8a94a8}
+.slotm .s7{font:900 34px var(--display,sans-serif);color:#ff4d5e;text-shadow:0 2px 0 #9b1020}
+.slotm .sm{font:900 30px serif;color:#ffb400;text-shadow:0 0 8px #fff3b0,0 2px 0 #8a5a00}
+.slotm .res{position:absolute;left:50%;top:-40px;transform:translateX(-50%);white-space:nowrap;padding:5px 14px;border-radius:999px;background:#fff;color:#22397a;font:800 15px var(--body,sans-serif);box-shadow:0 3px 0 rgba(0,0,0,.2);opacity:0;transition:opacity .15s}
+.slotm.win .res,.slotm.lose .res,.slotm.jackpot .res{opacity:1}
+.slotm.lose .res{color:#8a94a8}
+.slotm.jackpot{border-color:#fff;animation:jackglow .5s infinite alternate}
+.slotm.jackpot .res{background:#FFC23A;color:#43310D;font-size:17px}
+@keyframes jackglow{from{box-shadow:0 0 12px 4px #ffd34f}to{box-shadow:0 0 34px 12px #ff9a2a}}
+.slotm.tension{animation:tension .12s infinite}
+@keyframes tension{0%{transform:translate(-50%,0) rotate(-1.2deg)}50%{transform:translate(-50%,0) rotate(1.2deg)}100%{transform:translate(-50%,0) rotate(-1.2deg)}}
+.miracleFx{position:fixed;inset:0;z-index:39;pointer-events:none;background:radial-gradient(circle,rgba(255,240,170,.95),rgba(255,190,40,.55) 40%,rgba(255,190,40,0) 75%);animation:mfx 1.6s ease-out forwards}
+@keyframes mfx{0%{opacity:0}12%{opacity:1}100%{opacity:0}}
+</style>
 <div class="app">
   <header class="hud">
     <div class="brand"><img alt="랜덤 히어로 디펜스" src="ui/logo_horizontal.png"></div>
@@ -437,7 +460,7 @@ function hitDmg(t){return t.dmg+t.bonus*lvl(t)}
 // HP multiplier curve: [wave index (0-based), multiplier], linear in between
 // tuned with 16-seed bot runs to the target play time at x3 speed: usual run ~5 min, lucky/strong run ~15 min.
 // the 28-slot board can't grow as strong as the original's, so later waves are scaled down hard.
-var HPC=[[0,.5],[10,.9],[20,.35],[30,.25],[39,.2]];
+var HPC=[[0,.5],[10,.9],[20,.4],[30,.4],[39,.5]];
 const PREP_K=0.8; // shorter breaks between waves (time only; combat unchanged)
 const ease=i=>{for(let k=1;k<HPC.length;k++)if(i<=HPC[k][0]){const[a,x]=HPC[k-1],[b,y]=HPC[k];return x+(y-x)*(i-a)/(b-a)}return HPC[HPC.length-1][1]};
 function waveHP(i,def){let hp=def.hp;if(i>=30&&i<=38)hp+=(i-30)*4000;return Math.round(hp*ease(i))}
@@ -581,12 +604,94 @@ function buyUpg(key){
   if(S.gas<cost){log("보석이 부족해요","warn");return}
   if(lv>=255)return;S.gas-=cost;S.upg[key]++;renderPanels();
 }
-const LOTTO=[["ore",100,"꽝! 저런..."],["gas",40,"당첨!"],["gas",60,"당첨!"],["gas",80,"당첨!"],["gas",120,"당첨!"],["gas",140,"당첨!"],["gas",160,"당첨!"],["gas",240,"대박 당첨!"]];
+// ---------- lotto: a slot machine with real misses, prizes of many kinds and rare miracles ----------
+// weights per 1000 draws. average payback is about the price (the old table: ~105 gems, never lost),
+// but the spread is huge: 48% nothing, 0.6% a legend, 0.2% a miracle that wipes the field.
+// tuned with bots that spend ~1/3 of their gold here: same median play time, much wider luck spread.
+const LOTTO=[
+  {k:"miss",w:478},
+  {k:"gold",w:130,v:120},
+  {k:"gem",w:220},
+  {k:"char",w:90},
+  {k:"big",w:50},
+  {k:"hero",w:14},{k:"elite",w:10},
+  {k:"legend",w:6},
+  {k:"miracle",w:2}];
+const PITY=4; // after 4 misses in a row the next draw always wins something
+let lottoBusy=false;
+function rollLotto(){
+  const pool=S.missRun>=PITY?LOTTO.filter(o=>o.k!=="miss"):LOTTO;const tot=pool.reduce((a,o)=>a+o.w,0);
+  let r=Math.random()*tot;for(const o of pool){if((r-=o.w)<0)return o}return pool[0]}
 function lotto(){
+  if(lottoBusy)return;
   if(S.ore<100){log("골드가 부족해요 (복권 100)","warn");return}
-  S.ore-=100;const r=LOTTO[Math.floor(Math.random()*8)];S[r[0]]+=r[1];
-  gachaFx(r[0]==="ore"?"miss":r[1]>=240?"jackpot":"win");
-  log(r[0]==="ore"?"꽝! 골드 100 돌려받기":`${r[1]>=240?"대박! ":"당첨! "}보석 +${r[1]}`,r[0]==="ore"?"warn":"good");renderPanels();
+  S.ore-=100;const o=rollLotto();S.missRun=o.k==="miss"?(S.missRun||0)+1:0;
+  // decide the concrete prize now so the reels can show it
+  const pr={k:o.k};
+  if(o.k==="gold")pr.gold=o.v;
+  else if(o.k==="gem")pr.gem=[60,80,100,120,160][Math.floor(Math.random()*5)];
+  else if(o.k==="big"){if(Math.random()<.5)pr.gold=400;else pr.gem=300}
+  else if(o.k==="char")pr.type=byGrade(Math.random()<.7?0:1)[Math.floor(Math.random()*8)].i;
+  else if(o.k==="elite")pr.type=byGrade(2)[Math.floor(Math.random()*8)].i;
+  else if(o.k==="hero")pr.type=byGrade(3)[Math.floor(Math.random()*8)].i;
+  else if(o.k==="legend"||o.k==="miracle")pr.type=byGrade(4)[Math.floor(Math.random()*8)].i;
+  if(window.FAST_LOTTO){givePrize(pr);return}
+  slotSpin(pr);
+}
+function placePrize(type){
+  const t=TOWERS[type],empty=SLOTS.filter(s=>!s.tower);
+  if(empty.length){addTower(empty[Math.floor(Math.random()*empty.length)],type);return}
+  // board full: a big prize replaces the weakest character, a small one waits for the next empty slot
+  const weakest=[...S.towers].sort((a,b)=>TOWERS[a.type].grade-TOWERS[b.type].grade||a.born-b.born)[0];
+  if(weakest&&TOWERS[weakest.type].grade<t.grade){const sl=weakest.slot;removeTower(weakest);addTower(sl,type);log(`${TOWERS[weakest.type].name} 자리에 ${t.name} 등장!`,"good")}
+  else{S.picks.unshift(type);log(`${t.name}: 다음 빈 칸에 나와요`,"good")}
+}
+function givePrize(pr){
+  if(pr.gold)S.ore+=pr.gold;
+  if(pr.gem)S.gas+=pr.gem;
+  if(pr.k==="miracle"){for(const m of S.mons)if(!m.dead&&m.kind!=="mission"){if(m.def.boss){m.hp*=.5;continue}m.sh=0;m.hp=0;kill(m)}S.gas+=500} // bosses only lose half
+  if(pr.type!=null)placePrize(pr.type);
+  const t=pr.type!=null?TOWERS[pr.type]:null;
+  const msg={miss:"꽝!",gold:`골드 +${pr.gold}`,gem:`보석 +${pr.gem}`,big:pr.gold?`대박! 골드 +${pr.gold}`:`대박! 보석 +${pr.gem}`,
+    char:t&&`캐릭터 당첨! ${t.name}`,elite:t&&`초대박! 정예 ${t.name}`,hero:t&&`초대박! 영웅 ${t.name}`,legend:t&&`기적! 전설 ${t.name}`,miracle:t&&`신의 기적! 적 전멸 + 전설 ${t.name} + 보석 500`}[pr.k];
+  log(msg,pr.k==="miss"?"warn":"good");
+  if(["legend","miracle","hero"].includes(pr.k))banner(pr.k==="miracle"?"신의 기적!":pr.k==="legend"?"기적!":"초대박!",pr.k==="hero"?GCOL[3]:GCOL[4]);
+  renderPanels();
+}
+// reel symbols: what each kind of prize looks like on a reel
+function symHTML(kind,type){
+  if(kind==="miss")return `<span class="sx">꽝</span>`;
+  if(kind==="gold")return `<img alt="" src="ui/icons/icon_gold.svg">`;
+  if(kind==="gem")return `<img alt="" src="ui/icons/icon_gem.svg">`;
+  if(kind==="big")return `<span class="s7">7</span>`;
+  if(kind==="miracle")return `<span class="sm">神</span>`;
+  const sp=type!=null&&SPR[TOWERS[type].uid];const g=type!=null?TOWERS[type].grade:0;
+  return sp&&sp.idle?`<span class="sc" style="border-color:${GCOL[g]};background-image:url(${sp.idle.src})"></span>`:`<span class="s7">★</span>`;
+}
+const REEL_KINDS=["miss","gold","gem","big","char","hero","legend"];
+function randSym(){const k=REEL_KINDS[Math.floor(Math.random()*REEL_KINDS.length)];const g={char:0,hero:3,legend:4}[k];return symHTML(k,g!=null?byGrade(g)[Math.floor(Math.random()*8)].i:null)}
+function slotSpin(pr){
+  lottoBusy=true;let box=$("slotM");if(!box){box=document.createElement("div");box.id="slotM";box.className="slotm";document.body.appendChild(box)}
+  box.className="slotm show";box.innerHTML=`<div class="res"></div><div class="reel"></div><div class="reel"></div><div class="reel"></div>`;
+  const reels=[...box.querySelectorAll(".reel")];const rare=["elite","hero","legend","miracle","big"].includes(pr.k);
+  const kindOf=k=>k==="elite"||k==="hero"||k==="legend"?k:k;
+  // final faces: three of a kind for a win; a miss shows a mixed line, often a painful near miss
+  let faces;const win=symHTML(kindOf(pr.k)==="elite"?"char":pr.k,pr.type);
+  if(pr.k==="miss"){if(Math.random()<.45){const tease=Math.random()<.5?"legend":"big";const ty=tease==="legend"?byGrade(4)[Math.floor(Math.random()*8)].i:null;const s=symHTML(tease,ty);faces=[s,s,symHTML("miss")];box.dataset.tease="1"}
+    else{faces=[symHTML("gem"),symHTML("miss"),symHTML("gold")];box.dataset.tease=""}}
+  else faces=[win,win,win];
+  const stops=pr.k==="miss"&&box.dataset.tease?[420,760,1700]:rare?[420,760,pr.k==="miracle"||pr.k==="legend"?2300:1700]:[380,620,860];
+  if(stops[2]>1000)setTimeout(()=>box.classList.add("tension"),stops[1]+40);
+  const iv=setInterval(()=>reels.forEach((r,i)=>{if(!r.dataset.stop)r.innerHTML=randSym()}),70);
+  stops.forEach((ms,i)=>setTimeout(()=>{reels[i].dataset.stop="1";reels[i].innerHTML=faces[i];reels[i].classList.add("hit")},ms));
+  setTimeout(()=>{clearInterval(iv);box.classList.remove("tension");
+    const t=pr.type!=null?TOWERS[pr.type]:null;
+    const txt={miss:box.dataset.tease?"아깝다! 꽝":"꽝",gold:`골드 +${pr.gold}`,gem:`보석 +${pr.gem}`,big:pr.gold?`대박! 골드 +${pr.gold}`:`대박! 보석 +${pr.gem}`,char:t&&`${t.name} 당첨!`,elite:t&&`초대박! ${t.name}`,hero:t&&`초대박! ${t.name}`,legend:t&&`기적! ${t.name}`,miracle:"신의 기적! 적 전멸"}[pr.k];
+    box.querySelector(".res").textContent=txt;box.classList.add(pr.k==="miss"?"lose":rare?"jackpot":"win");
+    if(pr.k==="legend"||pr.k==="miracle"){const f=document.createElement("div");f.className="miracleFx";document.body.appendChild(f);setTimeout(()=>f.remove(),1600)}
+    if(S)givePrize(pr);
+    setTimeout(()=>{box.className="slotm";lottoBusy=false;if(S)hud()},rare?1500:650);
+  },stops[2]+80);
 }
 function gachaFx(kind){const btn=MQ.matches?$("navLotto"):$("lottoBtn");const r=btn.getBoundingClientRect();
   const d=document.createElement("div");d.className="gfx";d.style.backgroundImage=`url(ui/gacha/lotto_${kind}_4.png)`;
@@ -877,7 +982,7 @@ function renderPanels(){
   // missions
   $("pMis").innerHTML=`<div class="rows">${MISSIONS.map((d,i)=>`<div class="row mis"><img class="mi" alt="" src="ui/missions/icon_mission_${i+1}.png"><div>${i+1}단계 · ${d.name}<small>잡으면 골드 +${d.reward} · 놓치면 목숨 -10</small></div><span class="lv">${S.mis[i]>0?Math.ceil(S.mis[i]/24)+"s":""}</span><button class="btn" data-m="${i}" ${S.mis[i]>0||!running?"disabled":""}>도전</button></div>`).join("")}</div>`;
   $("pMis").querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>mission(+b.dataset.m));
-  $("lottoBtn").disabled=S.ore<100;$("navLotto").disabled=S.ore<100;
+  $("lottoBtn").disabled=S.ore<100||lottoBusy;$("navLotto").disabled=S.ore<100||lottoBusy;
   if(rail.dataset.view==="sel"&&!S.sel&&viewType==null)closeSheet();
   // codex
   const oc={};for(const o of S.towers)oc[o.type]=(oc[o.type]||0)+1;
