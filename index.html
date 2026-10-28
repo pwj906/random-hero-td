@@ -454,6 +454,7 @@ table.odds tr.miss td{color:var(--muted)}table.odds tr.hero td,table.odds tr.leg
 <style>
 body.menuHold .stage::before{content:"일시정지";position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:7;background:rgba(20,28,66,.82);color:#fff;font-weight:900;font-size:12px;padding:4px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.35);pointer-events:none}
 </style>
+<style>@media (max-width:700px){.mnav button{font-size:13.5px!important;font-weight:700}.mnav button img{width:26px;height:26px}}</style>
 <div class="app">
   <header class="hud">
     <div class="brand"><img alt="랜덤 히어로 디펜스" src="ui/logo_horizontal.png"></div>
@@ -538,7 +539,7 @@ body.menuHold .stage::before{content:"일시정지";position:absolute;left:50%;t
   </aside>
 </div>
 <nav class="mnav" aria-label="메뉴">
-  <button type="button" data-sheet="pUpg" aria-pressed="false"><img alt="" src="ui/icons/icon_upgrade.svg">업그레이드</button>
+  <button type="button" data-sheet="pUpg" aria-pressed="false"><img alt="" src="ui/icons/icon_upg2.svg">업글</button>
   <button type="button" id="navMerge" aria-label="일괄 합성"><img alt="" src="ui/icons/icon_merge_all.svg">일괄 합성<span class="dot" id="navMergeN" hidden>0</span></button>
   <button type="button" class="mlotto" id="navLotto" aria-label="보석 복권, 골드 100"><span class="orb"><b>복권</b><small>골드 100</small></span></button>
   <button type="button" data-sheet="pAug" aria-pressed="false"><img alt="" src="ui/icons/icon_aug.svg">증강</button>
@@ -1438,7 +1439,7 @@ cv.addEventListener("click",e=>{if(!S)return;const s=slotAt(e);viewType=null;
     if(lastTap.tw===tw&&now-lastTap.t<380&&sameCount(tw)>=2){lastTap={};merge(tw,false,true);S.sel=null;if(rail.dataset.view==="sel")closeSheet();renderPanels();return}
     lastTap={tw,t:now};S.sel=S.sel===tw?null:tw}else{if(S.sel){S.sel=null}else build(s)}if(rail.dataset.view==="sel")closeSheet();renderPanels()});
 const rail=$("rail");
-const SHEET_TITLE={sel:"캐릭터 정보",pUpg:"업그레이드",pMis:"도전 미션",pAug:"내 증강",codex:"도감"};
+const SHEET_TITLE={sel:"캐릭터 정보",pUpg:"업글",pMis:"도전 미션",pAug:"내 증강",codex:"도감"};
 function selectTab(pid){if(!MQ.matches)return;$("pUpg").hidden=pid!=="pUpg";$("pMis").hidden=pid!=="pMis"}
 function openSheet(v){
   if(!MQ.matches)return;
