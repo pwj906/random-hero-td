@@ -1080,7 +1080,7 @@ function loadMonsters(){for(const k of new Set([...WAVE_SPR,"b_endless","q_dino"
 loadMonsters();
 function cell(c,im,i,n,dx,dy,w,h){const cw=im.naturalWidth/n;c.drawImage(im,i*cw,0,cw,im.naturalHeight,dx,dy,w,h)}
 // visible size of each idle sprite (sqrt of opaque px at 192px), used to even out how big characters look
-const SPR_AREA={305:112.7,306:92.1,204:75.4,205:79.7,301:105.4,302:105.0,303:99.7,304:102.5,201:43.5,202:56.3,203:81.4,39:33.3,38:39.8,8:40.1,2:44.2,70:41.0,66:39.4,43:42.5,0:34.7,54:71.7,44:57.6,20:68.0,58:71.6,76:68.3,53:61.0,81:63.6,67:75.7,82:73.6,19:82.8,79:72.9,55:77.3,100:73.5,51:91.4,99:72.7,103:58.4,16:32.0,3:52.4,71:58.0,62:54.4,52:68.8,21:53.1,104:49.8,78:52.2,10:53.9,30:32.8,61:30.5,88:31.1,68:33.7,1:31.9,46:33.6,32:32.2};
+const SPR_AREA={305:91.9,306:92.1,204:75.4,205:79.7,301:105.4,302:105.0,303:99.7,304:102.5,201:43.5,202:56.3,203:81.4,39:47.3,38:39.8,8:40.1,2:44.2,70:41.0,66:39.4,43:42.5,0:34.7,54:71.7,44:57.6,20:68.0,58:71.6,76:68.3,53:61.0,81:63.6,67:75.7,82:73.6,19:82.8,79:72.9,55:77.3,100:73.5,51:89.3,99:72.7,103:58.4,16:32.0,3:52.4,71:58.0,62:54.4,52:68.8,21:53.1,104:49.8,78:52.2,10:53.9,30:32.8,61:30.5,88:31.1,68:33.7,1:31.9,46:33.6,32:32.2};
 const SIZE_GOAL=[56,56,56,56,56,56];
 const UPRIGHT=new Set([204,301,302,303,304,305,306]);
 const IDLE_FLIP=new Set([305]); // 권신's idle art faces left while its attack faces right (until the art is redrawn)
@@ -1101,7 +1101,7 @@ const ANIM={
     let m=tw.pend;if(!m||m.dead||!inRange(t,tw,m))m=tw.target;if(!m||m.dead)return;
     if(t.aura){fire(tw,t,m);ANIM.impact(t,m.x,m.y,.7);return} // magic bolt
     const mode=MODE[t.uid]||"proj",R=TS*1.38;
-    if(mode==="melee"){fire(tw,t,m,true);ANIM.impact(t,m.x,m.y,1);return}
+    if(mode==="melee"){fire(tw,t,m,true);ANIM.impact(t,m.x,m.y,t.area&&t.splash[2]>0?(t.splash[2]*2+40)/96:1);return}
     if(mode==="flame"||mode==="spray"){fire(tw,t,m,true);const a=Math.atan2(m.y-tw.y,m.x-tw.x);
       S.fx.push({k:"flame",pal:mode==="spray"?(t.uid===46?"gas":"acid"):"fire",x:tw.x+Math.cos(a)*22,y:tw.y+Math.sin(a)*22,x2:m.x+Math.cos(a)*14,y2:m.y+Math.sin(a)*14,life:10,max:10});
       ANIM.impact(t,m.x,m.y,(t.splash[2]*2+40)/96);return}
