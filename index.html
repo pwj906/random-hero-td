@@ -443,6 +443,13 @@ body{background:#243D83}
 @media (max-width:700px){.mergeAll{display:none}.mnav #navMerge:disabled{opacity:.45}.mnav #navMerge .dot{top:5px}}
 </style>
 <style>@media (max-width:700px){#tabCard>h3{display:none}}</style>
+<style>.upH{margin:6px 0 6px;font-weight:900;font-size:13px}.upH small{font-weight:500;color:var(--muted);margin-left:6px;font-size:11.5px}.row.up .ud .nx{color:#ffe14a}</style>
+<style>
+.oddsH{margin:14px 0 6px;font-size:14px}.oddsH small{font-weight:500;color:var(--muted);font-size:11.5px;margin-left:6px}
+table.odds{width:100%;border-collapse:collapse;font-size:13px}
+table.odds td{padding:5px 6px;border-bottom:1px solid rgba(255,255,255,.1)}table.odds td:last-child{text-align:right;font-family:var(--mono);font-weight:700}
+table.odds tr.miss td{color:var(--muted)}table.odds tr.hero td,table.odds tr.legend td{color:#ffd34f}table.odds tr.miracle td{color:#ff9ef0}
+</style>
 <div class="app">
   <header class="hud">
     <div class="brand"><img alt="랜덤 히어로 디펜스" src="ui/logo_horizontal.png"></div>
@@ -522,6 +529,7 @@ body{background:#243D83}
     <section class="card" id="codexCard">
       <h3>도감</h3>
       <div class="codex" id="codex"></div>
+      <div id="lottoOdds"></div>
     </section>
   </aside>
 </div>
@@ -561,10 +569,12 @@ const GRADE=["견습","숙련","정예","영웅","전설","신"];
 const GCOL=["#aab7c0","#428dff","#9b4dff","#ff573d","#ffd34f","#ff5cc8"];
 const SELL=[50,100,200,400,0,0];
 // upgrades: one line per role (사격·저격·범위·근접·마법), five characters each
-const UPG_ICON={Shot:"gun",Sniper:"sniper",Area:"artillery",Melee:"sword",Magic:"magic"};
+const UPG_ICON={Single:"single",Shot:"gun",Sniper:"sniper",Area:"area",Melee:"sword",Magic:"magic"};
 const UPG_DESC={Shot:"공격력 올리기",Sniper:"공격력 올리기",Area:"공격력 올리기",Melee:"공격력 올리기",Magic:"공격력 + 특수효과(버프·저주·둔화) 5%씩"};
-const UPG_COL={Shot:"#3D8BFF",Sniper:"#8B5CF6",Area:"#FFA62B",Melee:"#FF5A5F",Magic:"#2BC48A"};
+const UPG_COL={Single:"#18A7B5",Shot:"#3D8BFF",Sniper:"#8B5CF6",Area:"#FFA62B",Melee:"#FF5A5F",Magic:"#2BC48A"};
 const UPGS=[["Melee","근접"],["Shot","사격"],["Sniper","저격"]];
+// second kind of upgrade, by attack type. each covers ~15 of the 30 characters (1.5x a line), so a level is weaker
+const UPGS_T=[["Single","단발"],["Area","범위"]];const UPG_LINE_K=.10,UPG_TYPE_K=.07;
 const UPG_K=1.5;const upgCost=lv=>Math.round(UPG_K*(7+lv));
 // monster size no longer changes damage (the StarCraft concussive/explosive table was too hard to read)
 const MULT={Normal:[1,1,1,1],Ignore_Armor:[1,1,1,1],Concussive:[1,1,1,1],Explosive:[1,1,1,1],Independent:[1,1,1,1]};
@@ -659,7 +669,7 @@ let S;
 function fresh(diff){
   SLOTS.forEach(s=>s.tower=null);
   return {diff,ore:500,gas:0,gSlow:0,life:30,kills:0,frame:0,wi:0,phase:"prep",cd:Math.round(50*24*PREP_K),spawnLeft:0,spawnT:0,
-    upg:Object.fromEntries(UPGS.map(u=>[u[0],3])),towers:[],mons:[],fx:[],proj:[],picks:[],
+    upg:{...Object.fromEntries(UPGS.map(u=>[u[0],3])),Single:0,Area:0},towers:[],mons:[],fx:[],proj:[],picks:[],
     tok:{boss:0,rare:0,unique:0,epic:0},mis:[0,0,0],ach:{},sel:null,over:false,nextId:1,aug:[],augPending:false,augOffer:null,freeTix:0,allIn:1,props:null};
 }
 let speed=1,paused=false,running=false;
@@ -673,7 +683,10 @@ let bannerT=0;function banner(t,col){const b=$("banner");let img="",txt=t;const 
   b.innerHTML=(img?`<img alt="" src="ui/banners/banner_${img}.png">`:"")+`<span></span>`;b.querySelector("span").textContent=txt;b.classList.toggle("img",!!img);b.style.color=col||"var(--fg)";b.classList.add("show");clearTimeout(bannerT);bannerT=setTimeout(()=>b.classList.remove("show"),1800)}
 function fmt(n){n=Math.round(n);return n>=1e6?(n/1e6).toFixed(2)+"M":n>=1e4?(n/1e3).toFixed(1)+"k":String(n)}
 function lvl(t){return S.upg[t.upg]??0}
-function hitDmg(t){return t.dmg+t.bonus*lvl(t)}
+// one hit: the base (line level 3) grows +10% per line level and +7% per attack-type level
+const typeKey=t=>t.area?"Area":"Single";
+function upgMul(t){if(!S)return 1;return (1+UPG_LINE_K*(lvl(t)-3))*(1+UPG_TYPE_K*(S.upg[typeKey(t)]||0))}
+function hitDmg(t){return (t.dmg+3*t.bonus)*upgMul(t)}
 // HP multiplier curve: [wave index (0-based), multiplier], linear in between
 // tuned with 16-seed bot runs to the target play time at x3 speed: usual run ~5 min, lucky/strong run ~15 min.
 // the 28-slot board can't grow as strong as the original's, so later waves are scaled down hard.
@@ -884,8 +897,12 @@ function sell(tw){
   const v=t.uid===81?1000:SELL[t.grade];removeTower(tw);S.ore+=v;
   log(`${t.name}을(를) 팔고 ${v}원을 얻었습니다.`);sfx("coin");renderPanels();
 }
+const isType=k=>k==="Single"||k==="Area";
+const upgShown=k=>isType(k)?S.upg[k]:S.upg[k]-3;            // levels shown from 0
+const upgCostOf=k=>upgPrice(upgShown(k)+3);
+const upgStep=k=>isType(k)?UPG_TYPE_K:UPG_LINE_K;
 function buyUpg(key){
-  const lv=S.upg[key],cost=upgPrice(lv);
+  const lv=S.upg[key],cost=upgCostOf(key);
   if(S.gas<cost){log("보석이 부족해요","warn");return}
   if(lv>=255)return;S.gas-=cost;S.upg[key]++;sfx("up");renderPanels();
 }
@@ -904,9 +921,16 @@ const LOTTO=[
   {k:"miracle",w:2}];
 const PITY=4; // after 4 misses in a row the next draw always wins something
 let lottoBusy=false;
+function lottoPool(pity){let pool=pity?LOTTO.filter(o=>o.k!=="miss"):LOTTO;
+  return pool.map(o=>o.k==="miss"&&has("lucky_coin")?{...o,w:o.w/2}:["hero","legend","miracle"].includes(o.k)&&has("jackpot")?{...o,w:o.w*3}:o)}
+// odds table for the codex: what one ticket can give right now (augments included)
+const LOTTO_NAME={miss:"꽝",gold:"골드 +120",gem:"보석 60~160",char:"견습·숙련 캐릭터",big:"대박 (골드 400 또는 보석 300)",elite:"정예 캐릭터",hero:"영웅 캐릭터",legend:"전설 캐릭터",miracle:"신의 기적 (적 전멸 + 전설 + 보석 500)"};
+const ODDS_ORDER=["miss","gold","gem","char","big","elite","hero","legend","miracle"];
+function lottoOddsHTML(){const pool=lottoPool(false).sort((a,b)=>ODDS_ORDER.indexOf(a.k)-ODDS_ORDER.indexOf(b.k)),tot=pool.reduce((a,o)=>a+o.w,0);
+  const pc=w=>{const v=w/tot*100;return v>=1?v.toFixed(1)+"%":v.toFixed(2)+"%"};
+  return `<h3 class="oddsH">복권 확률 <small>지금 기준${S&&(has("lucky_coin")||has("jackpot"))?" · 증강 적용":""}</small></h3><table class="odds">${pool.map(o=>`<tr class="${o.k}"><td>${LOTTO_NAME[o.k]}</td><td>${pc(o.w)}</td></tr>`).join("")}</table><p class="hint">꽝이 ${PITY}번 연속 나오면 다음 한 장은 반드시 당첨이에요.</p>`}
 function rollLotto(){
-  let pool=S.missRun>=PITY?LOTTO.filter(o=>o.k!=="miss"):LOTTO;
-  pool=pool.map(o=>o.k==="miss"&&has("lucky_coin")?{...o,w:o.w/2}:["hero","legend","miracle"].includes(o.k)&&has("jackpot")?{...o,w:o.w*3}:o);const tot=pool.reduce((a,o)=>a+o.w,0);
+  const pool=lottoPool(S.missRun>=PITY);const tot=pool.reduce((a,o)=>a+o.w,0);
   let r=Math.random()*tot;for(const o of pool){if((r-=o.w)<0)return o}return pool[0]}
 function lotto(){
   if(lottoBusy)return;
@@ -1144,7 +1168,9 @@ const HEADS={
  crown(c,g,a){P(c,[[-.45,.35],[-.5,-.4],[-.2,-.1],[0,-.5],[.2,-.1],[.5,-.4],[.45,.35]],a,g,.05);for(const s of[-.25,.25])P(c,[[.3,s-.06],[.95,s*.6],[.3,s+.06]],LIGHT)},
 };
 const ICON={};
-function makeIcons(){for(const t of TOWERS){const cv=document.createElement("canvas");cv.width=cv.height=96;const c=cv.getContext("2d");drawTower(c,t,48,48,44,-Math.PI/4,10,0);ICON[t.i]=cv.toDataURL()}}
+const AREA_IMG=new Image();AREA_IMG.src="ui/icons/icon_area.svg";
+function areaMark(c,x,y,r){c.beginPath();c.arc(x,y,r,0,7);c.fillStyle="#FF7A1A";c.fill();c.lineWidth=Math.max(1.5,r*.22);c.strokeStyle="#fff";c.stroke();if(AREA_IMG.complete&&AREA_IMG.naturalWidth)c.drawImage(AREA_IMG,x-r*.78,y-r*.78,r*1.56,r*1.56)}
+function makeIcons(){for(const t of TOWERS){const cv=document.createElement("canvas");cv.width=cv.height=96;const c=cv.getContext("2d");drawTower(c,t,48,48,44,-Math.PI/4,10,0);if(t.area)areaMark(c,80,80,13);ICON[t.i]=cv.toDataURL()}}
 
 // ---------- rendering ----------
 const cv=$("cv"),ctx=cv.getContext("2d");
@@ -1211,7 +1237,7 @@ function render(){
   if(tdrag&&tdrag.active){const o=tdrag.over;if(o&&o!==tdrag.tw.slot){c.fillStyle=o.tower?"rgba(255,194,58,.28)":"rgba(78,240,176,.28)";c.strokeStyle=o.tower?"#ffc23a":"#4ef0b0";c.lineWidth=3;c.fillRect(o.x*K-TS+3,o.y*K-TS+3,TS*2-6,TS*2-6);c.strokeRect(o.x*K-TS+3,o.y*K-TS+3,TS*2-6,TS*2-6)}
     c.globalAlpha=.9;drawTower(c,TOWERS[tdrag.tw.type],tdrag.cx,tdrag.cy-TS*.4,TS*1.38,tdrag.tw.ang,time,0,null);c.globalAlpha=1}
   // small upgrade-line badge under each character (sword = 근접, gun = 사격, cannon = 범위)
-  for(const tw of S.towers){if(tdrag&&tdrag.active&&tdrag.tw===tw)continue;const im=UPG_IMG[TOWERS[tw.type].upg];if(!im||!im.complete)continue;const bx=tw.x*K,by=tw.y*K+TS*.86,br=TS*.3;
+  for(const tw of S.towers){if(tdrag&&tdrag.active&&tdrag.tw===tw)continue;const im=UPG_IMG[TOWERS[tw.type].upg];if(!im||!im.complete)continue;const ar=TOWERS[tw.type].area,br=TS*.3,bx=tw.x*K-(ar?br*1.05:0),by=tw.y*K+TS*.86;if(ar)areaMark(c,bx+br*2.1,by,br*.92);
     c.beginPath();c.arc(bx,by,br,0,7);c.fillStyle=UPG_COL[TOWERS[tw.type].upg];c.fill();c.lineWidth=Math.max(1.5,TS*.05);c.strokeStyle="#fff";c.stroke();c.drawImage(im,bx-br*.72,by-br*.72,br*1.44,br*1.44)}
   for(const tw of S.towers){if(tw.conc){const bx=tw.x*K-TS*.7,by=tw.y*K-TS*.72;c.font=`900 ${TS*.38}px sans-serif`;c.textAlign="center";c.textBaseline="middle";c.lineWidth=TS*.1;c.strokeStyle="#5a2a6e";c.strokeText("★"+(tw.conc+1),bx,by);c.fillStyle="#ffe45a";c.fillText("★"+(tw.conc+1),bx,by);c.textBaseline="alphabetic"}}
   for(const tw of S.towers){if(tc[tw.type]<2)continue;const bx=tw.x*K+TS*.78,by=tw.y*K-TS*.78+Math.sin(time*.15)*TS*.04,br=TS*.24;
@@ -1286,7 +1312,7 @@ function desc(t){
   if(t.dtype==="Ignore_Armor")s+=" · 방어 무시";return s}
 function sameCount(tw){return S.towers.filter(o=>o.type===tw.type).length}
 // character card: four numbers + at most two short trait tags, then 판매 / 합성
-function traitTags(t){const tags=[];const a=t.aura,pc=v=>Math.round(v*100)+"%";
+function traitTags(t){const tags=[];if(t.area)tags.push("범위 공격");const a=t.aura,pc=v=>Math.round(v*100)+"%";
   if(a){const w=a.r>9?"판 전체":`주변 ${a.r}칸`;if(a.spd)tags.push(`${w} 아군 공격 속도 +${pc(a.spd)}`);if(a.pow)tags.push(`${w} 아군 공격력 +${pc(a.pow)}`);if(a.slowAll)tags.push(`모든 적 ${pc(a.slowAll)} 느리게`)}
   if(t.curse)tags.push(`저주: 받는 피해 +${pc(t.curse.v)}`);if(t.slow)tags.push(`맞은 적 ${pc(t.slow.v)} 느리게`);
   if(t.weapon.startsWith("Glave"))tags.push("튕김");else if(t.weapon==="Subterranean_Spines")tags.push("일직선 관통");else if(t.shots>1)tags.push(`벌떼 ${t.shots}마리`);
@@ -1316,7 +1342,7 @@ function placeBubble(){
 function renderSel(){
   const b=$("selBody");const showT=viewType!=null?TOWERS[viewType]:null;
   if(!showT){b.innerHTML=`<p class="hint">빈 칸을 누르면 골드 100으로 캐릭터를 뽑아요. 캐릭터를 누르면 합성하거나 팔 수 있어요.${S&&S.picks.length?`<br>다음에 나올 캐릭터: ${S.picks.map(i=>TOWERS[i].name).join(", ")}`:""}</p>`;return}
-  const t=showT,L=S?lvl(t):3,dmg=t.dmg+t.bonus*L,own=S?S.towers.filter(o=>o.type===t.i).length:0;
+  const t=showT,L=S?lvl(t):3,dmg=hitDmg(t),own=S?S.towers.filter(o=>o.type===t.i).length:0;
   b.innerHTML=`<div class="sel"><img alt="" src="${ICON[t.i]}"><div><span class="gchip" style="background:${GCOL[t.grade]}">${GRADE[t.grade]}</span><div class="tname">${t.name}</div></div></div>
   <p class="desc">${desc(t)}</p>
   <dl class="kv"><dt>공격력</dt><dd>${fmt(dmg*t.factor*(t.shots||1))}</dd><dt>공격 간격</dt><dd>${(t.cd/24).toFixed(2)}초</dd><dt>사거리</dt><dd>${t.rt}칸</dd><dt>보유</dt><dd>${own}명</dd></dl>`;
@@ -1328,8 +1354,11 @@ function renderPanels(){
   const ownCnt={};for(const tw of S.towers){const k=TOWERS[tw.type].upg;ownCnt[k]=(ownCnt[k]||0)+1}
   const ownTypes=new Set(S.towers.map(o=>o.type));
   const order=UPGS.map((u,i)=>[u,i]).sort((a,b)=>((ownCnt[b[0][0]]?1:0)-(ownCnt[a[0][0]]?1:0))||a[1]-b[1]).map(x=>x[0]);
-  $("augBody").innerHTML=augDetail();$("pUpg").innerHTML=`<div class="rows">${order.map(([k,n])=>{const lv=S.upg[k],cost=upgPrice(lv);const mine=TOWERS.filter(t=>t.upg===k&&ownTypes.has(t.i));
-    return `<div class="row up ${mine.length?"":"dim"}"><img class="gi" alt="" style="background:${UPG_COL[k]};border-radius:50%;padding:4px;box-sizing:border-box" src="ui/icons/icon_${UPG_ICON[k]}.svg"><div><b class="un" style="color:${UPG_COL[k]}">${n}</b><small class="ud">${UPG_DESC[k]}</small><span class="ui">${mine.length?mine.slice(0,4).map(t=>`<img alt="${t.name}" src="${ICON[t.i]}">`).join(""):`<small>보유 캐릭터 없음</small>`}</span></div><span class="lv">Lv${lv}</span><button class="btn gem" data-u="${k}" ${S.gas<cost?"disabled":""}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12l4 6-10 11L2 10z"/></svg>${cost}</button></div>`}).join("")}</div>`;
+  $("augBody").innerHTML=augDetail();
+  const row=([k,n])=>{const lv=upgShown(k),cost=upgCostOf(k),st=Math.round(upgStep(k)*100),cur=Math.round(upgStep(k)*lv*100);
+    const mine=TOWERS.filter(t=>(isType(k)?typeKey(t)===k:t.upg===k)&&ownTypes.has(t.i));
+    return `<div class="row up ${mine.length?"":"dim"}"><img class="gi" alt="" style="background:${UPG_COL[k]};border-radius:50%;padding:4px;box-sizing:border-box" src="ui/icons/icon_${UPG_ICON[k]}.svg"><div><b class="un" style="color:${UPG_COL[k]}">${n}</b><small class="ud">공격력 +${cur}% → <b class="nx">+${cur+st}%</b></small><span class="ui">${mine.length?mine.slice(0,4).map(t=>`<img alt="${t.name}" src="${ICON[t.i]}">`).join("")+(mine.length>4?`<small>+${mine.length-4}</small>`:""):`<small>보유 캐릭터 없음</small>`}</span></div><span class="lv">Lv${lv}</span><button class="btn gem" data-u="${k}" ${S.gas<cost?"disabled":""}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12l4 6-10 11L2 10z"/></svg>${cost}</button></div>`};
+  $("pUpg").innerHTML=`<p class="upH">계열별 <small>레벨당 공격력 +${Math.round(UPG_LINE_K*100)}%</small></p><div class="rows">${order.map(row).join("")}</div><p class="upH">공격 방식별 <small>레벨당 공격력 +${Math.round(UPG_TYPE_K*100)}% · 적용 캐릭터가 더 많아요</small></p><div class="rows">${UPGS_T.map(row).join("")}</div>`;
   $("pUpg").querySelectorAll("[data-u]").forEach(b=>b.onclick=()=>buyUpg(b.dataset.u));
   // missions
   $("pMis").innerHTML=`<div class="rows">${MISSIONS.map((d,i)=>`<div class="row mis"><img class="mi" alt="" src="ui/missions/icon_mission_${i+1}.png"><div>${i+1}단계 · ${d.name}<small>권장 ${MIS_REC[i]}웨이브부터 · 보상 골드 +${d.reward}</small><small>놓치면 목숨 -10</small></div><span class="lv misLv">${misLeft(i)>0?misLeft(i)+"웨이브 뒤":""}</span><button class="btn" data-m="${i}" ${misLeft(i)>0||!running?"disabled":""}>도전</button></div>`).join("")}</div>`;
@@ -1337,6 +1366,7 @@ function renderPanels(){
   {const fr=S.freeTix>0,dis=(!fr&&S.ore<100)||lottoBusy;$("lottoBtn").disabled=dis;$("navLotto").disabled=dis;const lb=fr?`무료 ${S.freeTix}장`:"골드 100";$("lottoBtn").querySelector("span").textContent=lb;$("navLotto").querySelector("small").textContent=lb}
   {const n=mergeablePairs();$("mergeAll").disabled=!n||!running;$("mergeAllN").textContent=n;$("navMerge").disabled=!n||!running;$("navMergeN").textContent=n;$("navMergeN").hidden=!n}
   if(rail.dataset.view==="sel"&&!S.sel&&viewType==null)closeSheet();
+  {const el=$("lottoOdds");if(el)el.innerHTML=lottoOddsHTML()}
   // codex
   const oc={};for(const o of S.towers)oc[o.type]=(oc[o.type]||0)+1;
   document.querySelectorAll("#codex .ci").forEach(b=>{const n=oc[+b.dataset.t]||0;b.classList.toggle("own",n>0);b.querySelector(".cnt").textContent=n?n:""});
@@ -1501,7 +1531,8 @@ function rtOf(t){return t.rt}
 function mh(t){return (t.maxHit||1)+(t.area&&has("area_count")?2:0)}
 function upgPrice(lv){return Math.round(upgCost(lv)*(has("cheap_upg")?.75:1))}
 function augMult(tw){
-  const t=TOWERS[tw.type],r=ROLE[t.uid];let p=(S.allIn||1)*(1+(tw.conc||0)),s=1;
+  const t=TOWERS[tw.type],r=ROLE[t.uid],N=(tw.conc||0)+1;let p=(S.allIn||1),s=1;
+  if(N>1){p*=1+.1*N;s*=N} // 농축: N gods -> attack speed xN and damage +N0%
   if(r==="Melee"){if(has("melee_pow"))p*=1.2;if(has("melee_spd"))s*=1.25}
   if(r==="Shot"){if(has("shot_pow"))p*=1.2;if(has("shot_spd"))s*=1.25}
   if(r==="Sniper"){if(has("snipe_pow"))p*=1.2;if(has("snipe_spd"))s*=1.25}
