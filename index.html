@@ -639,11 +639,12 @@ TOWERS.forEach(t=>{const f=TUNE2[t.uid];if(!f)return;t.dmg=Math.round(t.dmg*f);t
 // grade base = 근접 단발 DPS at upgrade level 3; each grade ~2.4x the one below, god ~3x legend
 const DPS_BASE=[100,240,520,1250,3000,9000];
 const DPS_ROLE={Melee:[1,.7],Shot:[.8,.55],Sniper:[.62,.45]};
-const AREA_SPLASH={Melee:[24,44,64],Shot:[16,32,48],Sniper:[16,32,48]};
+const AREA_SPLASH={Melee:[40,72,104],Shot:[32,60,88],Sniper:[32,60,88]};
+const AREA_HIT={Melee:2.1,Shot:1.73,Sniper:1.73}; // the wider blast hits ~2x more monsters, so each hit is lighter (area total ~10% up) // wide enough that a blast usually catches several monsters
 TOWERS.forEach(t=>{if(t.off||!ROLE[t.uid])return;
   const area=t.splash[2]>0||t.weapon.startsWith("Glave")||t.weapon==="Subterranean_Spines";t.area=area;
   if(area&&t.splash[2]>0)t.splash=AREA_SPLASH[ROLE[t.uid]].slice();
-  const want=DPS_BASE[t.grade]*DPS_ROLE[ROLE[t.uid]][area?1:0];
+  const want=DPS_BASE[t.grade]*DPS_ROLE[ROLE[t.uid]][area?1:0]/(area&&t.splash[2]>0&&t.weapon!=="Subterranean_Spines"?AREA_HIT[ROLE[t.uid]]:1);
   const per=(t.factor||1)*(t.shots||1)/(t.cd/24);   // DPS per point of (dmg + 3 bonus)
   const hit=want/per;const share=t.bonus/(t.dmg+3*t.bonus||1)||.12;
   t.bonus=Math.max(0,Math.round(hit*share));t.dmg=Math.max(1,Math.round(hit-3*t.bonus))});
@@ -713,9 +714,9 @@ function spawn(def,hp,kind){
 function endWave(){
   const i=S.wi;let ore=250,cd=35;
   if(i===9){ore=450;cd=70}else if(i>=10&&i<=18)cd=40;else if(i===19){ore=450;cd=80}else if(i>=20&&i<=28)cd=45;else if(i===29)cd=100;else if(i>=30)cd=50;if(i>=40)cd=(i+1)%10===9?60:45;
-  if(has("hunter"))ore=Math.round(ore*1.3);
-  let extra="";if(has("interest")){const v=Math.min(100,Math.floor(S.ore*.1));S.ore+=v;extra+=` · 이자 +${v}`}
-  if(has("gem_mine")){S.gas+=15;extra+=" · 보석 +15"}if(has("free_ticket")){S.freeTix=(S.freeTix||0)+1;extra+=" · 무료 복권 +1"}
+  if(has("hunter"))ore=Math.round(ore*1.15);
+  let extra="";if(has("interest")){const v=S.ore>=500?100:40;S.ore+=v;extra+=` · 이자 +${v}`}
+  if(has("gem_mine")){S.gas+=15;extra+=" · 보석 +15"}if(has("free_ticket")&&(i+1)%3===0){S.freeTix=(S.freeTix||0)+1;extra+=" · 무료 복권 +1"}
   const gem=(i+1)%10===0?30:10;S.gas+=gem;extra=` · 보석 +${gem}`+extra;
   sfx("clear");bgmMode("calm");S.ore+=ore;S.fx.push({k:"txt",t:`+${ore} 골드`,x:COLS*WT/2,y:ROWS*WT*.42,c:"#ffd34f",sc:"#5a3a00",big:true,life:30,max:30});log("Wave "+(i+1)+" 종료 · 골드 +"+ore+extra+" · 준비 "+cd+"초","good");
   S.wi++;S.phase="prep";S.cd=Math.round(cd*24*PREP_K);
@@ -752,21 +753,22 @@ function damage(m,raw,dt){
   if(m.dead||raw<=0)return;
   let d=raw;
   if(m.sh>0){if(d<=m.sh){m.sh-=d;return}d-=m.sh;m.sh=0}
-  const ar=dt==="Ignore_Armor"?0:(m.ar-m.acid)*(m.wardT>0?.5:1);
+  const ar=dt==="Ignore_Armor"||m.wardT>0?0:m.ar-m.acid;
   let v=(d-ar)*(MULT[dt]||MULT.Normal)[m.size];
   if(v<0.5)v=0.5;
   if(m.curseT>0)v*=1+(m.curseV||.15); // venom witch curse (grows with magic upgrades)
   v=augDamage(m,v);
-  if(Math.random()<CRIT_P){v*=CRIT_X;critFx(m,v)}
+  if(Math.random()<CRIT_P+(S.src&&has("snipe_range")&&ROLE[S.src.uid]==="Sniper"?.2:0)){v*=CRIT_X;critFx(m,v)}
   m.hp-=v;if(m.hp<=0)kill(m);else augAfterHit(m);
 }
 function splash(t,cx,cy,raw){
-  const[si,sm,so]=t.splash;const hits=[];sfx("boom");
+  const rk=has("area_count")?1.25:1,[si,sm,so]=t.splash.map(v=>v*rk);const hits=[];sfx("boom");
   for(const m of S.mons){if(m.dead)continue;const dd=Math.hypot(m.x-cx,m.y-cy)-monR(m)*.5;if(dd<=so)hits.push([dd,m])}
   hits.sort((a,b)=>a[0]-b[0]);
-  for(const[dd,m]of hits.slice(0,mh(t))){const f=dd<=si?1:dd<=sm?.5:.25;damage(m,raw*f,t.dtype)}
+  for(const[dd,m]of hits.slice(0,mh(t))){const f=dd<=si?1:dd<=sm?.8:.6;damage(m,raw*f,t.dtype)}
 }
 function fire(tw,t,m,noFx){
+  S.src=t;
   const raw=hitDmg(t)*t.factor*(tw.bPow||1);const col=FXCOL[t.uid]||GCOL[t.grade];
   if(t.weapon==="Subterranean_Spines"){ // lurker line
     const ang=Math.atan2(m.y-tw.y,m.x-tw.x),L=(rtOf(t)+.7)*CELL,ex=tw.x+Math.cos(ang)*L,ey=tw.y+Math.sin(ang)*L;
@@ -808,7 +810,7 @@ function tick(){
     if(S.spawnLeft>0){if(--S.spawnT<=0){const def=waveDef(S.wi);spawn(def,waveHP(S.wi,def),"wave");S.spawnLeft--;S.spawnT=24}}
     else if(S.mons.length===0)endWave();
   }
-  for(const m of S.mons){if(m.dead)continue;if(m.frozen>0){m.frozen--;continue}m.d+=m.spd*SPEED_K*(m.slowT>0?1-m.slowV:1)*(1-S.gSlow);if(m.slowT>0)m.slowT--;if(m.curseT>0)m.curseT--;if(m.acidT>0&&--m.acidT===0)m.acid=0;
+  for(const m of S.mons){if(m.dead)continue;if(m.frozen>0){m.frozen--;continue}m.d+=m.spd*SPEED_K*(m.slowT>0?1-m.slowV:1)*(1-S.gSlow)*(S.aug.includes("time_warp")?.72:1);if(m.slowT>0)m.slowT--;if(m.curseT>0)m.curseT--;if(m.acidT>0&&--m.acidT===0)m.acid=0;
     if(m.d>=PATHLEN){leak(m);continue}const p=pathAt(m.d);m.x=p[0];m.y=p[1];m.a=p[2]}
   if(S.frame%6===0)applyAuras();
   for(const tw of S.towers){const t=TOWERS[tw.type];
@@ -829,6 +831,7 @@ function tick(){
 function addTower(slot,type,msg){
   const tw={id:S.nextId++,type,slot,x:slot.x,y:slot.y,ang:-Math.PI/2,cool:0,target:null,kick:0,born:S.frame};
   slot.tower=tw;S.towers.push(tw);const t=TOWERS[type];
+  if(ROLE[t.uid]==="Melee"&&!edgeSlot(slot))meleeToEdge(tw);
   if(msg!==false)log(`[${GRADE[t.grade]}] ${t.name} 건설`,t.grade>=3?"hi":"");
   if(t.grade>=5){banner(`신 강림 · ${t.name}`,GCOL[5]);const f=document.createElement("div");f.className="miracleFx";document.body.appendChild(f);setTimeout(()=>f.remove(),1600)}
   else if(t.grade>=3)banner(`${GRADE[t.grade]} · ${t.name}`,GCOL[t.grade]);
@@ -836,6 +839,13 @@ function addTower(slot,type,msg){
   sfx(t.grade>=5?"god":t.grade>=3?"rare":"build");
   return tw;
 }
+// melee reach is 1 cell, so a melee character in the middle of the board hits nothing:
+// new melee characters step out to a slot beside the road (empty first, otherwise swap with a ranged one)
+const edgeSlot=sl=>sl.x<=96||sl.y<=96||sl.x>=COLS*WT-96||sl.y>=ROWS*WT-96;
+function meleeToEdge(tw){
+  const d=sl=>Math.hypot(sl.x-tw.x,sl.y-tw.y),edges=SLOTS.filter(edgeSlot).sort((a,b)=>d(a)-d(b));
+  const to=edges.find(sl=>!sl.tower)||edges.find(sl=>sl.tower&&ROLE[TOWERS[sl.tower.type].uid]!=="Melee");
+  if(to)moveTower(tw,to)}
 function removeTower(tw){tw.slot.tower=null;S.towers=S.towers.filter(o=>o!==tw);if(S.sel===tw)S.sel=null}
 function build(slot){
   if(!running||slot.tower)return;
@@ -848,16 +858,16 @@ function merge(tw,quiet,noSel){
   const t=TOWERS[tw.type];
   const partner=S.towers.filter(o=>o!==tw&&o.type===tw.type).sort((a,b)=>(a.conc||0)-(b.conc||0)||a.born-b.born)[0];
   if(!partner){log("같은 캐릭터가 하나 더 필요해요","warn");return}
-  // gods concentrate instead: the two become one, keeping both powers (농축 n = attack x(n+1))
+  // gods concentrate instead: the two become one, keeping both powers. ★ shows how many gods are inside (★3 = 3 gods = attack x3)
   if(t.grade>=5){tw.conc=(tw.conc||0)+(partner.conc||0)+1;removeTower(partner);sfx("merge");
-    S.fx.push({k:"pop",x:tw.x,y:tw.y,r:48,c:GCOL[5],life:16,max:16});banner(`농축 ${tw.conc}단계 · ${t.name}`,GCOL[5]);applyAuras();S.sel=quiet||noSel?null:tw;renderPanels();return}
+    S.fx.push({k:"pop",x:tw.x,y:tw.y,r:48,c:GCOL[5],life:16,max:16});banner(`농축 ★${tw.conc+1} · ${t.name}`,GCOL[5]);applyAuras();S.sel=quiet||noSel?null:tw;renderPanels();return}
   sfx("merge");
   const done=line=>{
-    const slot=tw.slot;if(!(has("recycle")&&Math.random()<.25))removeTower(partner);else log("재활용! 재료 1명이 남았어요","good");removeTower(tw);
-    let g=t.grade+1;if(S.godCall&&t.grade>=3){g=5;S.godCall=0}else if(has("double_up")&&t.grade+2<=4&&Math.random()<.15){g=t.grade+2;log("겹경사! 두 등급 위","good")}
+    const slot=tw.slot;if(!(has("recycle")&&Math.random()<.1))removeTower(partner);else log("재활용! 재료 1명이 남았어요","good");removeTower(tw);
+    let g=t.grade+1;if(S.godCall&&t.grade===3){g=5;S.godCall=0}else if(has("double_up")&&t.grade+2<=4&&Math.random()<.06){g=t.grade+2;log("겹경사! 두 등급 위","good")}
     let pool=byGrade(g);if(line&&g<5){const f=pool.filter(o=>ROLE[o.uid]===line);if(f.length)pool=f}
     const nt=addTower(slot,pick(pool).i);S.sel=quiet||noSel?null:nt;renderPanels()};
-  if(!quiet&&has("choose_line")&&t.grade<4&&!(S.godCall&&t.grade>=3)&&!window.AUG_AUTO)askLine(done);else done(null);
+  if(!quiet&&has("choose_line")&&t.grade<4&&!(S.godCall&&t.grade===3)&&!window.AUG_AUTO)askLine(done);else done(null);
 }
 function mergeablePairs(){const by={};for(const tw of S.towers){const t=TOWERS[tw.type];if(t.grade<=3)(by[tw.type]=by[tw.type]||[]).push(tw)}
   return Object.values(by).reduce((n,a)=>n+Math.floor(a.length/2),0)}
@@ -865,9 +875,10 @@ function mergeAll(){
   if(!running)return;const by={};for(const tw of S.towers){const t=TOWERS[tw.type];if(t.grade<=3)(by[tw.type]=by[tw.type]||[]).push(tw)}
   let n=0;const keep=S.sel;for(const list of Object.values(by)){list.sort((a,b)=>a.born-b.born);for(let i=0;i+1<list.length;i+=2){if(!S.towers.includes(list[i])||!S.towers.includes(list[i+1]))continue;merge(list[i],true);n++}}
   S.sel=null;if(n)log(`일괄 합성 ${n}번`,"good");renderPanels()}
-function exchange(tw){ // 고물상 augment: swap for a different character of the same grade (gold 50)
-  const t=TOWERS[tw.type];if(t.grade>=5||!has("junk"))return;if(S.ore<50){log("골드가 부족해요 (교환 50)","warn");return}
-  const opts=byGrade(t.grade).filter(o=>o.i!==t.i);if(!opts.length)return;S.ore-=50;const sl=tw.slot;removeTower(tw);S.sel=addTower(sl,pick(opts).i,false);sfx("coin");renderPanels()}
+const xCost=g=>50<<g; // 고물상: swap price doubles per grade (견습 50 ... 전설 800)
+function exchange(tw){ // 고물상 augment: swap for a different character of the same grade
+  const t=TOWERS[tw.type],c=xCost(t.grade);if(t.grade>=5||!has("junk"))return;if(S.ore<c){log(`골드가 부족해요 (교환 ${c})`,"warn");return}
+  const opts=byGrade(t.grade).filter(o=>o.i!==t.i);if(!opts.length)return;S.ore-=c;const sl=tw.slot;removeTower(tw);S.sel=addTower(sl,pick(opts).i,false);sfx("coin");renderPanels()}
 function sell(tw){
   const t=TOWERS[tw.type];if(t.grade>=4){log("전설은 팔 수 없어요","warn");return}
   const v=t.uid===81?1000:SELL[t.grade];removeTower(tw);S.ore+=v;
@@ -895,7 +906,7 @@ const PITY=4; // after 4 misses in a row the next draw always wins something
 let lottoBusy=false;
 function rollLotto(){
   let pool=S.missRun>=PITY?LOTTO.filter(o=>o.k!=="miss"):LOTTO;
-  pool=pool.map(o=>o.k==="miss"&&has("lucky_coin")?{...o,w:o.w/2}:o.k==="miracle"&&has("jackpot")?{...o,w:o.w*3}:o);const tot=pool.reduce((a,o)=>a+o.w,0);
+  pool=pool.map(o=>o.k==="miss"&&has("lucky_coin")?{...o,w:o.w/2}:["hero","legend","miracle"].includes(o.k)&&has("jackpot")?{...o,w:o.w*3}:o);const tot=pool.reduce((a,o)=>a+o.w,0);
   let r=Math.random()*tot;for(const o of pool){if((r-=o.w)<0)return o}return pool[0]}
 function lotto(){
   if(lottoBusy)return;
@@ -1078,7 +1089,7 @@ const ANIM={
     S.proj=S.proj.filter(p=>!p.done);
   },
   arrive(p){
-    const t=p.t,raw=hitDmg(t)*t.factor*p.f*(p.tw&&p.tw.bPow||1);
+    const t=p.t,raw=hitDmg(t)*t.factor*p.f*(p.tw&&p.tw.bPow||1);S.src=t;
     if(t.curse){const cv=t.curse.v*(1+.05*(lvl(t)-3));for(const o of S.mons)if(!o.dead&&Math.hypot(o.x-p.x,o.y-p.y)<=t.splash[2]+monR(o)){o.curseT=t.curse.dur;o.curseV=cv}}
     if(t.splash[2]>0){splash(t,p.x,p.y,raw);ANIM.impact(t,p.x,p.y,(t.splash[2]*2+40)/96)}
     else{if(p.m&&!p.m.dead){damage(p.m,raw,t.dtype);if(t.exp==="Corrosive_Acid"&&!p.m.dead){p.m.acid=Math.min(9,p.m.acid+1);p.m.acidT=240}}
@@ -1202,7 +1213,7 @@ function render(){
   // small upgrade-line badge under each character (sword = 근접, gun = 사격, cannon = 범위)
   for(const tw of S.towers){if(tdrag&&tdrag.active&&tdrag.tw===tw)continue;const im=UPG_IMG[TOWERS[tw.type].upg];if(!im||!im.complete)continue;const bx=tw.x*K,by=tw.y*K+TS*.86,br=TS*.3;
     c.beginPath();c.arc(bx,by,br,0,7);c.fillStyle=UPG_COL[TOWERS[tw.type].upg];c.fill();c.lineWidth=Math.max(1.5,TS*.05);c.strokeStyle="#fff";c.stroke();c.drawImage(im,bx-br*.72,by-br*.72,br*1.44,br*1.44)}
-  for(const tw of S.towers){if(tw.conc){const bx=tw.x*K-TS*.7,by=tw.y*K-TS*.72;c.font=`900 ${TS*.38}px sans-serif`;c.textAlign="center";c.textBaseline="middle";c.lineWidth=TS*.1;c.strokeStyle="#5a2a6e";c.strokeText("★"+tw.conc,bx,by);c.fillStyle="#ffe45a";c.fillText("★"+tw.conc,bx,by);c.textBaseline="alphabetic"}}
+  for(const tw of S.towers){if(tw.conc){const bx=tw.x*K-TS*.7,by=tw.y*K-TS*.72;c.font=`900 ${TS*.38}px sans-serif`;c.textAlign="center";c.textBaseline="middle";c.lineWidth=TS*.1;c.strokeStyle="#5a2a6e";c.strokeText("★"+(tw.conc+1),bx,by);c.fillStyle="#ffe45a";c.fillText("★"+(tw.conc+1),bx,by);c.textBaseline="alphabetic"}}
   for(const tw of S.towers){if(tc[tw.type]<2)continue;const bx=tw.x*K+TS*.78,by=tw.y*K-TS*.78+Math.sin(time*.15)*TS*.04,br=TS*.24;
     if(BADGE.complete&&BADGE.naturalWidth){c.drawImage(BADGE,bx-br*1.2,by-br*1.2,br*2.4,br*2.4);continue}
     c.beginPath();c.arc(bx,by,br,0,7);c.fillStyle="#2bd889";c.fill();c.lineWidth=TS*.05;c.strokeStyle="#0d3b26";c.stroke();
@@ -1283,14 +1294,14 @@ function traitTags(t){const tags=[];const a=t.aura,pc=v=>Math.round(v*100)+"%";
   return tags}
 function renderBubble(){
   const bb=$("bubble"),tw=S&&S.sel;if(!tw){bb.hidden=true;bb.dataset.id="";return}
-  const t=TOWERS[tw.type],key=[tw.id,sameCount(tw),lvl(t),tw.bSpd,tw.bPow,tw.conc||0,S.ore>=50].join(":");
+  const t=TOWERS[tw.type],key=[tw.id,sameCount(tw),lvl(t),tw.bSpd,tw.bPow,tw.conc||0,S.ore>=xCost(t.grade)].join(":");
   if(bb.dataset.id!==key){
     bb.dataset.id=key;const can=sameCount(tw)>=2,sv=t.uid===81?1000:SELL[t.grade];
     const area=`${mh(t)}명`;
-    bb.innerHTML=`<div class="bh"><span class="gchip" style="background:${GCOL[t.grade]}">${GRADE[t.grade]}</span><b>${t.name}${tw.conc?` <span class="conc">★${tw.conc}</span>`:""}</b><span class="uchip" style="background:${UPG_COL[t.upg]}">${UPGS.find(u=>u[0]===t.upg)[1]}</span></div>
+    bb.innerHTML=`<div class="bh"><span class="gchip" style="background:${GCOL[t.grade]}">${GRADE[t.grade]}</span><b>${t.name}${tw.conc?` <span class="conc">★${tw.conc+1}</span>`:""}</b><span class="uchip" style="background:${UPG_COL[t.upg]}">${UPGS.find(u=>u[0]===t.upg)[1]}</span></div>
     ${`<div class="stats"><div><small>공격력</small><b>${fmt(hitDmg(t)*t.factor*(tw.bPow||1))}</b></div><div><small>공격 속도</small><b>${(t.cd/24/(tw.bSpd||1)).toFixed(1)}초</b></div><div><small>사거리</small><b>${rtOf(t)}칸</b></div><div><small>대상</small><b>${area}</b></div></div>`}
     ${traitTags(t).map(x=>`<span class="tag">${x}</span>`).join("")}
-    <div class="bb"><button type="button" class="btn" id="bbS" ${sv?"":"disabled"}>판매${sv?" +"+sv:""}</button>${has("junk")&&t.grade<5?`<button type="button" class="btn" id="bbX" ${S.ore<50?"disabled":""}>교환 -50</button>`:""}<button type="button" class="btn primary" id="bbM" ${can?"":"disabled"}>${t.grade>=5?"농축":"합성"}</button></div>`;
+    <div class="bb"><button type="button" class="btn" id="bbS" ${sv?"":"disabled"}>판매${sv?" +"+sv:""}</button>${has("junk")&&t.grade<5?`<button type="button" class="btn" id="bbX" ${S.ore<xCost(t.grade)?"disabled":""}>교환 -${xCost(t.grade)}</button>`:""}<button type="button" class="btn primary" id="bbM" ${can?"":"disabled"}>${t.grade>=5?"농축":"합성"}</button></div>`;
     $("bbM").onclick=()=>{merge(tw)};if($("bbX"))$("bbX").onclick=()=>{exchange(tw)};$("bbS").onclick=()=>{sell(tw)};
   }
   bb.hidden=false;placeBubble();
@@ -1445,37 +1456,37 @@ const AUGS=[
   {id:"single_spd",tier:0,name:"난사",desc:"단발 캐릭터 공속 +20%"},
   {id:"area_pow",tier:0,name:"광역 폭격",desc:"범위 캐릭터 공격력 +15%"},
   {id:"area_spd",tier:0,name:"연쇄 폭격",desc:"범위 캐릭터 공속 +20%"},
-  {id:"area_count",tier:1,name:"파편 탄",desc:"범위 캐릭터가 때리는 수 +2명"},
-  {id:"snipe_range",tier:1,name:"매의 눈",desc:"저격 사거리 +1칸"},
-  {id:"pure",tier:2,name:"순수 혈통",desc:"판 전체가 한 계열이면 공격력·공속 +20%"},
-  {id:"trinity",tier:2,name:"삼위일체",desc:"세 계열이 각각 3명 이상이면 공격력·공속 +10%"},
+  {id:"area_count",tier:1,name:"파편 탄",desc:"범위 공격 크기 +25%, 때리는 수 +2명"},
+  {id:"snipe_range",tier:1,name:"매의 눈",desc:"저격 치명타 확률 +20% (치명타 2.5배)"},
+  {id:"pure",tier:2,name:"순수 혈통",desc:"한 계열이 판의 70% 이상이면 공격력·공속 +25%"},
+  {id:"trinity",tier:1,name:"삼위일체",desc:"세 계열이 각각 3명 이상이면 공격력·공속 +10%"},
   {id:"trap_frost",tier:1,name:"서리 함정",desc:"길 위 함정 3개. 밟은 적 2초간 40% 느려짐"},
   {id:"trap_spike",tier:1,name:"가시 덫",desc:"길 위 덫 3개. 밟을 때 최대 체력 4% 피해"},
   {id:"tower_bolt",tier:1,name:"낙뢰 탑",desc:"3초마다 무작위 적 3명에게 번개, 최대 체력 6% 피해"},
   {id:"totem_curse",tier:1,name:"저주의 토템",desc:"토템 주변 2칸 안 적이 받는 피해 +15%"},
-  {id:"ward_break",tier:1,name:"방어 파쇄 결계",desc:"길 3칸 구간을 지나는 적 방어력 -50%"},
-  {id:"time_warp",tier:2,name:"시간 왜곡",desc:"보스가 처음 나올 때 5초 멈춤"},
-  {id:"interest",tier:0,name:"이자",desc:"웨이브 끝마다 가진 골드 10% (최대 100)"},
-  {id:"hunter",tier:0,name:"사냥꾼",desc:"웨이브 보상 골드 +30%"},
+  {id:"ward_break",tier:1,name:"방어 파쇄 결계",desc:"길 3칸을 지난 적은 5초간 방어력 0, 받는 피해 +30%"},
+  {id:"time_warp",tier:2,name:"시간 왜곡",desc:"모든 적이 영구히 28% 느려짐"},
+  {id:"interest",tier:0,name:"이자",desc:"웨이브 끝마다 골드 +40 (500 넘게 모아두면 +100)"},
+  {id:"hunter",tier:0,name:"사냥꾼",desc:"웨이브 보상 골드 +15%"},
   {id:"gem_mine",tier:0,name:"보석 광산",desc:"웨이브 끝마다 보석 +15"},
-  {id:"cash_now",tier:0,name:"즉시 현금",desc:"지금 바로 골드 +1000"},
+  {id:"cash_now",tier:0,name:"즉시 현금",desc:"지금 바로 골드 +400"},
   {id:"cheap_upg",tier:0,name:"짠돌이",desc:"업그레이드 비용 -25%"},
-  {id:"junk",tier:0,name:"고물상",desc:"캐릭터를 같은 등급 다른 캐릭터로 교환 (골드 50)"},
+  {id:"junk",tier:0,name:"고물상",desc:"캐릭터를 같은 등급 다른 캐릭터로 교환 (견습 50골드, 등급마다 2배)"},
   {id:"lucky_coin",tier:0,name:"행운의 동전",desc:"복권 꽝 확률 절반"},
-  {id:"jackpot",tier:1,name:"잭팟 체질",desc:"복권 기적 확률 3배"},
-  {id:"free_ticket",tier:1,name:"공짜 한 장",desc:"웨이브 끝마다 무료 복권 1장"},
+  {id:"jackpot",tier:1,name:"잭팟 체질",desc:"복권 영웅·전설·기적 확률 3배"},
+  {id:"free_ticket",tier:1,name:"공짜 한 장",desc:"3웨이브마다 무료 복권 1장"},
   {id:"summon_bless",tier:1,name:"소환 축복",desc:"캐릭터를 뽑을 때 10% 확률로 한 등급 위"},
-  {id:"double_up",tier:1,name:"겹경사",desc:"합성할 때 15% 확률로 두 등급 위"},
+  {id:"double_up",tier:1,name:"겹경사",desc:"합성할 때 6% 확률로 두 등급 위"},
   {id:"choose_line",tier:1,name:"원하는 대로",desc:"합성 결과를 근접·사격·저격 중에서 고름"},
-  {id:"recycle",tier:0,name:"재활용",desc:"합성할 때 25% 확률로 재료 1명이 남음"},
-  {id:"god_call",tier:2,name:"신의 부름",desc:"다음 영웅·전설 합성 1회는 바로 신"},
+  {id:"recycle",tier:1,name:"재활용",desc:"합성할 때 10% 확률로 재료 1명이 남음"},
+  {id:"god_call",tier:2,name:"신의 부름",desc:"다음 영웅 합성 1회는 전설을 건너뛰고 바로 신"},
   {id:"iron_wall",tier:0,name:"철벽",desc:"목숨 +10"},
-  {id:"boss_hunter",tier:1,name:"보스 사냥꾼",desc:"보스에게 주는 피해 +50%"},
+  {id:"boss_hunter",tier:1,name:"보스 사냥꾼",desc:"보스 피해 +100%, 일반 적 피해 +10%"},
   {id:"execute",tier:1,name:"처형",desc:"체력 10% 이하 적 즉시 처치 (보스 제외)"},
   {id:"last_stand",tier:0,name:"마지막 저항",desc:"목숨 5 이하일 때 공속 +50%"},
   {id:"devil_deal",tier:2,name:"악마의 거래",desc:"목숨 -10, 대신 무작위 전설 1명"},
-  {id:"all_in",tier:2,name:"올인",desc:"골드를 모두 잃고 500당 공격력 +5% (영구)"},
-  {id:"fate_dice",tier:2,name:"운명의 주사위",desc:"판의 캐릭터를 모두 다른 캐릭터로, 1명은 한 등급 위"},
+  {id:"all_in",tier:0,name:"올인",desc:"가진 골드를 전부 걸고 50% 확률로 3배, 실패하면 0"},
+  {id:"fate_dice",tier:2,name:"운명의 주사위",desc:"판의 캐릭터를 모두 다른 캐릭터로, 3명은 한 등급 위"},
 ];
 const AUG=Object.fromEntries(AUGS.map(a=>[a.id,a]));
 const AUG_TIER=["silver","gold","prism"],AUG_TW=[.6,.32,.08];
@@ -1486,7 +1497,7 @@ const PIMG={};for(const[k,files]of Object.entries({trap_frost:["idle","trigger"]
 const ok=im=>im&&im.complete&&im.naturalWidth;
 
 // ----- stat helpers used by combat -----
-function rtOf(t){return t.rt+(has("snipe_range")&&ROLE[t.uid]==="Sniper"?1:0)}
+function rtOf(t){return t.rt}
 function mh(t){return (t.maxHit||1)+(t.area&&has("area_count")?2:0)}
 function upgPrice(lv){return Math.round(upgCost(lv)*(has("cheap_upg")?.75:1))}
 function augMult(tw){
@@ -1495,19 +1506,20 @@ function augMult(tw){
   if(r==="Shot"){if(has("shot_pow"))p*=1.2;if(has("shot_spd"))s*=1.25}
   if(r==="Sniper"){if(has("snipe_pow"))p*=1.2;if(has("snipe_spd"))s*=1.25}
   if(t.area){if(has("area_pow"))p*=1.15;if(has("area_spd"))s*=1.2}else{if(has("single_pow"))p*=1.15;if(has("single_spd"))s*=1.2}
-  if(S.pureOn){p*=1.2;s*=1.2}if(S.trinOn){p*=1.1;s*=1.1}
+  if(S.pureOn){p*=1.25;s*=1.25}if(S.trinOn){p*=1.1;s*=1.1}
   if(has("last_stand")&&S.life<=5)s*=1.5;
   return[p,s]}
 function augAuras(){ // called from applyAuras: board-wide conditions, then each character's multipliers
   const roles={};for(const tw of S.towers){const r=ROLE[TOWERS[tw.type].uid];roles[r]=(roles[r]||0)+1}
-  S.pureOn=has("pure")&&S.towers.length>=3&&Object.keys(roles).length===1;
+  S.pureOn=has("pure")&&S.towers.length>=5&&Math.max(...Object.values(roles))>=S.towers.length*.7;
   S.trinOn=has("trinity")&&(roles.Melee||0)>=3&&(roles.Shot||0)>=3&&(roles.Sniper||0)>=3;
   for(const tw of S.towers){const[p,s]=augMult(tw);tw.aPow=p;tw.aSpd=s;tw.bPow*=p;tw.bSpd*=s}
 }
 // props deal % of max HP and ignore armor; bosses and mission monsters take a quarter
 function pctHit(m,pct){if(m.dead)return;const big=m.def.boss||m.kind==="mission";m.hp-=m.maxhp*pct*(big?.25:1);if(m.hp<=0)kill(m)}
 function augDamage(m,v){ // final damage multipliers (after armor)
-  if(has("boss_hunter")&&(m.def.boss||m.kind==="mission"))v*=1.5;
+  if(has("boss_hunter"))v*=m.def.boss||m.kind==="mission"?2:1.1;
+  if(m.wardT>0)v*=1.3;
   if(S.props&&S.props.totem&&inSquare(2,m.x-S.props.totem.x,m.y-S.props.totem.y,monR(m)*.5))v*=1.15;
   return v}
 function augAfterHit(m){if(!m.dead&&has("execute")&&!m.def.boss&&m.kind!=="mission"&&m.hp<=m.maxhp*.1){m.hp=0;kill(m)}}
@@ -1527,12 +1539,12 @@ function augTick(){
   for(const k of["trap_frost","trap_spike"])for(const tr of P[k]||[]){if(tr.trig>0)tr.trig--;
     for(const m of S.mons){if(m.dead||Math.abs(m.d-tr.d)>CELL*.45)continue;m.tr=m.tr||new Set();if(m.tr.has(tr.key))continue;m.tr.add(tr.key);tr.trig=8;sfx(k==="trap_frost"?"frost":"spike");
       if(k==="trap_frost"){m.slowT=48;m.slowV=Math.max(m.slowV&&m.slowT>0?m.slowV:0,.4)}else pctHit(m,.04)}}
-  if(P.ward)for(const m of S.mons){if(m.dead)continue;if(m.d>=P.ward.d0&&m.d<=P.ward.d1)m.wardT=72;else if(m.wardT>0)m.wardT--}
+  if(P.ward)for(const m of S.mons){if(m.dead)continue;if(m.d>=P.ward.d0&&m.d<=P.ward.d1)m.wardT=120;else if(m.wardT>0)m.wardT--}
   const b=P.bolt;if(b){if(b.atk>0)b.atk--;if(--b.cd<=0){b.cd=72;const live=S.mons.filter(m=>!m.dead);
     if(live.length){b.atk=8;sfx("zap");for(let i=live.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[live[i],live[j]]=[live[j],live[i]]}
       for(const m of live.slice(0,3)){pctHit(m,.06);if(ok(PIMG.tower_bolt.impact))S.fx.push({k:"imp",im:PIMG.tower_bolt.impact,x:m.x,y:m.y-6,s:1.1,life:8,max:8})}}}}
 }
-function augSpawn(m){if(has("time_warp")&&m.def.boss&&!(S.warped||{})[S.wi]){(S.warped=S.warped||{})[S.wi]=1;m.frozen=120}}
+function augSpawn(m){}
 function drawPropsFloor(c,time){
   const P=S&&S.props;if(!P)return;const z=CELL*K;
   const at=(x,y,a,f)=>{c.save();c.translate(x*K,y*K);if(a)c.rotate(a);f();c.restore()};
@@ -1565,13 +1577,13 @@ function augOffer(){
   S.augPending=true}
 function augTake(id){
   const a=AUG[id];S.aug.push(id);sfx("pick");S.augOffer=null;S.augPending=false;
-  if(id==="cash_now")S.ore+=1000;
+  if(id==="cash_now")S.ore+=400;
   if(id==="iron_wall")S.life+=10;
   if(id==="god_call")S.godCall=1;
   if(id==="devil_deal"){S.life=Math.max(1,S.life-10);placePrize(pick(byGrade(4)).i)}
-  if(id==="all_in"){const n=Math.floor(S.ore/500);S.allIn=(S.allIn||1)+.05*n;S.ore=0;log(`올인! 공격력 +${n*5}% (영구)`,"good")}
-  if(id==="fate_dice"){const tws=[...S.towers];for(const tw of tws){const t=TOWERS[tw.type],opts=byGrade(t.grade).filter(o=>o.i!==t.i);if(opts.length){const sl=tw.slot;removeTower(tw);addTower(sl,pick(opts).i,false)}}
-    const up=S.towers.filter(tw=>TOWERS[tw.type].grade<5);if(up.length){const tw=pick(up),g=TOWERS[tw.type].grade,sl=tw.slot;removeTower(tw);addTower(sl,pick(byGrade(g+1)).i)}}
+  if(id==="all_in"){const bet=S.ore;if(Math.random()<.5){S.ore=bet*3;banner("올인 성공!","var(--ore)");log(`올인 성공! 골드 ${bet} → ${bet*3}`,"good");sfx("jackpot")}else{S.ore=0;banner("올인 실패…","var(--life)");log(`올인 실패… 골드 ${bet}을(를) 잃었어요`,"warn");sfx("miss")}}
+  if(id==="fate_dice"){const tws=[...S.towers];for(const tw of tws){const t=TOWERS[tw.type],opts=byGrade(t.grade).filter(o=>o.i!==t.i);if(opts.length){const sl=tw.slot,cc=tw.conc;removeTower(tw);const nw=addTower(sl,pick(opts).i,false);if(cc)nw.conc=cc}}
+    for(let k=0;k<3;k++){const up=S.towers.filter(tw=>TOWERS[tw.type].grade<4);if(!up.length)break;const tw=pick(up),g=TOWERS[tw.type].grade,sl=tw.slot;removeTower(tw);addTower(sl,pick(byGrade(g+1)).i)}}
   if(["trap_frost","trap_spike","ward_break","totem_curse","tower_bolt"].includes(id))placeProps(id);
   log(`증강 획득 · ${a.name}`,"good");
   if(!window.AUG_AUTO){closeAug();renderPanels()}
@@ -1709,7 +1721,7 @@ function showResult(){
   $("resWave").textContent=wave;$("resBest").textContent=`최고 기록 ${Math.max(prev,wave)} 웨이브`;
   $("resAugs").innerHTML=S.aug.length?S.aug.map(id=>`<img alt="${AUG[id].name}" title="${AUG[id].name}" src="ui/aug/icons/${id}.png">`).join(""):`<small>고른 증강 없음</small>`;
   const top=[...S.towers].sort((a,b)=>TOWERS[b.type].grade-TOWERS[a.type].grade||(b.conc||0)-(a.conc||0))[0];
-  $("resHero").innerHTML=top?`<img alt="${TOWERS[top.type].name}" src="${ICON[top.type]}"><small>${TOWERS[top.type].name}${top.conc?" ★"+top.conc:""}</small>`:"";
+  $("resHero").innerHTML=top?`<img alt="${TOWERS[top.type].name}" src="${ICON[top.type]}"><small>${TOWERS[top.type].name}${top.conc?" ★"+(top.conc+1):""}</small>`:"";
 }
 showHome();
 
