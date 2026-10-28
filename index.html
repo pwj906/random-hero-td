@@ -1176,8 +1176,10 @@ const AREA_IMG=new Image();AREA_IMG.src="ui/icons/icon_area.svg";
 function areaMark(c,x,y,r){c.beginPath();c.arc(x,y,r,0,7);c.fillStyle="#FF7A1A";c.fill();c.lineWidth=Math.max(1.5,r*.22);c.strokeStyle="#fff";c.stroke();if(AREA_IMG.complete&&AREA_IMG.naturalWidth)c.drawImage(AREA_IMG,x-r*.78,y-r*.78,r*1.56,r*1.56)}
 const SINGLE_IMG=new Image();SINGLE_IMG.src="ui/icons/icon_single.svg";
 // attack-type badge next to the line badge: orange burst = 범위, teal target = 단발
-function typeMark(c,area,x,y,r){if(area){areaMark(c,x,y,r);return}c.beginPath();c.arc(x,y,r,0,7);c.fillStyle="#18A7B5";c.fill();c.lineWidth=Math.max(1.5,r*.22);c.strokeStyle="#fff";c.stroke();if(SINGLE_IMG.complete&&SINGLE_IMG.naturalWidth)c.drawImage(SINGLE_IMG,x-r*.72,y-r*.72,r*1.44,r*1.44)}
-function makeIcons(){for(const t of TOWERS){const cv=document.createElement("canvas");cv.width=cv.height=96;const c=cv.getContext("2d");drawTower(c,t,48,48,44,-Math.PI/4,10,0);typeMark(c,t.area,80,80,13);ICON[t.i]=cv.toDataURL()}}
+function typeMark(c,area,x,y,r){ // word pill beside the line badge: 범위 (orange) / 단발 (teal)
+  const w=r*3.1,h=r*1.9,x0=x-r*.95;c.beginPath();c.roundRect(x0,y-h/2,w,h,h/2);c.fillStyle=area?"#FF7A1A":"#18A7B5";c.fill();c.lineWidth=Math.max(1.5,r*.22);c.strokeStyle="#fff";c.stroke();
+  c.fillStyle="#fff";c.font=`900 ${r*1.12}px sans-serif`;c.textAlign="center";c.textBaseline="middle";c.fillText(area?"범위":"단발",x0+w/2,y+r*.06);c.textBaseline="alphabetic"}
+function makeIcons(){for(const t of TOWERS){const cv=document.createElement("canvas");cv.width=cv.height=96;const c=cv.getContext("2d");drawTower(c,t,48,48,44,-Math.PI/4,10,0);typeMark(c,t.area,62,84,10);ICON[t.i]=cv.toDataURL()}}
 
 // ---------- rendering ----------
 const cv=$("cv"),ctx=cv.getContext("2d");
