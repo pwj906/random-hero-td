@@ -451,6 +451,9 @@ table.odds td{padding:5px 6px;border-bottom:1px solid rgba(255,255,255,.1)}table
 table.odds tr.miss td{color:var(--muted)}table.odds tr.hero td,table.odds tr.legend td{color:#ffd34f}table.odds tr.miracle td{color:#ff9ef0}
 </style>
 <style>.oddsH{font-weight:900;font-size:16px;color:var(--fg);margin:16px 0 8px}</style>
+<style>
+body.menuHold .stage::before{content:"일시정지";position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:7;background:rgba(20,28,66,.82);color:#fff;font-weight:900;font-size:12px;padding:4px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.35);pointer-events:none}
+</style>
 <div class="app">
   <header class="hud">
     <div class="brand"><img alt="랜덤 히어로 디펜스" src="ui/logo_horizontal.png"></div>
@@ -1469,7 +1472,8 @@ function loop(now){
   const dt=Math.min(.25,(now-last)/1000);last=now;
   if(S&&S.sel)placeBubble();
   augLoopCheck();
-  if(S&&running&&!paused&&!rewardOpen&&!augOpen&&!pickOpen){acc+=dt*24*speed;let n=0;while(acc>=1&&n<300&&running){tick();acc-=1;n++}}
+  const menuHold=S&&running&&(S.sel||(MQ.matches&&rail.classList.contains("open")));document.body.classList.toggle("menuHold",!!menuHold&&!paused);
+  if(S&&running&&!paused&&!rewardOpen&&!augOpen&&!pickOpen&&!menuHold){acc+=dt*24*speed;let n=0;while(acc>=1&&n<300&&running){tick();acc-=1;n++}}
   render();uiT+=dt;if(uiT>.25){uiT=0;hud();if(S&&tab)refreshLive()}
   requestAnimationFrame(loop);
 }
