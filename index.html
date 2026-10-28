@@ -450,6 +450,7 @@ table.odds{width:100%;border-collapse:collapse;font-size:13px}
 table.odds td{padding:5px 6px;border-bottom:1px solid rgba(255,255,255,.1)}table.odds td:last-child{text-align:right;font-family:var(--mono);font-weight:700}
 table.odds tr.miss td{color:var(--muted)}table.odds tr.hero td,table.odds tr.legend td{color:#ffd34f}table.odds tr.miracle td{color:#ff9ef0}
 </style>
+<style>.oddsH{font-weight:900;font-size:16px;color:var(--fg);margin:16px 0 8px}</style>
 <div class="app">
   <header class="hud">
     <div class="brand"><img alt="랜덤 히어로 디펜스" src="ui/logo_horizontal.png"></div>
@@ -928,7 +929,7 @@ const LOTTO_NAME={miss:"꽝",gold:"골드 +120",gem:"보석 60~160",char:"견습
 const ODDS_ORDER=["miss","gold","gem","char","big","elite","hero","legend","miracle"];
 function lottoOddsHTML(){const pool=lottoPool(false).sort((a,b)=>ODDS_ORDER.indexOf(a.k)-ODDS_ORDER.indexOf(b.k)),tot=pool.reduce((a,o)=>a+o.w,0);
   const pc=w=>{const v=w/tot*100;return v>=1?v.toFixed(1)+"%":v.toFixed(2)+"%"};
-  return `<h3 class="oddsH">복권 확률 <small>지금 기준${S&&(has("lucky_coin")||has("jackpot"))?" · 증강 적용":""}</small></h3><table class="odds">${pool.map(o=>`<tr class="${o.k}"><td>${LOTTO_NAME[o.k]}</td><td>${pc(o.w)}</td></tr>`).join("")}</table><p class="hint">꽝이 ${PITY}번 연속 나오면 다음 한 장은 반드시 당첨이에요.</p>`}
+  return `<div class="oddsH">복권 확률 <small>지금 기준${S&&(has("lucky_coin")||has("jackpot"))?" · 증강 적용":""}</small></div><table class="odds">${pool.map(o=>`<tr class="${o.k}"><td>${LOTTO_NAME[o.k]}</td><td>${pc(o.w)}</td></tr>`).join("")}</table><p class="hint">꽝이 ${PITY}번 연속 나오면 다음 한 장은 반드시 당첨이에요.</p>`}
 function rollLotto(){
   const pool=lottoPool(S.missRun>=PITY);const tot=pool.reduce((a,o)=>a+o.w,0);
   let r=Math.random()*tot;for(const o of pool){if((r-=o.w)<0)return o}return pool[0]}
@@ -1170,7 +1171,10 @@ const HEADS={
 const ICON={};
 const AREA_IMG=new Image();AREA_IMG.src="ui/icons/icon_area.svg";
 function areaMark(c,x,y,r){c.beginPath();c.arc(x,y,r,0,7);c.fillStyle="#FF7A1A";c.fill();c.lineWidth=Math.max(1.5,r*.22);c.strokeStyle="#fff";c.stroke();if(AREA_IMG.complete&&AREA_IMG.naturalWidth)c.drawImage(AREA_IMG,x-r*.78,y-r*.78,r*1.56,r*1.56)}
-function makeIcons(){for(const t of TOWERS){const cv=document.createElement("canvas");cv.width=cv.height=96;const c=cv.getContext("2d");drawTower(c,t,48,48,44,-Math.PI/4,10,0);if(t.area)areaMark(c,80,80,13);ICON[t.i]=cv.toDataURL()}}
+const SINGLE_IMG=new Image();SINGLE_IMG.src="ui/icons/icon_single.svg";
+// attack-type badge next to the line badge: orange burst = 범위, teal target = 단발
+function typeMark(c,area,x,y,r){if(area){areaMark(c,x,y,r);return}c.beginPath();c.arc(x,y,r,0,7);c.fillStyle="#18A7B5";c.fill();c.lineWidth=Math.max(1.5,r*.22);c.strokeStyle="#fff";c.stroke();if(SINGLE_IMG.complete&&SINGLE_IMG.naturalWidth)c.drawImage(SINGLE_IMG,x-r*.72,y-r*.72,r*1.44,r*1.44)}
+function makeIcons(){for(const t of TOWERS){const cv=document.createElement("canvas");cv.width=cv.height=96;const c=cv.getContext("2d");drawTower(c,t,48,48,44,-Math.PI/4,10,0);typeMark(c,t.area,80,80,13);ICON[t.i]=cv.toDataURL()}}
 
 // ---------- rendering ----------
 const cv=$("cv"),ctx=cv.getContext("2d");
@@ -1237,7 +1241,7 @@ function render(){
   if(tdrag&&tdrag.active){const o=tdrag.over;if(o&&o!==tdrag.tw.slot){c.fillStyle=o.tower?"rgba(255,194,58,.28)":"rgba(78,240,176,.28)";c.strokeStyle=o.tower?"#ffc23a":"#4ef0b0";c.lineWidth=3;c.fillRect(o.x*K-TS+3,o.y*K-TS+3,TS*2-6,TS*2-6);c.strokeRect(o.x*K-TS+3,o.y*K-TS+3,TS*2-6,TS*2-6)}
     c.globalAlpha=.9;drawTower(c,TOWERS[tdrag.tw.type],tdrag.cx,tdrag.cy-TS*.4,TS*1.38,tdrag.tw.ang,time,0,null);c.globalAlpha=1}
   // small upgrade-line badge under each character (sword = 근접, gun = 사격, cannon = 범위)
-  for(const tw of S.towers){if(tdrag&&tdrag.active&&tdrag.tw===tw)continue;const im=UPG_IMG[TOWERS[tw.type].upg];if(!im||!im.complete)continue;const ar=TOWERS[tw.type].area,br=TS*.3,bx=tw.x*K-(ar?br*1.05:0),by=tw.y*K+TS*.86;if(ar)areaMark(c,bx+br*2.1,by,br*.92);
+  for(const tw of S.towers){if(tdrag&&tdrag.active&&tdrag.tw===tw)continue;const im=UPG_IMG[TOWERS[tw.type].upg];if(!im||!im.complete)continue;const ar=TOWERS[tw.type].area,br=TS*.3,bx=tw.x*K-br*1.05,by=tw.y*K+TS*.86;typeMark(c,ar,bx+br*2.1,by,br*.92);
     c.beginPath();c.arc(bx,by,br,0,7);c.fillStyle=UPG_COL[TOWERS[tw.type].upg];c.fill();c.lineWidth=Math.max(1.5,TS*.05);c.strokeStyle="#fff";c.stroke();c.drawImage(im,bx-br*.72,by-br*.72,br*1.44,br*1.44)}
   for(const tw of S.towers){if(tw.conc){const bx=tw.x*K-TS*.7,by=tw.y*K-TS*.72;c.font=`900 ${TS*.38}px sans-serif`;c.textAlign="center";c.textBaseline="middle";c.lineWidth=TS*.1;c.strokeStyle="#5a2a6e";c.strokeText("★"+(tw.conc+1),bx,by);c.fillStyle="#ffe45a";c.fillText("★"+(tw.conc+1),bx,by);c.textBaseline="alphabetic"}}
   for(const tw of S.towers){if(tc[tw.type]<2)continue;const bx=tw.x*K+TS*.78,by=tw.y*K-TS*.78+Math.sin(time*.15)*TS*.04,br=TS*.24;
