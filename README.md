@@ -2,4 +2,4 @@
 
 스타크래프트 유즈맵 랜덤타워디펜스를 바탕으로 만든 솔로 모바일 디펜스 게임.
 
-`index.html` 하나에 게임 코드가 다 들어 있고, 그림은 `ui/`·`sprites/`에 있음.
+원본은 `src/`, `index.html`은 `tools/build.sh`가 만든 빌드 결과물. 그림은 `ui/`·`sprites/`에 있음.
