@@ -12,9 +12,7 @@
 - 빌드: B=$(date +%s); index.html = `<meta charset="utf-8"><meta name="viewport" ...>` + head.html + body.html + `<script>const BUILD="$B";` + data.js + game.js + augment.js + sound.js + meta.js + fx.js + `</script>`. version.txt에 $B를 쓴다.
   - 폰이 옛 index.html을 캐시하는 문제가 있다. meta.js가 version.txt를 받아서 BUILD와 다르면 ?v=새번호로 한 번 새로고침한다.
 - 배포: 빌드 → 문법 검사(합친 JS를 node --check) → 커밋 → push(main). GitHub Pages(main/root)가 1~2분 뒤 https://pwj906.github.io/random-hero-td/ 에 반영한다.
-- 같은 게임을 pwj906/random-hero-defense 저장소 루트에도 올린다.
-  - 그 저장소의 index.html·version.txt·ui·sprites를 덮어쓴다. index.html 안의 주소 'random-hero-td/'는 'random-hero-defense/'로 바꾼다.
-  - 그 저장소의 v1/ 는 예전 다른 게임이니 건드리지 않는다. survivor/·autobattler/·black-and-white/ 도 건드리지 않는다.
+- 배포는 random-hero-td만 한다. pwj906/random-hero-defense 저장소는 건드리지 않는다.
 - 커밋 메시지는 한국어로, 바꾼 내용을 적는다.
 - 바꾼 뒤에는 Playwright로 폰 크기(390×844, 412×860) 화면을 띄워 확인하고, 오류(pageerror)가 없는지 본다.
 
