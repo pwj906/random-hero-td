@@ -1,18 +1,18 @@
 // ---------- augments: every 5 cleared waves, pick 1 of 3 (silver 60% / gold 32% / prism 8%) ----------
 const AUGS=[
   // tier 0 = bronze, 1 = silver, 2 = gold (by measured strength). one tier is rolled per offer, all 3 cards share it
-  {id:"melee_pow",tier:0,name:"근접 · 강타",desc:"근접 공격력 +20%"},
-  {id:"melee_spd",tier:0,name:"근접 · 연타",desc:"근접 공속 +25%"},
-  {id:"shot_pow",tier:1,name:"사격 · 철갑탄",desc:"사격 공격력 +20%"},
-  {id:"shot_spd",tier:1,name:"사격 · 속사",desc:"사격 공속 +25%"},
-  {id:"snipe_pow",tier:1,name:"저격 · 관통탄",desc:"저격 공격력 +20%"},
-  {id:"snipe_spd",tier:1,name:"저격 · 빠른 장전",desc:"저격 공속 +25%"},
-  {id:"single_pow",tier:0,name:"일점사",desc:"단발 캐릭터 공격력 +15%"},
-  {id:"single_spd",tier:1,name:"난사",desc:"단발 캐릭터 공속 +20%"},
+  {id:"melee_pow",tier:0,name:"근거리 · 강타",desc:"근거리 공격력 +20%"},
+  {id:"melee_spd",tier:0,name:"근거리 · 연타",desc:"근거리 공속 +25%"},
+  {id:"shot_pow",tier:1,name:"중거리 · 강타",desc:"중거리 공격력 +20%"},
+  {id:"shot_spd",tier:1,name:"중거리 · 연타",desc:"중거리 공속 +25%"},
+  {id:"snipe_pow",tier:1,name:"원거리 · 강타",desc:"원거리 공격력 +20%"},
+  {id:"snipe_spd",tier:1,name:"원거리 · 연타",desc:"원거리 공속 +25%"},
+  {id:"single_pow",tier:0,name:"일점사",desc:"지정 캐릭터 공격력 +15%"},
+  {id:"single_spd",tier:1,name:"난사",desc:"지정 캐릭터 공속 +20%"},
   {id:"area_pow",tier:0,name:"광역 폭격",desc:"범위 캐릭터 공격력 +15%"},
   {id:"area_spd",tier:1,name:"연쇄 폭격",desc:"범위 캐릭터 공속 +20%"},
   {id:"area_count",tier:1,name:"파편 탄",desc:"범위 공격 크기 +25%, 때리는 수 +2명"},
-  {id:"snipe_range",tier:1,name:"매의 눈",desc:"저격 치명타 확률 +20% (치명타 2.5배)"},
+  {id:"snipe_range",tier:1,name:"매의 눈",desc:"원거리 치명타 확률 +20% (치명타 2.5배)"},
   {id:"pure",tier:0,name:"순수 혈통",desc:"한 계열이 판의 70% 이상이면 공격력·공속 +25%"},
   {id:"trinity",tier:1,name:"삼위일체",desc:"세 계열이 각각 3명 이상이면 공격력·공속 +10%"},
   {id:"trap_frost",tier:0,name:"서리 함정",desc:"길 위 함정 3개. 밟은 적 2초간 40% 느려짐"},
@@ -25,21 +25,24 @@ const AUGS=[
   {id:"gem_mine",tier:2,name:"보석 광산",desc:"웨이브 끝마다 보석 +15"},
   {id:"cash_now",tier:0,name:"즉시 현금",desc:"지금 바로 골드 +400"},
   {id:"cheap_upg",tier:2,name:"짠돌이",desc:"업그레이드 비용 -25%"},
-  {id:"junk",tier:0,name:"고물상",desc:"캐릭터를 같은 등급 다른 캐릭터로 교환 (견습 50골드, 등급마다 2배)"},
-  {id:"jackpot",tier:0,name:"잭팟 체질",desc:"복권 영웅·전설·기적 확률 3배"},
+  {id:"junk",tier:0,name:"고물상",desc:"캐릭터를 같은 레벨 다른 캐릭터로 교환 (LV1 50골드, 레벨마다 2배)"},
+  {id:"jackpot",tier:0,name:"잭팟 체질",desc:"복권 LV4·LV5·기적 확률 3배"},
   {id:"free_ticket",tier:2,name:"공짜 한 장",desc:"3웨이브마다 무료 복권 1장"},
-  {id:"summon_bless",tier:0,name:"소환 축복",desc:"캐릭터를 뽑을 때 10% 확률로 한 등급 위"},
-  {id:"double_up",tier:1,name:"겹경사",desc:"합성할 때 6% 확률로 두 등급 위"},
+  {id:"summon_bless",tier:0,name:"소환 축복",desc:"캐릭터를 뽑을 때 10% 확률로 한 레벨 위"},
+  {id:"double_up",tier:1,name:"겹경사",desc:"합성할 때 6% 확률로 두 레벨 위"},
   {id:"recycle",tier:2,name:"재활용",desc:"합성할 때 10% 확률로 재료 1명이 남음"},
-  {id:"god_call",tier:2,name:"신의 부름",desc:"다음 영웅 합성 1회는 전설을 건너뛰고 바로 신"},
+  {id:"god_call",tier:2,name:"신의 부름",desc:"다음 LV4 이상 합성 1회는 두 레벨 위로"},
   {id:"iron_wall",tier:0,name:"철벽",desc:"목숨 +10"},
   {id:"boss_hunter",tier:1,name:"보스 사냥꾼",desc:"보스 피해 +100%, 일반 적 피해 +10%"},
   {id:"execute",tier:1,name:"처형",desc:"체력 10% 이하 적 즉시 처치 (보스 제외)"},
   {id:"last_stand",tier:0,name:"마지막 저항",desc:"목숨 5 이하일 때 공속 +50%"},
-  {id:"devil_deal",tier:2,name:"악마의 거래",desc:"목숨 -10, 대신 무작위 전설 1명"},
+  {id:"devil_deal",tier:2,name:"악마의 거래",desc:"목숨 -10, 대신 무작위 LV5 1명"},
   {id:"all_in",tier:1,name:"올인",desc:"가진 골드를 전부 걸고 50% 확률로 3배, 실패하면 0"},
-  {id:"fate_dice",tier:2,name:"운명의 주사위",desc:"판의 캐릭터를 모두 다른 캐릭터로, 3명은 한 등급 위"},
+  {id:"fate_dice",tier:2,name:"운명의 주사위",desc:"판의 캐릭터를 모두 다른 캐릭터로, 3명은 한 레벨 위"},
 ];
+// cards for lines / attack types nobody has yet (and swaps that need a second character per level) are not offered
+const AUG_NEED={shot_pow:"Shot",shot_spd:"Shot",snipe_pow:"Sniper",snipe_spd:"Sniper",snipe_range:"Sniper",area_pow:"Area",area_spd:"Area",area_count:"Area",melee_pow:"Melee",melee_spd:"Melee",single_pow:"Single",single_spd:"Single"};
+const augLive=a=>AUG_NEED[a.id]?liveKey(AUG_NEED[a.id]):a.id==="trinity"?["Melee","Shot","Sniper"].every(liveKey):a.id==="junk"||a.id==="fate_dice"?GRADE.every((_,g)=>byGrade(g).length>1):true;
 const AUG=Object.fromEntries(AUGS.map(a=>[a.id,a]));
 const AUG_TIER=["bronze","silver","gold"],AUG_TNAME=["브론즈","실버","골드"],AUG_TW=[.55,.33,.12];
 const has=id=>!!(S&&S.aug&&S.aug.includes(id));
@@ -109,11 +112,11 @@ function drawPropsFloor(c,time){
 }
 function drawPropsTop(c,time){
   const P=S&&S.props,z=CELL*K;
-  if(P&&P.totem&&ok(PIMG.totem_curse.idle))cell(c,PIMG.totem_curse.idle,Math.floor(time/3)%4,4,P.totem.x*K-z/2,P.totem.y*K-z*.6,z,z);
-  if(P&&P.bolt){const I=PIMG.tower_bolt;if(P.bolt.atk>0&&ok(I.attack))cell(c,I.attack,Math.min(5,Math.floor((8-P.bolt.atk)*6/8)),6,P.bolt.x*K-z/2,P.bolt.y*K-z*.6,z,z);else if(ok(I.idle))c.drawImage(I.idle,P.bolt.x*K-z/2,P.bolt.y*K-z*.6,z,z)}
-  for(const m of S.mons){if(m.dead)continue;
+  if(P&&P.totem&&ok(PIMG.totem_curse.idle))bb(c,P.totem.x*K,P.totem.y*K,()=>cell(c,PIMG.totem_curse.idle,Math.floor(time/3)%4,4,P.totem.x*K-z/2,P.totem.y*K-z*.6,z,z));
+  if(P&&P.bolt)bb(c,P.bolt.x*K,P.bolt.y*K,()=>{const I=PIMG.tower_bolt;if(P.bolt.atk>0&&ok(I.attack))cell(c,I.attack,Math.min(5,Math.floor((8-P.bolt.atk)*6/8)),6,P.bolt.x*K-z/2,P.bolt.y*K-z*.6,z,z);else if(ok(I.idle))c.drawImage(I.idle,P.bolt.x*K-z/2,P.bolt.y*K-z*.6,z,z)});
+  for(const m of S.mons){if(m.dead||!(m.frozen>0||m.wardT>0))continue;bb(c,m.x*K,m.y*K,()=>{
     if(m.frozen>0&&ok(PIMG.time_warp.impact)){const zz=z*1.4,fr=Math.min(3,Math.floor((120-m.frozen)/3));cell(c,PIMG.time_warp.impact,fr,4,m.x*K-zz/2,m.y*K-zz*.9,zz,zz)}
-    if(m.wardT>0&&ok(PIMG.ward_break.status_break)){const zz=TS*.5;c.drawImage(PIMG.ward_break.status_break,m.x*K+monR(m)*K*.6,m.y*K-monR(m)*K-zz,zz,zz)}}
+    if(m.wardT>0&&ok(PIMG.ward_break.status_break)){const zz=TS*.5;c.drawImage(PIMG.ward_break.status_break,m.x*K+monR(m)*K*.6,m.y*K-monR(m)*K-zz,zz,zz)}})}
 }
 
 // ----- offer / pick -----
@@ -121,7 +124,7 @@ let augOpen=false,pickOpen=false;
 function augTierRoll(){const r=Math.random();return r<AUG_TW[2]?2:r<AUG_TW[2]+AUG_TW[1]?1:0}
 function augRoll(n,excl,tier){
   if(tier==null)tier=augTierRoll();
-  const pool=AUGS.filter(a=>!S.aug.includes(a.id)&&!excl.includes(a.id));const out=[];
+  const pool=AUGS.filter(a=>augLive(a)&&!S.aug.includes(a.id)&&!excl.includes(a.id));const out=[];
   for(let i=0;i<n&&pool.length;i++){
     let cand=pool.filter(a=>a.tier===tier&&!out.includes(a));for(let k=1;!cand.length&&k<3;k++)cand=pool.filter(a=>a.tier===tier-k&&!out.includes(a)); // tier ran dry: next lower tier
     for(let k=1;!cand.length&&k<3;k++)cand=pool.filter(a=>a.tier===tier+k&&!out.includes(a));
@@ -142,7 +145,7 @@ function augTake(id){
   if(id==="devil_deal"){S.life=Math.max(1,S.life-10);placePrize(pick(byGrade(4)).i)}
   if(id==="all_in"){const bet=S.ore;if(Math.random()<.5){S.ore=bet*3;banner("올인 성공!","var(--ore)");log(`올인 성공! 골드 ${bet} → ${bet*3}`,"good");sfx("jackpot")}else{S.ore=0;banner("올인 실패…","var(--life)");log(`올인 실패… 골드 ${bet}을(를) 잃었어요`,"warn");sfx("miss")}}
   if(id==="fate_dice"){const tws=[...S.towers];for(const tw of tws){const t=TOWERS[tw.type],opts=byGrade(t.grade).filter(o=>o.i!==t.i);if(opts.length){const sl=tw.slot,cc=tw.conc;removeTower(tw);const nw=addTower(sl,pick(opts).i,false);if(cc)nw.conc=cc}}
-    for(let k=0;k<3;k++){const up=S.towers.filter(tw=>TOWERS[tw.type].grade<4);if(!up.length)break;const tw=pick(up),g=TOWERS[tw.type].grade,sl=tw.slot;removeTower(tw);addTower(sl,pick(byGrade(g+1)).i)}}
+    for(let k=0;k<3;k++){const up=S.towers.filter(tw=>TOWERS[tw.type].grade<LEGEND);if(!up.length)break;const tw=pick(up),g=TOWERS[tw.type].grade,sl=tw.slot;removeTower(tw);addTower(sl,pick(byGrade(g+1)).i)}}
   if(["trap_frost","trap_spike","ward_break","totem_curse","tower_bolt"].includes(id))placeProps(id);
   log(`증강 획득 · ${a.name}`,"good");
   if(!window.AUG_AUTO){closeAug();renderPanels()}
@@ -154,7 +157,7 @@ function ensureAugDom(){
   $("augReroll").onclick=()=>{const o=S.augOffer;if(!o||o.rerolled||S.gas<50)return;S.gas-=50;o.rerolled=true;o.ch=augRoll(3,o.ch.map(a=>a.id),o.tier);if(!o.ch.length)o.ch=augRoll(3,[],o.tier);showAug(true)};
 }
 // the main number of an augment (+20%, 3배…) shown big in the card's lower box; the full text sits under the card
-const AUG_KEY={devil_deal:"전설!",god_call:"신!",free_ticket:"무료",fate_dice:"등급↑",junk:"교환",all_in:"×3",time_warp:"-28%",trap_frost:"-40%",pure:"+25%",iron_wall:"❤ +10",gem_mine:"+15",execute:"즉사",trap_spike:"4%"};
+const AUG_KEY={devil_deal:"LV5!",god_call:"LV +2",free_ticket:"무료",fate_dice:"LV↑",junk:"교환",all_in:"×3",time_warp:"-28%",trap_frost:"-40%",pure:"+25%",iron_wall:"❤ +10",gem_mine:"+15",execute:"즉사",trap_spike:"4%"};
 function augKey(d,id){if(id&&AUG_KEY[id])return AUG_KEY[id];const m=d.match(/[+\-]\d+(?:\.\d+)?%|\d+(?:\.\d+)?배|\d+(?:\.\d+)?%|[+\-]\d+/);return m?m[0]:"★"}
 function cardHTML(a,i){return `<button type="button" class="augCard t${a.tier}" data-a="${a.id}" style="--d:${i*140}ms"><span class="flip"><span class="face back"><img alt="" src="ui/aug/aug_card_back.png"></span><span class="face front">${a.tier===2?`<img class="glow" alt="" src="${A("ui/aug/gold_glow.webp")}">`:""}<img class="frame" alt="" src="${A(`ui/aug/card_${AUG_TIER[a.tier]}.webp`)}"><img class="ic" alt="" src="ui/aug/icons/${a.id}.png"><i class="ds tn2" style="--n:${Math.max(3,a.name.length+.3)}">${a.name}</i></span></span><small class="dsx">${a.desc}</small></button>`}
 // before the cards: bronze / silver / gold light up in turn, slow down and stop on this offer's tier
@@ -182,7 +185,7 @@ function augLoopCheck(){if(S&&S.augPending&&!augOpen&&!rewardOpen&&!pickOpen&&ru
 // choose_line: ask which line the merge result should be
 function askLine(cb){
   ensureAugDom();pickOpen=true;const ov=document.createElement("div");ov.className="augOv linePick";
-  ov.innerHTML=`<div class="box"><h2>어느 계열로 받을까요?</h2><div class="lines">${UPGS.map(([k,n])=>`<button type="button" data-l="${k}" style="--c:${UPG_COL[k]}"><img alt="" src="ui/icons/icon_${UPG_ICON[k]}.svg">${n}</button>`).join("")}</div></div>`;
+  ov.innerHTML=`<div class="box"><h2>어느 계열로 받을까요?</h2><div class="lines">${UPGS.filter(u=>liveKey(u[0])).map(([k,n])=>`<button type="button" data-l="${k}" style="--c:${UPG_COL[k]}"><img alt="" src="ui/icons/icon_${UPG_ICON[k]}.svg">${n}</button>`).join("")}</div></div>`;
   document.querySelector(".stage").appendChild(ov);
   ov.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>{ov.remove();pickOpen=false;cb(b.dataset.l)});
 }
@@ -191,6 +194,8 @@ function augList(){if(!S||!S.aug||!S.aug.length)return"";
 
 window.__rtd={get S(){return S},start,tick,TOWERS,WAVES,SLOTS,build,merge,addTower,spawn,augTake,augOffer,showAug,AUGS};
 
+// every augment by tier, for the codex
+function augAllHTML(){return [2,1,0].map(t=>`<p class="augT t${t}">${AUG_TNAME[t]}</p><div class="augDet">${AUGS.filter(a=>a.tier===t&&augLive(a)).map(a=>`<div class="ad t${t}"><img alt="" src="ui/aug/icons/${a.id}.png"><div><b>${a.name}</b><small>${a.desc}</small></div></div>`).join("")}</div>`).join("")}
 function augDetail(){if(!S||!S.aug.length)return `<p class="hint">아직 고른 증강이 없어요. 5·15·25…웨이브마다 하나씩 골라요.</p>`;
   return `<div class="augDet">${S.aug.map(id=>`<div class="ad t${AUG[id].tier}"><img alt="" src="ui/aug/icons/${id}.png"><div><b>${AUG[id].name}</b><small>${AUG[id].desc}</small></div></div>`).join("")}</div>`}
 
@@ -199,7 +204,7 @@ function augDetail(){if(!S||!S.aug.length)return `<p class="hint">아직 고른 
 const CRATE_P=.03,CRATE_P_UP=.10;
 const CRATE=[ // weights per 100
   {k:"gold",w:30},{k:"gem",w:22},{k:"tix",w:12},{k:"elite",w:12},{k:"hero",w:8},{k:"frenzy",w:8},{k:"upg",w:5},{k:"legend",w:3}];
-const CRATE_NAME={gold:"골드 (200 + 웨이브×15)",gem:"보석 (100 + 웨이브×5)",tix:"무료 복권 3장",elite:"정예 캐릭터",hero:"영웅 캐릭터",frenzy:"광폭: 20초간 모두 공격력·공속 1.5배",upg:"모든 업글 +1",legend:"전설 캐릭터"};
+const CRATE_NAME={gold:"골드 (200 + 웨이브×15)",gem:"보석 (100 + 웨이브×5)",tix:"무료 복권 3장",elite:"LV3 캐릭터",hero:"LV4 캐릭터",frenzy:"광폭: 20초간 모두 공격력·공속 1.5배",upg:"모든 업글 +1",legend:"LV5 캐릭터"};
 const crateP=()=>has("supply_call")?CRATE_P_UP:CRATE_P;
 const CRATE_POS=()=>({x:COLS*WT-WT*.85,y:ROWS*WT-WT*.85}); // bottom-right corner of the map
 const C_TEASE=34,C_OPEN=40; // frames: rattle, then (on a win) glow + open
@@ -230,14 +235,14 @@ function crateGive(o){
   else if(o.k==="frenzy"){S.cBuff=24*20;applyAuras();txt="광폭! 20초간 공격력·공속 1.5배";rare=true}
   else if(o.k==="upg"){for(const k in S.upg)if(S.upg[k]<255)S.upg[k]++;txt="모든 업글 +1";rare=true}
   else{const g={elite:2,hero:3,legend:4}[o.k];pr.type=pick(byGrade(g)).i;placePrize(pr.type);txt=`${GRADE[g]} ${TOWERS[pr.type].name}`;rare=g>=3}
-  log(`보급상자: ${txt}`,"good");if(rare)banner(o.k==="legend"?"보급 대박! 전설":"보급 대박!",o.k==="legend"?GCOL[4]:GCOL[3]);
+  log(`보급상자: ${txt}`,"good");if(rare)banner(o.k==="legend"?"보급 대박! "+GRADE[4]:"보급 대박!",o.k==="legend"?GCOL[4]:GCOL[3]);
   if(!window.FAST_LOTTO){const el=$("crateInfo");if(el){el.querySelector("h4 span").textContent=txt;el.classList.add(rare?"jp":"won");sfx(rare?"jackpot":"win");
     if(o.k==="legend"){const f=document.createElement("div");f.className="miracleFx";document.body.appendChild(f);setTimeout(()=>f.remove(),1600)}
     clearTimeout(crateInfoHide);crateInfoHide=setTimeout(()=>el.classList.remove("show","jp","won"),rare?2600:1900)}}
   renderPanels()}
 // roulette: the 8 prizes sit in a ring, the light runs around, slows down and stops on the prize
 const CRATE_ICON=Object.fromEntries(Object.entries({gold:"gold",gem:"gem",tix:"ticket",elite:"elite",hero:"hero",frenzy:"frenzy",upg:"upgrade",legend:"legend"}).map(([k,f])=>[k,`<img alt="" src="${A(`ui/roulette/prize_${f}.webp`)}">`]));
-const CRATE_SHORT={gold:"골드",gem:"보석",tix:"복권 3장",elite:"정예",hero:"영웅",frenzy:"광폭",upg:"업글 +1",legend:"전설"};
+const CRATE_SHORT={gold:"골드",gem:"보석",tix:"복권 3장",elite:GRADE[2],hero:GRADE[3],frenzy:"광폭",upg:"업글 +1",legend:GRADE[4]};
 function crateWheel(k,done){
   let el=$("crateInfo");if(!el){el=document.createElement("div");el.id="crateInfo";el.className="crateInfo";document.body.appendChild(el)}
   el.onclick=null;clearTimeout(crateInfoHide);el.classList.remove("jp","won");

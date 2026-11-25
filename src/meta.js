@@ -7,8 +7,8 @@ function showHome(){
 function homeSndSync(){const on=SND.on;$("homeSndImg").src=`ui/home/btn_sound_${on?"on":"off"}.png`;$("homeSnd").setAttribute("aria-label",on?"소리 끄기":"소리 켜기")}
 $("homeSnd").onclick=()=>{audioInit();setSound(!SND.on);homeSndSync()};
 $("homeHelp").onclick=()=>{$("helpModal").hidden=false};
-$("homeCodex").onclick=()=>{$("codexSlot").appendChild($("codex"));$("codexModal").hidden=false};
-document.querySelectorAll(".homeModal [data-close]").forEach(b=>b.onclick=()=>{const m=b.closest(".homeModal");m.hidden=true;if(m.id==="codexModal")$("codexCard").appendChild($("codex"))});
+$("homeCodex").onclick=()=>{for(const k of["augPart","codex"])$("codexSlot").appendChild($(k));$("augAll").innerHTML=augAllHTML();$("augPart").classList.add("home");$("codexModal").hidden=false};
+document.querySelectorAll(".homeModal [data-close]").forEach(b=>b.onclick=()=>{const m=b.closest(".homeModal");m.hidden=true;if(m.id==="codexModal"){const C=$("codexCard"),H=C.querySelector("h3"),P=C.querySelector(".cxH");H.after($("augPart"));P.after($("codex"));$("augPart").classList.remove("home")}});
 document.querySelectorAll(".homeModal").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)m.querySelector("[data-close]").click()}));
 function showResult(){
   const wave=S.wi+1,prev=bestWave(),isNew=wave>prev;if(isNew)try{localStorage.setItem("rhd_best",wave)}catch(e){}
@@ -22,19 +22,15 @@ showHome();
 
 // ---------- situational tips: each one shows once, the first time its situation comes up ----------
 const TIPS={
-  summon:{t:"여기 빈 칸을 눌러 보세요!",d:"골드 100으로 캐릭터가 나와요",at:()=>{const mid=ROWS*WT/2,sl=SLOTS.filter(s=>!s.tower&&s.x<=96).sort((a,b)=>Math.abs(a.y-mid)-Math.abs(b.y-mid))[0]||SLOTS.find(s=>!s.tower);tipSlot=sl;const r=cv.getBoundingClientRect(),k=r.width/(COLS*WT);return {left:r.left+(sl.x-WT)*k,top:r.top+(sl.y-WT)*k,width:2*WT*k,height:2*WT*k,right:r.left+(sl.x+WT)*k,bottom:r.top+(sl.y+WT)*k}},when:()=>S.towers.length===0&&S.frame>10},
-  merge:{t:"같은 캐릭터 2명! 합성을 눌러 보세요",d:"캐릭터를 두 번 톡톡 눌러도 돼요",at:()=>MQ.matches?$("navMerge"):$("mergeAll"),when:()=>S.towers.some(tw=>TOWERS[tw.type].grade<5&&sameCount(tw)>=2)},
+  summon:{t:"소환을 눌러 보세요!",d:"빈 칸을 눌러도 나와요",at:()=>MQ.matches?$("navSummon"):$("summonBtn"),when:()=>S.towers.length===0&&S.frame>10},
+  merge:{t:"같은 캐릭터 2명! 합성을 눌러 보세요",d:"캐릭터를 두 번 톡톡 눌러도 돼요",at:()=>MQ.matches?$("navMerge"):$("mergeAll"),when:()=>S.towers.some(tw=>TOWERS[tw.type].grade<GOD&&sameCount(tw)>=2)},
   aug:{t:"증강 하나를 골라 보세요!",d:"골드 등급이 가장 세요",at:null,when:()=>augOpen&&$("augCards")&&$("augCards").classList.contains("in")},
   upg:{t:"업글을 눌러 강화해 보세요!",d:"보석으로 공격력을 올려요",at:()=>MQ.matches?document.querySelector('[data-sheet="pUpg"]'):$("pUpg"),when:()=>S.wi>=6&&S.phase==="prep"},
   boss:{t:"받을까, 2배에 걸까?",d:"실패하면 0골드!",at:null,when:()=>rewardOpen&&$("rewardBox").classList.contains("bossP")},
 };
 let tipSeen={};try{tipSeen=JSON.parse(localStorage.getItem("rhd_tips")||"{}")}catch(e){}
-let tipNow=null,tipSlot=null;
-// pulsing ring + pointing hand on the slot the summon tip points at (drawn by the board renderer)
-function tipDraw(c,time){if(tipNow!=="summon"||!tipSlot)return;const x=tipSlot.x*K,y=tipSlot.y*K,p=(Math.sin(time*.18)+1)/2;
-  c.save();c.lineWidth=TS*.09;c.strokeStyle=`rgba(255,211,79,${.6+.4*p})`;c.shadowColor="#ffd34f";c.shadowBlur=TS*.4;c.strokeRect(x-TS*(.92+.06*p),y-TS*(.92+.06*p),TS*(1.84+.12*p),TS*(1.84+.12*p));c.restore();
-  c.font=`${TS*.9}px sans-serif`;c.textAlign="center";c.textBaseline="middle";c.fillText("👆",x+TS*.25,y+TS*(.35+.15*p));c.textBaseline="alphabetic"}
-function tipClose(){tipSlot=null;const el=$("tipBox");if(el)el.hidden=true;document.querySelectorAll(".tipHi").forEach(e=>e.classList.remove("tipHi"));tipNow=null}
+let tipNow=null;
+function tipClose(){const el=$("tipBox");if(el)el.hidden=true;document.querySelectorAll(".tipHi").forEach(e=>e.classList.remove("tipHi"));tipNow=null}
 function tipShow(id){
   const T=TIPS[id];tipSeen[id]=1;try{localStorage.setItem("rhd_tips",JSON.stringify(tipSeen))}catch(e){}
   let el=$("tipBox");if(!el){el=document.createElement("div");el.id="tipBox";el.className="tipBox";document.body.appendChild(el)}

@@ -1,10 +1,9 @@
 <div class="app">
   <header class="hud">
     <div class="brand"><img alt="랜덤 히어로 디펜스" src="ui/logo_horizontal.png"></div>
-    <div class="wavebox"><b>WAVE <span id="sWave">0/40</span></b><small><span id="sTimerLbl">다음 웨이브</span> <span id="sTimer">--</span> <button type="button" id="skipBtn" class="skip" hidden>바로 시작 ▶</button></small></div>
-    <div class="res life" title="목숨"><img alt="" src="ui/icons/icon_life.svg"><b id="sLife">30</b><span class="sr">목숨</span></div>
-    <div class="res ore" title="골드"><img alt="" src="ui/icons/icon_gold.svg"><b id="sOre">0</b><span class="sr">골드</span></div>
-    <div class="res gas" title="보석"><img alt="" src="ui/icons/icon_gem.svg"><b id="sGas">0</b><span class="sr">보석</span></div>
+    <div class="res life" title="목숨"><img alt="" src="ui/nav/ic_life.webp"><b id="sLife">30</b><span class="sr">목숨</span></div>
+    <div class="res ore" title="골드"><img alt="" src="ui/nav/ic_gold.webp"><b id="sOre">0</b><span class="sr">골드</span></div>
+    <div class="res gas" title="보석"><img alt="" src="ui/nav/ic_gem.webp"><b id="sGas">0</b><span class="sr">보석</span></div>
     <b id="sKill" hidden>0</b>
   </header>
 
@@ -14,11 +13,13 @@
       <button id="spP" type="button" aria-pressed="false" aria-label="일시정지"></button>
       <button id="spX" type="button" aria-label="배속 바꾸기">x1</button>
     </div>
+    <button type="button" id="skipBtn" class="skip" hidden>바로 시작 <span id="sTimer">--</span></button>
     <div class="vp" id="vp"><canvas id="cv" width="990" height="870" aria-label="전장"></canvas></div>
     <div class="banner" id="banner"></div>
     <div class="toast" id="toast" aria-live="polite"></div>
     <div class="bubble" id="bubble" hidden></div>
-    <button type="button" class="lotto" id="lottoBtn" aria-label="보석 복권, 골드 100"><b>복권</b><span>골드 100</span></button>
+    <button type="button" class="lotto summonBtn" id="summonBtn" aria-label="소환, 골드 100"><b>소환</b><span>골드 100</span></button>
+    <button type="button" class="lotto" id="lottoBtn" aria-label="복권, 골드 100"><b>복권</b><span>골드 100</span></button>
     <button type="button" class="mergeAll" id="mergeAll" disabled aria-label="합성"><b>합성</b><span id="mergeAllN">0</span></button>
     <div class="overlay" id="rewardOv" hidden><div class="box" id="rewardBox"></div></div>
     <div class="homeOv" id="startOv">
@@ -34,9 +35,9 @@
       </div>
       <div class="homeModal" id="helpModal" hidden><div class="hm"><h2>게임 방법</h2>
         <ol class="steps">
-          <li><img alt="" src="ui/icons/icon_guide_draw.svg">빈 칸을 눌러 캐릭터 뽑기</li>
+          <li><img alt="" src="ui/icons/icon_guide_draw.svg">소환을 누르거나 빈 칸을 눌러 캐릭터 뽑기</li>
           <li><img alt="" src="ui/icons/icon_guide_merge.svg">같은 캐릭터 2명을 합성</li>
-          <li><img alt="" src="ui/icons/icon_guide_survive.svg">최대한 오래 버티기 (40웨이브 뒤 무한 모드)</li>
+          <li><img alt="" src="ui/icons/icon_guide_survive.svg">최대한 오래 버티기 (200웨이브 뒤 무한 모드)</li>
           <li><img alt="" src="ui/aug/icons/pure.png">5·15·25…웨이브에 증강 1개 고르기</li>
         </ol><button type="button" class="btn" id="tipReset">게임 중 도움말 다시 보기</button><button type="button" class="btn primary" data-close>닫기</button></div></div>
       <div class="homeModal" id="codexModal" hidden><div class="hm wide"><h2>도감</h2><div id="codexSlot"></div><button type="button" class="btn primary" data-close>닫기</button></div></div>
@@ -70,21 +71,24 @@
       <div id="pUpg"></div>
       <div id="pMis" hidden></div>
     </section>
-    <section class="card" id="augCard">
-      <h3>내 증강</h3>
-      <div id="augBody"></div>
-    </section>
     <section class="card" id="codexCard">
       <h3>도감</h3>
+      <div id="augPart">
+        <p class="cxH">내 증강</p><div id="augBody"></div>
+        <details class="augAll"><summary>전체 증강 보기</summary><div id="augAll"></div></details>
+      </div>
+      <p class="cxH">캐릭터</p>
       <div class="codex" id="codex"></div>
       <div id="lottoOdds"></div>
     </section>
   </aside>
 </div>
 <nav class="mnav" aria-label="메뉴">
-  <button type="button" data-sheet="pUpg" aria-pressed="false"><img alt="" src="ui/icons/icon_upg2.svg">업글</button>
-  <button type="button" id="navMerge" aria-label="합성"><img alt="" src="ui/icons/icon_merge_all.svg">합성<span class="dot" id="navMergeN" hidden>0</span></button>
-  <button type="button" class="mlotto" id="navLotto" aria-label="보석 복권, 골드 100"><span class="orb"><b>복권</b><small>골드 100</small></span></button>
-  <button type="button" data-sheet="pAug" aria-pressed="false"><img alt="" src="ui/icons/icon_aug.svg">증강</button>
-  <button type="button" data-sheet="codex" aria-pressed="false"><img alt="" src="ui/icons/icon_codex.svg">도감</button>
+  <div class="mains">
+    <button type="button" class="mbtn summon" id="navSummon" aria-label="소환, 골드 100"><img alt="" src="ui/nav/ic_summon.webp"><span><b>소환</b><small>골드 100</small></span></button>
+    <button type="button" class="mbtn lottoM" id="navLotto" aria-label="복권, 골드 100"><img alt="" src="ui/nav/ic_lotto.webp"><span><b>복권</b><small>골드 100</small></span><i class="tagFree" id="navFree" hidden>무료</i></button>
+  </div>
+  <button type="button" class="sub" data-sheet="pUpg" aria-pressed="false"><img alt="" src="ui/nav/ic_upg.webp">업글</button>
+  <button type="button" class="sub" id="navMerge" aria-label="합성"><img alt="" src="ui/nav/ic_merge.webp">합성<span class="dot" id="navMergeN" hidden>0</span></button>
+  <button type="button" class="sub" data-sheet="codex" aria-pressed="false"><img alt="" src="ui/nav/ic_codex.webp">도감</button>
 </nav>

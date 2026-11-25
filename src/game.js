@@ -22,22 +22,22 @@ const WAVE_SPR=["m_rat", "m_zombie", "m_zombie", "m_bull", "m_hound", "m_wagon",
 const MON_TITLE={"m_bird": "산호새", "m_wagon": "장갑 수레", "m_bug": "벌레", "m_rat": "들쥐", "q_steel_knight": "강철 기사", "m_airship": "비행선", "b_balloon": "거대 풍선벌레", "m_assassin": "그림자 암살자", "b_battleship": "거대 전함", "m_queen": "여왕벌", "b_hell_carrier": "지옥 모함", "m_knight": "황금 기사", "b_driller": "거대 굴착기", "m_zombie": "좀비", "b_endless": "혼돈의 황제", "m_hound": "사냥개", "m_fighter": "지옥 전투기", "m_bull": "뿔소", "q_dino": "공룡", "q_flyer": "거대 비행체", "m_beetle": "딱정벌레", "m_robot": "고철 로봇", "m_yeti": "털북숭이", "m_ice_wolf": "얼음 늑대", "m_sandworm": "모래 벌레", "m_imp": "임프", "m_hellhound": "지옥견", "m_skeleton_knight": "해골 기사", "m_demon_mage": "악마 마법사", "m_shadow_bat": "그림자 박쥐", "m_mummy": "미라", "m_cactus": "선인장 괴물", "m_snow_golem": "눈사람 골렘", "m_lava_golem": "용암 골렘", "m_frost_bat": "서리 박쥐", "m_fire_spirit": "불 정령", "m_scorpion": "전갈", "m_snow_bunny": "눈토끼 떼", "m_sky_ship": "구름 해적선", "b_ice_titan": "얼음 거인", "m_griffin": "그리핀", "m_frogman": "개구리 전사", "b_mushroom_king": "버섯 왕", "m_harpy": "하피", "m_angel_knight": "타락 천사 기사", "b_storm_dragon": "폭풍 용", "m_mammoth": "매머드", "m_penguin_raider": "폭주 펭귄", "m_ice_crab": "빙하 게", "m_slime": "늪 슬라임", "m_frost_wraith": "서리 망령", "m_mushroom": "독버섯 돌이", "m_cloud_sprite": "구름 요정", "m_swamp_troll": "늪 트롤", "m_void_eye": "눈알 박쥐", "m_mech_walker": "보행 기계", "m_tank": "미니 전차", "m_drone": "공장 드론", "m_chaos_hound": "혼돈견", "b_chaos_lord": "혼돈의 군주", "m_crab_knight": "게 기사", "m_star_jelly": "별빛 해파리", "b_mega_factory": "거대 공장 로봇", "m_sea_serpent": "바다뱀", "b_kraken": "크라켄", "m_jellyfish": "해파리", "m_spider_bot": "거미 로봇", "m_rift_knight": "차원 기사", "m_piranha": "피라냐 떼", "m_void_titan": "공허 거인"};
 const MON_SIZE={"m_bird": 1, "m_wagon": 3, "m_bug": 1, "m_rat": 1, "q_steel_knight": 1, "m_airship": 3, "b_balloon": 3, "m_assassin": 1, "b_battleship": 3, "m_queen": 2, "b_hell_carrier": 3, "m_knight": 1, "b_driller": 3, "m_zombie": 1, "b_endless": 3, "m_hound": 1, "m_fighter": 2, "m_bull": 3, "q_dino": 1, "q_flyer": 3, "m_beetle": 3, "m_robot": 1, "m_yeti": 1, "m_ice_wolf": 1, "m_sandworm": 3, "m_imp": 1, "m_hellhound": 2, "m_skeleton_knight": 1, "m_demon_mage": 2, "m_shadow_bat": 1, "m_mummy": 1, "m_cactus": 2, "m_snow_golem": 3, "m_lava_golem": 3, "m_frost_bat": 1, "m_fire_spirit": 1, "m_scorpion": 2, "m_snow_bunny": 1, "m_sky_ship": 3, "b_ice_titan": 3, "m_griffin": 2, "m_frogman": 2, "b_mushroom_king": 3, "m_harpy": 1, "m_angel_knight": 1, "b_storm_dragon": 3, "m_mammoth": 3, "m_penguin_raider": 1, "m_ice_crab": 2, "m_slime": 1, "m_frost_wraith": 1, "m_mushroom": 1, "m_cloud_sprite": 1, "m_swamp_troll": 3, "m_void_eye": 1, "m_mech_walker": 3, "m_tank": 2, "m_drone": 1, "m_chaos_hound": 2, "b_chaos_lord": 3, "m_crab_knight": 2, "m_star_jelly": 1, "b_mega_factory": 3, "m_sea_serpent": 3, "b_kraken": 3, "m_jellyfish": 1, "m_spider_bot": 1, "m_rift_knight": 2, "m_piranha": 1, "m_void_titan": 3};
 WAVES.forEach((w,i)=>{w.spr=WAVE_SPR[i];w.name=MON_TITLE[w.spr];if(!w.boss)w.size=MON_SIZE[w.spr]||w.size});["공룡","강철 기사","거대 비행체"].forEach((n,i)=>MISSIONS[i].name=n);["q_dino","q_steel_knight","q_flyer"].forEach((k,i)=>MISSIONS[i].spr=k);
-const GRADE=["견습","숙련","정예","영웅","전설","신"];
-const GCOL=["#aab7c0","#428dff","#9b4dff","#ff573d","#ffd34f","#ff5cc8"];
-const SELL=[50,100,200,400,0,0];
+const GRADE=["LV1","LV2","LV3","LV4","LV5","LV6","LV7","LV8"],LEGEND=6,GOD=7; // each grade = two of the one below
+const GCOL=["#e6e9f2","#8fe27a","#6bb8ff","#ffd34f","#ff9d4a","#ff6d6d","#e58bff","#fff07a"]; // LV text colours: white, green, blue, gold, orange, red, violet, bright yellow
+const SELL=[50,100,200,400,800,1600,0,0];
 // upgrades: one line per role (사격·저격·범위·근접·마법), five characters each
-const UPG_ICON={Single:"single",Shot:"gun",Sniper:"sniper",Area:"area",Melee:"sword",Magic:"magic"};
+const UPG_ICON={Single:"one",Shot:"mid",Sniper:"far",Area:"many",Melee:"near",Magic:"magic"};
 const UPG_DESC={Shot:"공격력 올리기",Sniper:"공격력 올리기",Area:"공격력 올리기",Melee:"공격력 올리기",Magic:"공격력 + 특수효과(버프·저주·둔화) 5%씩"};
-const UPG_COL={Single:"#18A7B5",Shot:"#3D8BFF",Sniper:"#8B5CF6",Area:"#FFA62B",Melee:"#FF5A5F",Magic:"#2BC48A"};
-const UPGS=[["Melee","근접"],["Shot","사격"],["Sniper","저격"]];
+const UPG_COL={Single:"#12A594",Shot:"#3D8BFF",Sniper:"#8B5CF6",Area:"#FF8A1E",Melee:"#FF5A5F",Magic:"#2BC48A"};
+const UPGS=[["Melee","근거리"],["Shot","중거리"],["Sniper","원거리"]];
 // second kind of upgrade, by attack type. each covers ~15 of the 30 characters (1.5x a line), so a level is weaker
-const UPGS_T=[["Single","단발"],["Area","범위"]];const UPG_LINE_K=.10,UPG_TYPE_K=.07;
+const UPGS_T=[["Single","지정"],["Area","범위"]];const UPG_LINE_K=.10,UPG_TYPE_K=.07;
 const UPG_K=1.5;const upgCost=lv=>Math.round(UPG_K*(7+lv));
 // monster size no longer changes damage (the StarCraft concussive/explosive table was too hard to read)
 const MULT={Normal:[1,1,1,1],Ignore_Armor:[1,1,1,1],Concussive:[1,1,1,1],Explosive:[1,1,1,1],Independent:[1,1,1,1]};
 const MISSION_CD=7600; // 3800 trigger cycles
 const HEAD={"대검타워":"blade","독침 타워":"spike","레이저 타워":"laser","바이클 타워":"grenade","스카웃 타워":"twin","캐논 타워":"cannon","표창 타워":"glaive","피스톨 타워":"rifle","EMP 타워":"orb","대포 타워":"mortar","블레이드 타워":"blade","빔 타워":"prism","쇼크 타워":"shock","스나이퍼 타워":"sniper","포이즌 타워":"venom","폭발 타워":"mortar","고철 타워":"gatling","광폭 타워":"cannon","맹독 타워":"venom","블러드 타워":"orb","빔소드 타워":"laser","촉수 타워":"tentacle","포토캐논 타워":"cannon","광자포 타워":"cannon","플레임 타워":"flame","학살 타워":"blade","저격 타워":"sniper","불릿 타워":"gatling","폭격 타워":"missile","미사일 타워":"missile","니들 타워":"spike","복 주머니":"bag","폭풍 타워":"shock","거인 타워":"hangar","래피드 타워":"gatling","핵 타워":"orb","수리검 타워":"glaive","야마토 타워":"cannon","여왕 타워":"crown","유령 타워":"sniper","지옥불 타워":"flame"};
-const RENAME={"55": "그림자 닌자왕", "2": "쇠공 투척병", "70": "쌍권총잡이", "0": "화승총병", "16": "번개 마법사", "30": "박격포 사수", "61": "광선검 기사", "88": "광선 마법사", "68": "해머 전사", "1": "저격수", "46": "독가스 분사병", "32": "폭파 전문가", "3": "기관총 사수", "71": "공성포 기사", "62": "산성 연금술사", "52": "맹독 마녀", "21": "레이저 기사", "78": "에너지탄 사수", "10": "화염방사 특공대", "54": "쌍검 검성", "44": "대물 저격 명사수", "20": "개틀링 거한", "58": "로켓 포격대장", "76": "미사일 대장", "53": "작살 명사냥꾼", "81": "폭탄 도깨비", "67": "폭풍 현자", "82": "양봉 군주", "19": "미니건 전쟁신", "79": "불마법사", "100": "거포 대장군", "51": "용인 광전사", "99": "망령 저격왕", "103": "용암 창술왕", "39": "대검 병사", "38": "독침 사냥꾼", "8": "활잡이", "66": "나무 대포병", "43": "표창수", "104": "철퇴 기사"};
+const RENAME={"55": "그림자 닌자", "2": "쇠공 투척병", "70": "쌍권총잡이", "0": "화승총병", "16": "번개 마법사", "30": "박격포 사수", "61": "광선검 기사", "88": "광선 마법사", "68": "해머 전사", "1": "저격수", "46": "독가스 분사병", "32": "폭파 전문가", "3": "기관총 사수", "71": "공성포 기사", "62": "산성 연금술사", "52": "맹독 마녀", "21": "태엽 기사", "78": "에너지탄 사수", "10": "화염방사 특공대", "54": "쌍검 검성", "44": "대물 저격 명사수", "20": "개틀링 거한", "58": "로켓 포격대장", "76": "미사일 대장", "53": "작살 명사냥꾼", "81": "폭탄 도깨비", "67": "폭풍 현자", "82": "양봉 군주", "19": "미니건 전쟁신", "79": "불마법사", "100": "거포 대장군", "51": "용인 광전사", "99": "망령 저격왕", "103": "용암 창술왕", "39": "대검 병사", "38": "독침 사냥꾼", "8": "활잡이", "66": "나무 대포병", "43": "표창수", "104": "철퇴 기사"};
 // ---------- roster v6: 4 roles x 5 grades = 20 characters (the other 15 original towers stay in data, unused) ----------
 TOWERS.push(
   {uid:201,name:"견습 마법사",grade:0,weapon:"Aura",dmg:22,bonus:4,cd:18,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,noRescale:true,aura:{r:1,spd:.15}},
@@ -54,12 +54,22 @@ TOWERS.push( // 신 grade (5): two legends merge into a random god. all six slot
   {uid:304,name:"검신",grade:5,weapon:"God_Sword",dmg:1,bonus:0,cd:18,range:48,splash:[24,44,64],exp:"Normal",dtype:"Normal",factor:1,noRescale:true},
   {uid:305,name:"권신",grade:5,weapon:"God_Fist",dmg:1,bonus:0,cd:12,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,noRescale:true},
   {uid:306,name:"창신",grade:5,weapon:"God_Spear",dmg:1,bonus:0,cd:30,range:48,splash:[16,32,48],exp:"Normal",dtype:"Normal",factor:1,noRescale:true});
-const ROLE={305:"Melee",306:"Sniper",301:"Shot",302:"Sniper",303:"Shot",304:"Melee",204:"Melee",39:"Melee",61:"Melee",68:"Melee",104:"Melee",10:"Melee",54:"Melee",205:"Melee",51:"Melee",103:"Melee",
+// v8: 8 grades. 견습·초급 = old 견습·숙련, 정예·영웅·전설·신 keep their characters, 중급·고급 are new (old unused art + 3 stand-ins until the redraw)
+TOWERS.forEach(t=>t.grade=[0,1,4,5,6,7][t.grade]);
+TOWERS.push(
+  {uid:211,name:"강철 주먹",grade:2,weapon:"Fists",dmg:40,bonus:7,cd:12,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,noRescale:true},
+  {uid:212,name:"청동 망치병",grade:2,weapon:"Hammer",dmg:60,bonus:9,cd:24,range:48,splash:[20,40,60],exp:"Normal",dtype:"Normal",factor:1,noRescale:true},
+  {uid:213,name:"푸른 검객",grade:3,weapon:"Blade",dmg:60,bonus:9,cd:15,range:48,splash:[0,0,0],exp:"Normal",dtype:"Normal",factor:1,noRescale:true});
+for(const[u,g,w,cd,sp]of[[78,2,"Energy_Gun",14,0],[46,2,"Gas",20,1],[8,2,"Bow",18,0],[2,2,"Iron_Ball",30,1],[38,3,"Blowdart",10,0],[62,3,"Acid",20,1],[53,3,"Harpoon",24,0],[81,3,"Bomb",34,1],[55,3,"Shadow_Spin",22,1]]){
+  const t=TOWERS.find(o=>o.uid===u);Object.assign(t,{grade:g,weapon:w,cd,splash:sp?[16,32,48]:[0,0,0],noRescale:true,factor:1,exp:"Normal",dtype:"Normal"});delete t.shots}
+const ROLE={211:"Melee",212:"Melee",213:"Melee",55:"Melee",78:"Shot",46:"Shot",38:"Shot",62:"Shot",8:"Sniper",2:"Sniper",53:"Sniper",81:"Sniper",305:"Melee",306:"Sniper",301:"Shot",302:"Sniper",303:"Shot",304:"Melee",204:"Melee",39:"Melee",61:"Melee",68:"Melee",104:"Melee",10:"Melee",54:"Melee",205:"Melee",51:"Melee",103:"Melee",
   70:"Shot",43:"Shot",202:"Shot",32:"Shot",3:"Shot",52:"Shot",20:"Shot",58:"Shot",19:"Shot",79:"Shot",
   0:"Sniper",66:"Sniper",1:"Sniper",30:"Sniper",21:"Sniper",71:"Sniper",44:"Sniper",76:"Sniper",99:"Sniper",100:"Sniper"};
-const TIER={305:1,306:4,301:3,302:4,303:3,304:1,204:1,39:1,61:1,68:1,104:1,10:1,54:1,205:1,51:1,103:1, 70:2,43:2,202:3,32:2,3:3,52:2,20:3,58:3,19:3,79:3,
+const TIER={211:1,212:1,213:1,55:1,8:4,2:4,53:4,81:4,305:1,306:4,301:3,302:4,303:3,304:1,204:1,39:1,61:1,68:1,104:1,10:1,54:1,205:1,51:1,103:1, 70:2,43:2,202:3,32:2,3:3,52:2,20:3,58:3,19:3,79:3,
   0:4,66:4,1:4,30:4,21:4,71:4,44:4,76:4,99:4,100:4};
-TOWERS.forEach(t=>{t.off=!ROLE[t.uid];
+// roster: only redrawn (GPT) characters are in the game; add the uid here when new art arrives
+const ROSTER=new Set([204,61,211,213,104,54,51,305]);
+TOWERS.forEach(t=>{t.off=!ROLE[t.uid]||!ROSTER.has(t.uid);
   if(t.uid===39)t.splash=[16,32,48];   // greatsword sweeps around the target
   if(t.uid===68)t.splash=[20,40,60];   // hammer shockwave
   if(t.uid===66)t.splash=[8,16,28];    // wooden cannon
@@ -67,7 +77,8 @@ TOWERS.forEach(t=>{t.off=!ROLE[t.uid];
   if(t.uid===76)t.splash=[10,25,40];   // missiles
   if(t.uid===100)t.splash=[15,35,55]});// giant cannon
 const pick=a=>a[Math.floor(Math.random()*a.length)];
-TOWERS.forEach((t,i)=>{t.i=i;t.head=HEAD[t.name]||"rifle";t.hue=(i*47+20)%360;t.name=(t.uid===79?"화염 군주":t.uid===44?"철갑탄 명사수":RENAME[t.uid]||t.name).replace("대검타워","대검 타워");t.short=t.name.replace(" 타워","").replace("타워","")});
+const NEW_NAME={204:"검도 꼬마",61:"무술 소년",211:"전갈 병사",213:"늑대인간",104:"태엽 권투사",54:"폭풍 검객",51:"악마왕",305:"심판자"}; // redrawn characters
+TOWERS.forEach((t,i)=>{t.i=i;t.head=HEAD[t.name]||"rifle";t.hue=(i*47+20)%360;t.name=NEW_NAME[t.uid]||(t.uid===79?"화염 군주":t.uid===44?"철갑탄 명사수":RENAME[t.uid]||t.name).replace("대검타워","대검 타워");t.short=t.name.replace(" 타워","").replace("타워","")});
 // ---------- range in whole cells (square, like the board) ----------
 // a character hits monsters inside the (2N+1)x(2N+1) cell square around it.
 // tiers follow the weapon: melee 1, short (pistol/throw/flame) 2, rifle/bow 3, sniper/artillery 4.
@@ -77,7 +88,7 @@ TOWERS.forEach((t,i)=>{t.i=i;t.head=HEAD[t.name]||"rifle";t.hue=(i*47+20)%360;t.
 // throw/spray = 2, mortar & siege cannon = 4 (long indirect/heavy guns), mages that cast at a spot = 3+
 const RANGE_OVERRIDE={2:2,46:2,10:2,32:2,62:2,30:4,71:4,81:3,67:3,79:3};
 // missiles explode: give the missile captain a small blast (it was single-target)
-const MELEE_UIDS=new Set([204,39,61,68,104,10,54,205,51,103]);
+const MELEE_UIDS=new Set([211,212,213,55,204,39,61,68,104,10,54,205,51,103]);
 function tierOf(t){if(ROLE[t.uid]==="Shot")return 2; // every 사격 character reaches 2 cells
   if(TIER[t.uid])return TIER[t.uid];if(MELEE_UIDS.has(t.uid))return 1;if(RANGE_OVERRIDE[t.uid])return RANGE_OVERRIDE[t.uid];return t.range<=128?2:t.range<=192?3:4}
 function inSquare(N,dx,dy,pad){const h=(N+.5)*CELL+(pad||0);return Math.abs(dx)<=h&&Math.abs(dy)<=h}
@@ -104,11 +115,13 @@ var TUNE2={39:.75,204:.8,43:1.35,0:1.15,66:2.5, 61:.8,68:.65,32:2.8,1:1.1,30:1.3
 TOWERS.forEach(t=>{const f=TUNE2[t.uid];if(!f)return;t.dmg=Math.round(t.dmg*f);t.bonus=Math.round(t.bonus*f)});
 // ---------- damage rule: DPS (damage x attack speed) is set by grade x role. closer = stronger ----------
 // singles: 근접 1.0, 사격 0.8, 저격 0.62 / area: 근접 0.7, 사격 0.55, 저격 0.45 (area hits several, so lower per hit)
-// grade base = 근접 단발 DPS at upgrade level 3; each grade ~2.4x the one below, god ~3x legend
-const DPS_BASE=[100,240,520,1250,3000,9000];
+// grade base = 근접 지정 DPS at upgrade level 3; each grade ~2.4x the one below, god ~3x legend
+const DPS_BASE=[100,440,1930,8500,37500,165000,725000,3190000]; // x4.4 per level: one merged hero beats FOUR of the level below
 const DPS_ROLE={Melee:[1,.7],Shot:[.8,.55],Sniper:[.62,.45]};
 const AREA_SPLASH={Melee:[40,72,104],Shot:[32,60,88],Sniper:[32,60,88]};
 const AREA_HIT={Melee:2.1,Shot:1.73,Sniper:1.73}; // the wider blast hits ~2x more monsters, so each hit is lighter (area total ~10% up) // wide enough that a blast usually catches several monsters
+// attack interval (ticks, 24 = 1s) of the redrawn heroes, set so the swing is readable; DPS is fixed by DPS_BASE below
+const HERO_CD={204:18,61:9,211:14,213:11,104:24,54:10,51:26,305:15};for(const t of TOWERS)if(HERO_CD[t.uid])t.cd=HERO_CD[t.uid];
 TOWERS.forEach(t=>{if(t.off||!ROLE[t.uid])return;
   const area=t.splash[2]>0||t.weapon.startsWith("Glave")||t.weapon==="Subterranean_Spines";t.area=area;
   if(area&&t.splash[2]>0)t.splash=AREA_SPLASH[ROLE[t.uid]].slice();
@@ -118,10 +131,12 @@ TOWERS.forEach(t=>{if(t.off||!ROLE[t.uid])return;
   t.bonus=Math.max(0,Math.round(hit*share));t.dmg=Math.max(1,Math.round(hit-3*t.bonus))});
 // area attacks hit at most this many enemies (closest to the impact first), so the card can say "N명"
 // v7 per-hero pass (bench3: real waves, each hero added to a board that leaks half) - pull outliers to their grade median
-const HERO_K={44:1.12,305:1.15,202:.76,1:.88,3:.79,52:1.19,54:1.45,58:.8,20:.88,51:1.15,79:.87,303:.81,301:.85};
+// the 8 redrawn 근거리 heroes are exactly on the grade curve (two merged into one is always stronger: x2.2~3 per level)
+const HERO_K={44:1.12,202:.76,1:.88,3:.79,52:1.19,58:.8,20:.88,79:.87,303:.81,301:.85};
 TOWERS.forEach(t=>{const f=HERO_K[t.uid];if(!f)return;t.dmg=Math.max(1,Math.round(t.dmg*f));t.bonus=Math.round(t.bonus*f)});
-const MAX_HIT=[3,3,4,5,6,8];
+const MAX_HIT=[3,3,4,5,6,7,8,10];
 TOWERS.forEach(t=>{t.maxHit=t.area?MAX_HIT[t.grade]:1});
+const liveKey=k=>TOWERS.some(t=>!t.off&&(t.upg===k||typeKey(t)===k)); // a line / attack type that has at least one character
 const byGrade=g=>TOWERS.filter(t=>t.grade===g&&!t.off);
 const UID=uid=>TOWERS.findIndex(t=>t.uid===uid);
 
@@ -139,8 +154,8 @@ let speed=1,paused=false,running=false;
 const $=id=>document.getElementById(id);
 let lastToast="",lastToastT=0;function toast(msg,cls){const now=Date.now();if(msg===lastToast&&now-lastToastT<2500)return;lastToast=msg;lastToastT=now;const T=$("toast");const p=document.createElement("p");p.textContent=msg;if(cls)p.className=cls;T.appendChild(p);while(T.children.length>3)T.firstChild.remove();setTimeout(()=>p.remove(),2500)}
 function log(msg,cls){if(cls==="good"||cls==="warn")toast(msg,cls);const p=document.createElement("p");p.textContent=msg;if(cls)p.className=cls;const L=$("log");L.appendChild(p);while(L.children.length>80)L.firstChild.remove();L.scrollTop=L.scrollHeight}
-let bannerT=0;function banner(t,col){const b=$("banner");let img="",txt=t;const mg=/^신 강림 · (.+)/.exec(t),mw=/WAVE (\d+)/.exec(t),mc=/(\d+)라운드 클리어/.exec(t);
-  if(mg){img="god";txt=mg[1]}else if(mw){img=/BOSS/.test(t)?"boss":/HELL/.test(t)?"hell":"wave";txt=+mw[1]>40?mw[1]:mw[1]+" / 40"}else if(mc){img="clear";txt=mc[1]+"라운드"}
+let bannerT=0;function banner(t,col){const b=$("banner");let img="",txt=t;const mg=/^LV8 등장 · (.+)/.exec(t),mw=/WAVE (\d+)/.exec(t),mc=/(\d+)라운드 클리어/.exec(t);
+  if(mg){img="god";txt=mg[1]}else if(mw){img=/BOSS/.test(t)?"boss":/HELL/.test(t)?"hell":"wave";txt=+mw[1]>ENDLESS_WAVE?mw[1]:mw[1]+" / "+ENDLESS_WAVE}else if(mc){img="clear";txt=mc[1]+"라운드"}
   b.innerHTML=(img?`<img alt="" src="ui/banners/banner_${img}.png">`:"")+`<span></span>`;b.querySelector("span").textContent=txt;b.classList.toggle("img",!!img);b.style.color=col||"var(--fg)";b.classList.add("show");clearTimeout(bannerT);bannerT=setTimeout(()=>b.classList.remove("show"),1800)}
 function fmt(n){n=Math.round(n);return n>=1e6?(n/1e6).toFixed(2)+"M":n>=1e4?(n/1e3).toFixed(1)+"k":String(n)}
 function lvl(t){return S.upg[t.upg]??0}
@@ -165,6 +180,7 @@ function monR(m){return [0,8,12,16][m.size]||10}
 // ---------- waves ----------
 // ---------- endless mode: after the 40 original waves, new waves keep coming and grow ~12%/wave ----------
 // normal waves reuse the wave 21~29 monsters; every 10th wave is a big boss (gives the boss reward)
+const ENDLESS_WAVE=200; // shown as the goal; the wave numbers after it have no end
 const ENDLESS_POOL=[20,21,22,23,24,25,26,27,28];
 // waves 41~100: six new maps, each with its own monsters and a boss on the 10th wave; after 100 the six maps repeat
 const MAP_POOL=[["m_cloud_sprite","m_griffin","m_angel_knight","m_harpy","m_sky_ship"],["m_ice_crab","m_penguin_raider","m_frost_wraith","m_mammoth"],
@@ -213,11 +229,11 @@ function leak(m){
 }
 function kill(m){
   if(m.dead)return;m.dead=true;S.kills++;sfx("pop");
-  if(m.def.spr&&MSPR[m.def.spr]&&MSPR[m.def.spr].death)S.fx.push({k:"mdie",spr:m.def.spr,x:m.x,y:m.y,a:m.a,z:monR(m)*1.45*(MQ.matches?1.1:1)*(m.def.boss?1.6:1)*(m.kind==="mission"?1.4:1)*2.9*(m.def.boss?.78:1),life:8,max:8});
+  if(m.def.spr&&MSPR[m.def.spr]&&MSPR[m.def.spr].death)S.fx.push({k:"mdie",spr:m.def.spr,x:m.x,y:m.y,fx:monFace(m),z:monR(m)*1.45*(MQ.matches?1.1:1)*(m.def.boss?1.6:1)*(m.kind==="mission"?1.4:1)*2.9*(m.def.boss?.78:1),life:8,max:8});
   else S.fx.push({k:"pop",x:m.x,y:m.y,r:monR(m)*1.6,c:`hsl(${m.hue} 80% 60%)`,life:12,max:12});
   if(m.kind==="mission"){S.ore+=m.def.reward;log("도전 미션 클리어! 골드 +"+m.def.reward,"good");return}
-  if(m.def.boss===1){S.tok.boss++;const r=(m.def.idx!=null?m.def.idx:WAVES.indexOf(m.def))+1;banner(r+"라운드 클리어!","var(--ore)");showReward()}
-  if(m.def.boss===2){S.tok.boss++;banner("무한 모드 시작!","var(--ore)");log("40웨이브 클리어! 이제부터 끝없는 웨이브가 몰려와요","good");showReward()}
+  if(m.def.boss===1){S.tok.boss++;const r=(m.def.idx!=null?m.def.idx:WAVES.indexOf(m.def))+1;banner(r===ENDLESS_WAVE?"무한 모드 시작!":r+"라운드 클리어!","var(--ore)");if(r===ENDLESS_WAVE)log("200웨이브 클리어! 이제부터 끝없는 웨이브가 몰려와요","good");showReward()}
+  if(m.def.boss===2){S.tok.boss++;banner("40라운드 클리어!","var(--ore)");showReward()}
 }
 function finish(win){
   if(S.over)return;S.over=true;running=false;sfx("over");S.sel=null;renderBubble();
@@ -268,7 +284,7 @@ function fire(tw,t,m,noFx){
   if(t.exp==="Corrosive_Acid"&&!m.dead){m.acid=Math.min(9,m.acid+1);m.acidT=240}
   if(noFx)return;
   const style=t.head==="blade"||t.head==="crown"||t.head==="tentacle"?"slash":t.head==="hangar"?"swarm":t.weapon==="Yamato_Gun"||t.head==="laser"||t.head==="prism"?"beam":"bolt";
-  S.fx.push({k:style,x:tw.x,y:tw.y,x2:m.x,y2:m.y,c:col,w:t.grade>=3?4:2.5,life:style==="beam"?10:7,max:style==="beam"?10:7});
+  S.fx.push({k:style,x:tw.x,y:tw.y,x2:m.x,y2:m.y,c:col,w:t.grade>=4?4:2.5,life:style==="beam"?10:7,max:style==="beam"?10:7});
 }
 function segDist(px,py,ax,ay,bx,by){const vx=bx-ax,vy=by-ay,l=vx*vx+vy*vy;let f=((px-ax)*vx+(py-ay)*vy)/l;f=Math.max(0,Math.min(1,f));return Math.hypot(px-ax-vx*f,py-ay-vy*f)}
 
@@ -283,6 +299,8 @@ function applyAuras(){
       if(t.aura.spd)b.bSpd=Math.min(2,b.bSpd+t.aura.spd*k);if(t.aura.pow)b.bPow=Math.min(2,b.bPow+t.aura.pow*k)}}
   augAuras();
 }
+// 근거리: the enemy right in front (beside it, at the height of the weapon)
+function frontMob(tw,t){let m=null,bd=1e9;const P=POSE[t.uid],h=P&&P.mz?tipOf(tw,t)[1]+(P.cut?20:6):tw.y;for(const o of S.mons){if(o.dead||!inRange(t,tw,o))continue;const dy=o.y-h,q=Math.abs(dy)*2+Math.abs(Math.abs(o.x-tw.x)-CELL*.9)+((o.x-tw.x)*(tw.face||1)<0?CELL*.5:0);if(q<bd){bd=q;m=o}}return m}
 function tick(){
   S.frame++;
   if(S.phase==="prep"){if(--S.cd<=0)startWave()}
@@ -296,11 +314,12 @@ function tick(){
   crateTick();
   for(const tw of S.towers){const t=TOWERS[tw.type];
     if(t.aura&&(tw.acool=(tw.acool||1)-1)<=0){tw.acool=72;ANIM.impact(t,tw.x,tw.y,t.aura.r>9?7:(t.aura.r*2+1)*2/1.5)} // buff ring every 3s; magic also attacks
-    let m=tw.target;if(!m||m.dead||!inRange(t,tw,m)){m=null;let best=-1;for(const o of S.mons){if(!o.dead&&o.d>best&&inRange(t,tw,o)){best=o.d;m=o}}tw.target=m}
+    let m=tw.target;if(t.upg==="Melee"&&tw.cool<=0)tw.target=m=frontMob(tw,t);
+    else if(!m||m.dead||!inRange(t,tw,m)){m=null;let best=-1;for(const o of S.mons){if(!o.dead&&o.d>best&&inRange(t,tw,o)){best=o.d;m=o}}tw.target=m}
     if(m){const want=Math.atan2(m.y-tw.y,m.x-tw.x);let da=((want-tw.ang+Math.PI*3)%(Math.PI*2))-Math.PI;tw.ang+=Math.max(-.35,Math.min(.35,da))}
     if(tw.atk!=null){tw.atk++;if(!tw.fired&&tw.atk>=tw.relAt){tw.fired=true;ANIM.release(tw,t)}if(tw.atk>=tw.atkDur)tw.atk=null}
     if(tw.cool>0){tw.cool--;continue}
-    if(m){sfx("atk_"+(ROLE[t.uid]||"Shot"));if(ANIM.has(t)){tw.cool=t.cd/(tw.bSpd||1);tw.atkDur=Math.min(7.2,tw.cool);tw.relAt=tw.atkDur*3.5/6;tw.atk=0;tw.fired=false;tw.pend=m}else{fire(tw,t,m);tw.cool=t.cd/(tw.bSpd||1);tw.kick=4}}
+    if(m){sfx("atk_"+(ROLE[t.uid]||"Shot"));if(ANIM.has(t)){tw.cool=t.cd/(tw.bSpd||1);tw.atkDur=Math.min(POSE[t.uid]?11:7.2,tw.cool);tw.relAt=tw.atkDur*(POSE[t.uid]?.45:3.5/6);tw.atk=0;tw.fired=false;tw.pend=m}else{fire(tw,t,m);tw.cool=t.cd/(tw.bSpd||1);tw.kick=4}}
   }
   augTick();ANIM.stepProj();
   if(S.mons.some(m=>m.dead))S.mons=S.mons.filter(m=>!m.dead);
@@ -312,13 +331,20 @@ function tick(){
 function addTower(slot,type,msg){
   const tw={id:S.nextId++,type,slot,x:slot.x,y:slot.y,ang:-Math.PI/2,cool:0,target:null,kick:0,born:S.frame};
   slot.tower=tw;S.towers.push(tw);const t=TOWERS[type];
-  if(msg!==false)log(`[${GRADE[t.grade]}] ${t.name} 건설`,t.grade>=3?"hi":"");
-  if(t.grade>=5){banner(`신 강림 · ${t.name}`,GCOL[5]);const f=document.createElement("div");f.className="miracleFx";document.body.appendChild(f);setTimeout(()=>f.remove(),1600)}
-  else if(t.grade>=3)banner(`${GRADE[t.grade]} · ${t.name}`,GCOL[t.grade]);
+  if(msg!==false)log(`[${GRADE[t.grade]}] ${t.name} 건설`,t.grade>=4?"hi":"");
+  if(t.grade>=GOD){banner(`LV8 등장 · ${t.name}`,GCOL[GOD]);const f=document.createElement("div");f.className="miracleFx";document.body.appendChild(f);setTimeout(()=>f.remove(),1600)}
+  else if(t.grade>=4)banner(`${GRADE[t.grade]} · ${t.name}`,GCOL[t.grade]);
   S.fx.push({k:"pop",x:slot.x,y:slot.y,r:40,c:GCOL[t.grade],life:14,max:14});
-  sfx(t.grade>=5?"god":t.grade>=3?"rare":"build");
+  sfx(t.grade>=GOD?"god":t.grade>=4?"rare":"build");
   return tw;
 }
+// the 소환 button: same draw as tapping a cell, the game picks the cell (melee beside the road, the rest inside first)
+function summon(){
+  if(!S||!running)return;const empty=SLOTS.filter(s=>!s.tower);
+  if(!empty.length){log("빈 칸이 없어요. 합성하거나 팔아 주세요","warn");return}
+  if(S.ore<100){log("골드가 부족해요 (소환 100)","warn");return}
+  S.ore-=100;const type=drawType(),melee=ROLE[TOWERS[type].uid]==="Melee",fit=empty.filter(s=>edgeSlot(s)===melee);
+  addTower(pick(fit.length?fit:empty),type);renderPanels()}
 // melee reach is 1 cell, so a melee character in the middle of the board hits nothing:
 // new melee characters step out to a slot beside the road (empty first, otherwise swap with a ranged one)
 const edgeSlot=sl=>sl.x<=96||sl.y<=96||sl.x>=COLS*WT-96||sl.y>=ROWS*WT-96;
@@ -327,40 +353,40 @@ function meleeToEdge(tw){
   const to=edges.find(sl=>!sl.tower)||edges.find(sl=>sl.tower&&ROLE[TOWERS[sl.tower.type].uid]!=="Melee");
   if(to)moveTower(tw,to)}
 function removeTower(tw){tw.slot.tower=null;S.towers=S.towers.filter(o=>o!==tw);if(S.sel===tw)S.sel=null}
+const drawType=()=>S.picks.length?S.picks.shift():pick(byGrade(has("summon_bless")&&Math.random()<.1?1:0)).i;
 function build(slot){
   if(!running||slot.tower)return;
   if(S.ore<100){log("골드가 부족합니다 (건설 100).","warn");return}
   S.ore-=100;
-  const type=S.picks.length?S.picks.shift():pick(byGrade(has("summon_bless")&&Math.random()<.1?1:0)).i;
-  addTower(slot,type);renderPanels(); // a new character is not auto-selected
+  addTower(slot,drawType());renderPanels(); // a new character is not auto-selected
 }
 function merge(tw,quiet,noSel){
   const t=TOWERS[tw.type];
   const partner=S.towers.filter(o=>o!==tw&&o.type===tw.type).sort((a,b)=>(a.conc||0)-(b.conc||0)||a.born-b.born)[0];
   if(!partner){log("같은 캐릭터가 하나 더 필요해요","warn");return}
   // gods concentrate instead: the two become one, keeping both powers. ★ shows how many gods are inside (★3 = 3 gods = attack x3)
-  if(t.grade>=5){tw.conc=(tw.conc||0)+(partner.conc||0)+1;removeTower(partner);sfx("merge");
-    S.fx.push({k:"pop",x:tw.x,y:tw.y,r:48,c:GCOL[5],life:16,max:16});banner(`농축 ★${tw.conc+1} · ${t.name}`,GCOL[5]);applyAuras();S.sel=quiet||noSel?null:tw;renderPanels();return}
+  if(t.grade>=GOD){tw.conc=(tw.conc||0)+(partner.conc||0)+1;removeTower(partner);sfx("merge");
+    S.fx.push({k:"pop",x:tw.x,y:tw.y,r:48,c:GCOL[GOD],life:16,max:16});banner(`농축 ★${tw.conc+1} · ${t.name}`,GCOL[GOD]);applyAuras();S.sel=quiet||noSel?null:tw;renderPanels();return}
   sfx("merge");
   const done=line=>{
     const slot=tw.slot;if(!(has("recycle")&&Math.random()<.1))removeTower(partner);else log("재활용! 재료 1명이 남았어요","good");removeTower(tw);
-    let g=t.grade+1;if(S.godCall&&t.grade===3){g=5;S.godCall=0}else if(has("double_up")&&t.grade+2<=4&&Math.random()<.06){g=t.grade+2;log("겹경사! 두 등급 위","good")}
-    let pool=byGrade(g);if(line&&g<5){const f=pool.filter(o=>ROLE[o.uid]===line);if(f.length)pool=f}
+    let g=t.grade+1;if(S.godCall&&t.grade>=3){g=Math.min(GOD,t.grade+2);S.godCall=0}else if(has("double_up")&&t.grade+2<=LEGEND&&Math.random()<.06){g=t.grade+2;log("겹경사! 두 레벨 위","good")}
+    let pool=byGrade(g);if(line&&g<GOD){const f=pool.filter(o=>ROLE[o.uid]===line);if(f.length)pool=f}
     const nt=addTower(slot,pick(pool).i);S.sel=quiet||noSel?null:nt;renderPanels()};
-  if(!quiet&&has("choose_line")&&t.grade<4&&!(S.godCall&&t.grade===3)&&!window.AUG_AUTO)askLine(done);else done(null);
+  if(!quiet&&has("choose_line")&&t.grade<LEGEND&&!(S.godCall&&t.grade>=3)&&!window.AUG_AUTO)askLine(done);else done(null);
 }
-function mergeablePairs(){const by={};for(const tw of S.towers){const t=TOWERS[tw.type];if(t.grade<=3)(by[tw.type]=by[tw.type]||[]).push(tw)}
+function mergeablePairs(){const by={};for(const tw of S.towers){const t=TOWERS[tw.type];if(t.grade<LEGEND)(by[tw.type]=by[tw.type]||[]).push(tw)}
   return Object.values(by).reduce((n,a)=>n+Math.floor(a.length/2),0)}
 function mergeAll(){
-  if(!running)return;const by={};for(const tw of S.towers){const t=TOWERS[tw.type];if(t.grade<=3)(by[tw.type]=by[tw.type]||[]).push(tw)}
+  if(!running)return;const by={};for(const tw of S.towers){const t=TOWERS[tw.type];if(t.grade<LEGEND)(by[tw.type]=by[tw.type]||[]).push(tw)}
   let n=0;const keep=S.sel;for(const list of Object.values(by)){list.sort((a,b)=>a.born-b.born);for(let i=0;i+1<list.length;i+=2){if(!S.towers.includes(list[i])||!S.towers.includes(list[i+1]))continue;merge(list[i],true);n++}}
   S.sel=null;if(n)log(`합성 ${n}번`,"good");renderPanels()}
-const xCost=g=>50<<g; // 고물상: swap price doubles per grade (견습 50 ... 전설 800)
+const xCost=g=>50<<g; // 고물상: swap price doubles per grade (견습 50 ... 전설 3200)
 function exchange(tw){ // 고물상 augment: swap for a different character of the same grade
-  const t=TOWERS[tw.type],c=xCost(t.grade);if(t.grade>=5||!has("junk"))return;if(S.ore<c){log(`골드가 부족해요 (교환 ${c})`,"warn");return}
+  const t=TOWERS[tw.type],c=xCost(t.grade);if(t.grade>=GOD||!has("junk"))return;if(S.ore<c){log(`골드가 부족해요 (교환 ${c})`,"warn");return}
   const opts=byGrade(t.grade).filter(o=>o.i!==t.i);if(!opts.length)return;S.ore-=c;const sl=tw.slot;removeTower(tw);S.sel=addTower(sl,pick(opts).i,false);sfx("coin");renderPanels()}
 function sell(tw){
-  const t=TOWERS[tw.type];if(t.grade>=4){log("전설은 팔 수 없어요","warn");return}
+  const t=TOWERS[tw.type];if(t.grade>=LEGEND){log("LV7부터는 팔 수 없어요","warn");return}
   const v=t.uid===81?1000:SELL[t.grade];removeTower(tw);S.ore+=v;
   log(`${t.name}을(를) 팔고 ${v}원을 얻었습니다.`);sfx("coin");renderPanels();
 }
@@ -391,7 +417,7 @@ let lottoBusy=false;
 function lottoPool(pity){let pool=pity?LOTTO.filter(o=>o.k!=="miss"):LOTTO;
   return pool.map(o=>["hero","legend","miracle"].includes(o.k)&&has("jackpot")?{...o,w:o.w*3}:o)}
 // odds table for the codex: what one ticket can give right now (augments included)
-const LOTTO_NAME={miss:"꽝",gold:"골드 +120",gem:"보석 60~160",char:"견습·숙련 캐릭터",big:"대박 (골드 400 또는 보석 300)",elite:"정예 캐릭터",hero:"영웅 캐릭터",legend:"전설 캐릭터",miracle:"신의 기적 (적 전멸 + 전설 + 보석 500)"};
+const LOTTO_NAME={miss:"꽝",gold:"골드 +120",gem:"보석 60~160",char:"LV1·LV2 캐릭터",big:"대박 (골드 400 또는 보석 300)",elite:"LV3 캐릭터",hero:"LV4 캐릭터",legend:"LV5 캐릭터",miracle:"신의 기적 (적 전멸 + LV5 + 보석 500)"};
 const ODDS_ORDER=["miss","gold","gem","char","big","elite","hero","legend","miracle"];
 function lottoOddsHTML(){const pool=lottoPool(false).sort((a,b)=>ODDS_ORDER.indexOf(a.k)-ODDS_ORDER.indexOf(b.k)),tot=pool.reduce((a,o)=>a+o.w,0);
   const pc=w=>{const v=w/tot*100;return v>=1?v.toFixed(1)+"%":v.toFixed(2)+"%"};
@@ -430,7 +456,7 @@ function givePrize(pr){
   if(pr.type!=null)placePrize(pr.type);
   const t=pr.type!=null?TOWERS[pr.type]:null;
   const msg={miss:"꽝!",gold:`골드 +${pr.gold}`,gem:`보석 +${pr.gem}`,big:pr.gold?`대박! 골드 +${pr.gold}`:`대박! 보석 +${pr.gem}`,
-    char:t&&`캐릭터 당첨! ${t.name}`,elite:t&&`초대박! 정예 ${t.name}`,hero:t&&`초대박! 영웅 ${t.name}`,legend:t&&`기적! 전설 ${t.name}`,miracle:t&&`신의 기적! 적 전멸 + 전설 ${t.name} + 보석 500`}[pr.k];
+    char:t&&`캐릭터 당첨! ${t.name}`,elite:t&&`초대박! LV3 ${t.name}`,hero:t&&`초대박! LV4 ${t.name}`,legend:t&&`기적! LV5 ${t.name}`,miracle:t&&`신의 기적! 적 전멸 + LV5 ${t.name} + 보석 500`}[pr.k];
   log(msg,pr.k==="miss"?"warn":"good");
   if(["legend","miracle","hero"].includes(pr.k))banner(pr.k==="miracle"?"신의 기적!":pr.k==="legend"?"기적!":"초대박!",pr.k==="hero"?GCOL[3]:GCOL[4]);
   renderPanels();
@@ -443,7 +469,7 @@ function symHTML(kind,type){
   if(kind==="big")return `<span class="s7">7</span>`;
   if(kind==="miracle")return `<span class="sm">神</span>`;
   const sp=type!=null&&SPR[TOWERS[type].uid];const g=type!=null?TOWERS[type].grade:0;
-  return sp&&sp.idle?`<span class="sc" style="border-color:${GCOL[g]};background-image:url(${sp.idle.src})"></span>`:`<span class="s7">★</span>`;
+  return sp&&ICON0[type]?`<span class="sc" style="border-color:${GCOL[g]};background-image:url(${ICON0[type]})"></span>`:`<span class="s7">★</span>`;
 }
 const REEL_KINDS=["miss","gold","gem","big","char","hero","legend"];
 function randSym(){const k=REEL_KINDS[Math.floor(Math.random()*REEL_KINDS.length)];const g={char:0,hero:3,legend:4}[k];return symHTML(k,g!=null?pick(byGrade(g)).i:null)}
@@ -526,7 +552,7 @@ function showReward(){
   if(S.sel){S.sel=null;renderBubble()}
   const ov=$("rewardOv"),bx=$("rewardBox"),tk=S.tok;
   if(tk.boss>0){if(S.bPot==null){S.bPot=BOSS_GOLD*Math.max(1,Math.floor((S.wi+1)/10));S.bP=.5}bossGambleHTML(bx)}
-  else if(tk.rare>0){bx.innerHTML=`<h2>정예 고르기</h2><p>다음에 빈 칸을 누르면 이 캐릭터가 나와요.</p><div class="pick">${byGrade(2).map(t=>`<button type="button" data-t="${t.i}"><img alt="" src="${ICON[t.i]}">${t.short}</button>`).join("")}</div>`;
+  else if(tk.rare>0){bx.innerHTML=`<h2>${GRADE[2]} 고르기</h2><p>다음에 빈 칸을 누르면 이 캐릭터가 나와요.</p><div class="pick">${byGrade(2).map(t=>`<button type="button" data-t="${t.i}"><img alt="" src="${ICON[t.i]}">${t.short}</button>`).join("")}</div>`;
     bx.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>choose(2,+b.dataset.t))}
   else{ov.hidden=true;rewardOpen=false;return}
   ov.hidden=false;rewardOpen=true;
@@ -537,32 +563,62 @@ let rewardOpen=false;
 // ---------- animated hero & legend sprites ----------
 // Each: base (fixed) + idle/attack(6f, 300ms, release on frame 3) rotating around center (facing right = 0),
 // impact(4f, 300ms) and projectile(2f loop). Damage values/cycles stay the original game's.
-const SPRITE_IDS={305:"god_fist",306:"god_spear",204:"boxer_boy",205:"whirl_axe_warrior",301:"god_gunner",302:"god_archer",303:"god_sun",304:"god_sword",201:"apprentice_mage",202:"crossbowman",203:"time_archmage",39:"greatsword_soldier",38:"blowdart_hunter",8:"archer",2:"iron_ball_thrower",70:"dual_pistol_gunner",66:"wooden_cannoneer",43:"shuriken_thrower",0:"matchlock_musketeer",54:"twin_blade_master",44:"antimateriel_marksman",20:"gatling_brute",58:"rocket_captain",76:"missile_captain",53:"harpoon_hunter",81:"bomb_goblin",67:"storm_sage",
+const SPRITE_IDS={211:"steel_fist",212:"bronze_hammer",213:"blue_blade",305:"god_fist",306:"god_spear",204:"boxer_boy",205:"whirl_axe_warrior",301:"god_gunner",302:"god_archer",303:"god_sun",304:"god_sword",201:"apprentice_mage",202:"crossbowman",203:"time_archmage",39:"greatsword_soldier",38:"blowdart_hunter",8:"archer",2:"iron_ball_thrower",70:"dual_pistol_gunner",66:"wooden_cannoneer",43:"shuriken_thrower",0:"matchlock_musketeer",54:"twin_blade_master",44:"antimateriel_marksman",20:"gatling_brute",58:"rocket_captain",76:"missile_captain",53:"harpoon_hunter",81:"bomb_goblin",67:"storm_sage",
   82:"beekeeper_monarch",19:"minigun_war_god",79:"fire_mage",55:"shadow_ninja_king",100:"cannon_general",51:"dragon_berserker",99:"wraith_sniper_king",103:"lava_spear_king",
   16:"lightning_mage",3:"heavy_machinegunner",71:"siege_cannon_knight",62:"acid_alchemist",52:"venom_witch",21:"laser_knight",104:"flail_knight",78:"energy_gunner",10:"flamethrower_trooper",30:"mortar_gunner",61:"lightsaber_knight",88:"light_mage",68:"hammer_warrior",1:"sniper",46:"poison_gas_sprayer",32:"demolition_expert"};
-const MODE={305:"melee",204:"melee",303:"targeted",304:"self",205:"self",201:"aura",203:"aura",88:"aura",104:"melee",10:"flame",46:"spray",62:"spray",39:"melee",54:"melee",51:"melee",61:"melee",68:"self",67:"targeted",16:"targeted",103:"line"}; // others: projectile
+const MODE={21:"ray",211:"melee",212:"self",213:"melee",55:"self",305:"melee",204:"melee",303:"targeted",304:"self",205:"self",201:"aura",203:"aura",88:"aura",104:"melee",10:"flame",46:"spray",62:"spray",39:"melee",54:"melee",51:"melee",61:"melee",68:"self",67:"targeted",16:"targeted",103:"line"}; // others: projectile
 const PSPD={306:22,301:26,302:30,202:22,71:14,62:13,52:12,21:28,78:16,30:13,32:12,88:20,1:30,46:12,2:13,66:15,43:14,81:11,79:12,58:14,76:16,82:10,55:15,100:20}; // px per game frame (default 24)
-const FXCOL={305:"#fff3c4",306:"#ffd34f",204:"#ffffff",205:"#cfd8e0",301:"#ffd34f",302:"#9fe8ff",303:"#ff9a2a",304:"#fff3c4",202:"#cfd8e0",3:"#ffd27a",71:"#9aa4ae",62:"#9dff5a",52:"#c04cff",21:"#5ab8ff",104:"#cfd8e0",78:"#5ab8ff",10:"#ff5a2a",16:"#ffe45a",30:"#ff9a3c",61:"#fff3c4",88:"#ffffff",68:"#b98a5a",1:"#e6eef5",46:"#b06cff",32:"#ff7a3c",39:"#e6eef5",38:"#b06cff",8:"#cfa36a",2:"#9aa4ae",70:"#ffd27a",66:"#9aa4ae",43:"#d8dce6",0:"#ffd27a",82:"#ffd23f",19:"#ffe08a",79:"#ff8a2a",55:"#d8dce6",100:"#ffb547",51:"#ff5a3c",99:"#4fe0c8",103:"#ff6a1f",54:"#e6eef5",44:"#e6eef5",20:"#ffd27a",58:"#ff9a3c",76:"#ff9a3c",53:"#cfd8e0",81:"#ff9a3c",67:"#ffe45a"};
-const SPR={};const BASE={};
+const FXCOL={211:"#ffffff",212:"#b98a5a",213:"#9fe8ff",305:"#fff3c4",306:"#ffd34f",204:"#ffffff",205:"#cfd8e0",301:"#ffd34f",302:"#9fe8ff",303:"#ff9a2a",304:"#fff3c4",202:"#cfd8e0",3:"#ffd27a",71:"#9aa4ae",62:"#9dff5a",52:"#c04cff",21:"#5ab8ff",104:"#cfd8e0",78:"#5ab8ff",10:"#ff5a2a",16:"#ffe45a",30:"#ff9a3c",61:"#fff3c4",88:"#ffffff",68:"#b98a5a",1:"#e6eef5",46:"#b06cff",32:"#ff7a3c",39:"#e6eef5",38:"#b06cff",8:"#cfa36a",2:"#9aa4ae",70:"#ffd27a",66:"#9aa4ae",43:"#d8dce6",0:"#ffd27a",82:"#ffd23f",19:"#ffe08a",79:"#ff8a2a",55:"#d8dce6",100:"#ffb547",51:"#ff5a3c",99:"#4fe0c8",103:"#ff6a1f",54:"#e6eef5",44:"#e6eef5",20:"#ffd27a",58:"#ff9a3c",76:"#ff9a3c",53:"#cfd8e0",81:"#ff9a3c",67:"#ffe45a"};
+// new art: standing 3/4 view, one sheet of 3 poses (대기·준비·발사), 256px frames, feet at (128,232), mirrored toward the target, never rotated.
+// k = frame size in R (set per hero so all eight look like one set: 1.2~1.4 R tall), mz = muzzle tip in the fire frame
+const POSE={
+  204:{dir:"kendo_kid",cut:1,k:2.24,mz:[226,150],swing:1,shot:1,hit:1,flat:1},61:{dir:"punch_trainee",k:2.2,mz:[193,163],swing:1,shot:1,hit:1,flat:1},211:{dir:"scorpion_soldier",k:1.92,mz:[236,163],swing:1,shot:1,hit:1,flat:1},213:{dir:"werewolf",cut:1,k:2.02,mz:[216,152],swing:1,shot:1,hit:1,flat:1},104:{dir:"clockwork_boxer",aura:1,k:2.02,mz:[244,152],swing:1,shot:1,hit:1,flat:1},54:{dir:"storm_blade",aura:1,k:1.84,mz:[238,138],swing:1,shot:1,hit:1,flat:1},51:{dir:"demon_king",cut:1,aura:1,k:1.82,mz:[238,150],swing:1,shot:1,hit:1,flat:1},305:{dir:"light_judge",dy:.09,cut:1,aura:1,k:1.78,mz:[228,118],swing:1,shot:1,hit:1,flat:1}}; // cut: downward cut, its strike may leave anywhere along the swing. mz: where the strike leaves in the fire frame (weapon tip; for downward cuts the front middle of the swing), hit: own single-image hit sprite, flat: it points right
+const POSE_FOOT=.3; // feet below the cell centre, in R
+// tags under each character: left = distance (sword 근거리, pistol 중거리, scope 원거리) + LV text, right = 지정 (one person) / 범위 (a group)
+const BADGE_COL={Melee:"#ee8488",Shot:"#78acf0",Sniper:"#a890ea",Single:"#5dbcab",Area:"#f2a75c"}; // softer than UPG_COL
+function badge(c,key,x,y,r){const im=UPG_IMG[key];c.beginPath();c.arc(x,y,r,0,7);c.fillStyle=BADGE_COL[key];c.fill();c.lineWidth=r*.2;c.strokeStyle="rgba(27,36,80,.75)";c.stroke();if(im&&im.naturalWidth)c.drawImage(im,x-r*.68,y-r*.68,r*1.36,r*1.36)}
+function lvText(c,tw){if(tdrag&&tdrag.active&&tdrag.tw===tw)return;const t=TOWERS[tw.type],r=TS*.205,x=tw.x*K-TS*.94,y=tw.y*K+TS*(POSE[t.uid]?.46:.5),f=TS*.3;
+  badge(c,t.upg,x+r,y,r);c.font=`900 ${f}px ${getComputedStyle(document.body).getPropertyValue("--display")||"sans-serif"}`;c.textAlign="left";c.textBaseline="middle";c.lineJoin="round";c.lineWidth=f*.3;c.strokeStyle="rgba(27,36,80,.85)";c.strokeText(GRADE[t.grade],x+r*2.2,y);c.fillStyle="#fff";c.fillText(GRADE[t.grade],x+r*2.2,y);c.textBaseline="alphabetic";
+  badge(c,typeKey(t),tw.x*K+TS*.74,y,r)}
+// world position of the weapon tip in the fire frame: every hit effect starts here
+function tipOf(tw,t){const P=POSE[t.uid],R0=TS*1.38/K,u=R0*P.k/256;return[tw.x+faceOf(tw,tw.ang)*(P.mz[0]-128)*u,tw.y+(R0*(POSE_FOOT+(P.dy||0))+(P.mz[1]-232)*u)/TILT]}
+const faceOf=(tw,ang)=>{const x=Math.cos(ang);if(!tw)return x<-.05?-1:1;if(Math.abs(x)>.15||!tw.face)tw.face=x<0?-1:1;return tw.face};
+const SPR={};
 function loadSprites(done){
-  const list=["apprentice","skilled","elite","hero","legend","god"].map((id,i)=>["b:"+i,`sprites/base_${id}.png`]);
-  for(const[u,id]of Object.entries(SPRITE_IDS))if(!(TOWERS[UID(+u)]||{}).off)for(const p of["idle","attack","impact","proj"])if(!(p==="proj"&&MODE[u]&&MODE[u]!=="proj"))list.push([u+":"+p,`sprites/${id}/${p}.png`]);
+  const list=[];
+  for(const[u,id]of Object.entries(SPRITE_IDS))if(!(TOWERS[UID(+u)]||{}).off&&!POSE[u])for(const p of["idle","attack","impact","proj"])if(!(p==="proj"&&MODE[u]&&MODE[u]!=="proj"))list.push([u+":"+p,`sprites/${id}/${p}.png`]);
+  for(const[u,P]of Object.entries(POSE)){list.push([u+":pose",`sprites/${P.dir}/pose.webp`]);if(P.aura)list.push([u+":aura",`sprites/${P.aura===1?P.dir:P.aura}/aura.webp`]);if(P.swing)list.push([u+":swing",`sprites/${P.dir}/swing.webp`]);if(P.shot)list.push([u+":shot",`sprites/${P.dir}/shot.webp`]);if(P.hit)list.push([u+":hit",`sprites/${P.dir}/hit.webp`]);if(P.imp)list.push([u+":impact",`sprites/${SPRITE_IDS[u]}/impact.png`])}
   let left=list.length;
-  for(const[k,src]of list){const im=new Image();im.onload=im.onerror=()=>{if(im.naturalWidth){const[a,b]=k.split(":");if(a==="b")BASE[b]=im;else(SPR[a]=SPR[a]||{})[b]=im}if(--left===0)done()};im.src=src}
+  for(const[k,src]of list){const im=new Image();im.onload=im.onerror=()=>{if(im.naturalWidth){const[a,b]=k.split(":");(SPR[a]=SPR[a]||{})[b]=im}if(--left===0)done()};im.src=src}
 }
 const MSPR={};
 function loadMonsters(){for(const k of new Set([...WAVE_SPR,...MAP_POOL.flat(),...MAP_BOSS,"b_endless","q_dino","q_steel_knight","q_flyer"]))for(const p of["walk","death"]){const im=new Image();im.onload=()=>{(MSPR[k]=MSPR[k]||{})[p]=im};im.src=`sprites/mon/${k}/${p}.png`}}
 loadMonsters();
 function cell(c,im,i,n,dx,dy,w,h){const cw=im.naturalWidth/n;c.drawImage(im,i*cw,0,cw,im.naturalHeight,dx,dy,w,h)}
 // visible size of each idle sprite (sqrt of opaque px at 192px), used to even out how big characters look
-const SPR_AREA={305:91.9,306:92.1,204:75.4,205:79.7,301:105.4,302:105.0,303:99.7,304:102.5,201:43.5,202:56.3,203:81.4,39:47.3,38:39.8,8:40.1,2:44.2,70:41.0,66:39.4,43:42.5,0:34.7,54:71.7,44:57.6,20:68.0,58:71.6,76:68.3,53:61.0,81:63.6,67:75.7,82:73.6,19:82.8,79:72.9,55:77.3,100:73.5,51:89.3,99:72.7,103:58.4,16:32.0,3:52.4,71:58.0,62:54.4,52:68.8,21:53.1,104:49.8,78:52.2,10:53.9,30:32.8,61:30.5,88:31.1,68:33.7,1:31.9,46:33.6,32:32.2};
-const SIZE_GOAL=[56,56,56,56,56,56];
+const SPR_AREA={211:75.4,212:33.7,213:30.5,305:91.9,306:92.1,204:75.4,205:79.7,301:105.4,302:105.0,303:99.7,304:102.5,201:43.5,202:56.3,203:81.4,39:47.3,38:39.8,8:40.1,2:44.2,70:41.0,66:39.4,43:42.5,0:34.7,54:71.7,44:57.6,20:68.0,58:71.6,76:68.3,53:61.0,81:63.6,67:75.7,82:73.6,19:82.8,79:72.9,55:77.3,100:73.5,51:89.3,99:72.7,103:58.4,16:32.0,3:52.4,71:58.0,62:54.4,52:68.8,21:53.1,104:49.8,78:52.2,10:53.9,30:32.8,61:30.5,88:31.1,68:33.7,1:31.9,46:33.6,32:32.2};
+const SIZE_GOAL=GRADE.map(()=>56);
 const UPRIGHT=new Set([204,301,302,303,304,305,306]);
 const IDLE_FLIP=new Set([305]); // 권신's idle art faces left while its attack faces right (until the art is redrawn)
+function drawPose(c,t,x,y,R,ang,tw){
+  const P=POSE[t.uid],im=(SPR[t.uid]||{}).pose;if(!im)return false;
+  const sz=R*P.k,dy=R*(P.dy||0);c.save();c.translate(x,y+R*POSE_FOOT);
+  c.fillStyle="rgba(20,20,40,.3)";c.beginPath();c.ellipse(0,0,R*.36,R*.1,0,0,7);c.fill();
+  c.scale(faceOf(tw,ang),1);
+  const f=tw&&tw.atk!=null?(tw.fired?2:1):0;
+  if(f===2&&tw&&tw.pend&&tw.relAt!=null){const q=Math.min(1,Math.max(0,(tw.atk-tw.relAt)/2)),L=R*.13*(1-Math.abs(q-.4)),a=Math.atan2((tw.pend.y-tw.y)*TILT,Math.abs(tw.pend.x-tw.x));c.translate(Math.cos(a)*L,Math.sin(a)*L*.6)} // short lunge toward the target
+  else if(f===0&&tw){const b=Math.sin(performance.now()/420+tw.x)*.012;c.scale(1-b*.5,1+b)} // breathing
+  c.translate(0,dy); // dy: lowers a floating body
+  const au=tw&&SPR[t.uid].aura;if(au){const k=Math.sin(performance.now()/700+tw.id),A=c.globalAlpha,z=sz*(1.02+.02*k);c.globalAlpha=A*(.5+.1*(t.grade-4)+.1*k);c.drawImage(au,-z/2,-sz*.406-z*.5,z,z);c.globalAlpha=A} // LV5~8 aura, breathes slowly behind the body
+  cell(c,im,f,3,-sz/2,-sz*232/256,sz,sz);
+  const sw=f===2&&SPR[t.uid].swing;if(sw){const q=tw.relAt!=null&&tw.atk>=tw.relAt?(tw.atk-tw.relAt)/3.2:0;if(q<1){const A=c.globalAlpha;c.globalAlpha=A*(1-q*q);c.drawImage(sw,-sz/2,-sz*232/256,sz,sz);c.globalAlpha=A}} // swing trail, fades within 3 frames
+  c.restore();return true;
+}
 function drawSprite(c,t,x,y,R,ang,kick,tw){
-  const sp=SPR[t.uid],base=BASE[t.grade];if(!sp||!sp.idle||!base)return false;
+  if(POSE[t.uid])return drawPose(c,t,x,y,R,ang,tw);
+  const sp=SPR[t.uid];if(!sp||!sp.idle)return false;
   const sk=SPR_AREA[t.uid]?Math.max(.55,Math.min(1.6,SIZE_GOAL[t.grade]/SPR_AREA[t.uid])):1,sz=R*3.1*sk;c.save();c.translate(x,y);
-  const bsz=R*1.55;c.drawImage(base,-bsz/2,-bsz/2+bsz*.015,bsz,bsz);
+  c.fillStyle="rgba(20,20,40,.22)";c.beginPath();c.ellipse(0,R*.12,R*.5,R*.36,0,0,7);c.fill();
   if(UPRIGHT.has(t.uid)){if(Math.cos(ang)<-.05)c.scale(-1,1)} // drawn standing up (face visible): mirror toward the target instead of spinning upside down
   else c.rotate(ang);
   if(tw&&tw.atk!=null&&sp.attack){const f=Math.min(5,Math.floor(tw.atk/tw.atkDur*6));cell(c,sp.attack,f,6,-sz/2,-sz/2,sz,sz)}
@@ -570,25 +626,29 @@ function drawSprite(c,t,x,y,R,ang,kick,tw){
   c.restore();return true;
 }
 const ANIM={
-  has:t=>!!(SPR[t.uid]&&SPR[t.uid].attack),
-  impact(t,x,y,scale){const sp=SPR[t.uid];if(!sp||!sp.impact)return;S.fx.push({k:"imp",im:sp.impact,x,y,s:scale,life:7,max:7})},
+  has:t=>!!(SPR[t.uid]&&(SPR[t.uid].attack||SPR[t.uid].pose)),
+  impact(t,x,y,scale,ang){const sp=SPR[t.uid];if(sp&&sp.hit&&POSE[t.uid]){S.fx.push({k:"hit1",im:sp.hit,x,y,ang:(ang||0)-(POSE[t.uid].flat?.26:0),life:6,max:6});return}if(!sp||!sp.impact)return;S.fx.push({k:"imp",im:sp.impact,x,y,s:scale,life:7,max:7})},
   release(tw,t){
     let m=tw.pend;if(!m||m.dead||!inRange(t,tw,m))m=tw.target;if(!m||m.dead)return;
     if(t.aura){fire(tw,t,m);ANIM.impact(t,m.x,m.y,.7);return} // magic bolt
     const mode=MODE[t.uid]||"proj",R=TS*1.38;
-    if(mode==="melee"){fire(tw,t,m,true);ANIM.impact(t,m.x,m.y,t.area&&t.splash[2]>0?(t.splash[2]*2+40)/96:1);return}
+    if(mode==="melee"&&POSE[t.uid]&&POSE[t.uid].mz){m=frontMob(tw,t)||m;const P=POSE[t.uid],[x,y0]=tipOf(tw,t),u=TS*1.38/K*P.k/256/TILT,y=Math.max(y0-u*(P.cut?42:16),Math.min(y0+u*(P.cut?62:16),m.y-Math.abs(m.x-x)*.22/TILT));S.proj.push({fly:1,tw,t,m,x,y,tx:m.x,ty:m.y,n:3,age:0,a:Math.atan2((m.y-y)*TILT,m.x-x)});return} // the strike leaves the weapon and lands 3 frames later
+    if(mode==="melee"){fire(tw,t,m,true);ANIM.impact(t,m.x,m.y,t.area&&t.splash[2]>0?(t.splash[2]*2+40)/96:1,Math.atan2((m.y-tw.y)*TILT,m.x-tw.x));return}
     if(mode==="flame"||mode==="spray"){fire(tw,t,m,true);const a=Math.atan2(m.y-tw.y,m.x-tw.x);
       S.fx.push({k:"flame",pal:mode==="spray"?(t.uid===46?"gas":"acid"):"fire",x:tw.x+Math.cos(a)*22,y:tw.y+Math.sin(a)*22,x2:m.x+Math.cos(a)*14,y2:m.y+Math.sin(a)*14,life:10,max:10});
       ANIM.impact(t,m.x,m.y,(t.splash[2]*2+40)/96);return}
     if(mode==="self"){fire(tw,t,m,true);ANIM.impact(t,tw.x,tw.y,(t.splash[2]*2+40)/96);return}
     if(mode==="targeted"){if(t.slow)for(const o of S.mons)if(!o.dead&&Math.hypot(o.x-m.x,o.y-m.y)<=t.splash[2]+monR(o)){o.slowT=t.slow.dur;o.slowV=Math.min(.7,t.slow.v*(1+.05*(lvl(t)-3)))}fire(tw,t,m,true);ANIM.impact(t,m.x,m.y,(t.splash[2]*2+40)/96);return}
     if(mode==="line"){fire(tw,t,m,true);return}
+    if(mode==="ray"){const P=POSE[t.uid],[x,y]=tipOf(tw,t),hit=SPR[t.uid].hit,ang=Math.atan2((m.y-y)*TILT,m.x-x);
+      fire(tw,t,m,true);S.fx.push({k:"ray",x,y,x2:m.x,y2:m.y,c:FXCOL[t.uid],life:5,max:5});if(hit)S.fx.push({k:"hit1",im:hit,x:m.x,y:m.y,ang,life:6,max:6});return}
     const n=t.uid===82?(t.shots||8):1,spd=PSPD[t.uid]||24,mx=tw.x+Math.cos(tw.ang)*R*.9/K,my=tw.y+Math.sin(tw.ang)*R*.9/K;
     for(let k=0;k<n;k++)S.proj.push({tw,t,m,x:mx,y:my,tx:m.x,ty:m.y,spd,f:1,bounce:t.weapon.startsWith("Glave")?mh(t)-1:0,hit:new Set(),age:0,wob:n>1?(k-n/2)*.35:0,delay:n>1?k*1.2:0,bee:n>1});
   },
   stepProj(){
     for(const p of S.proj){
       if(p.delay>0){p.delay--;continue}
+      if(p.fly){if(!p.m.dead){p.tx=p.m.x;p.ty=p.m.y}p.a=Math.atan2((p.ty-p.y)*TILT,p.tx-p.x)||p.a;p.x+=(p.tx-p.x)/p.n;p.y+=(p.ty-p.y)/p.n;p.age++;if(--p.n<=0){p.done=true;if(!p.m.dead)fire(p.tw,p.t,p.m,true);ANIM.impact(p.t,p.tx,p.ty,1,p.a)}continue}
       p.age++;if(p.m&&!p.m.dead){p.tx=p.m.x;p.ty=p.m.y}
       const dx=p.tx-p.x,dy=p.ty-p.y,d=Math.hypot(dx,dy);p.a=Math.atan2(dy,dx);
       if(d<=p.spd||p.age>120){p.x=p.tx;p.y=p.ty;ANIM.arrive(p);p.done=true;continue}
@@ -616,9 +676,7 @@ function drawTower(c,t,x,y,R,ang,time,kick,tw){
   const g=GCOL[t.grade],acc=`hsl(${t.hue} 85% 62%)`;
   c.save();c.translate(x,y);
   // fixed square grade plate; only the weapon rotates
-  const plate=BASE[t.grade],bsz=R*1.55;
-  if(plate)c.drawImage(plate,-bsz/2,-bsz/2+bsz*.015,bsz,bsz);
-  else{c.fillStyle="#18252c";c.fillRect(-R*.9,-R*.9,R*1.8,R*1.8);c.strokeStyle=g;c.lineWidth=R*.08;c.strokeRect(-R*.9,-R*.9,R*1.8,R*1.8)}
+  {c.fillStyle="#18252c";c.fillRect(-R*.9,-R*.9,R*1.8,R*1.8);c.strokeStyle=g;c.lineWidth=R*.08;c.strokeRect(-R*.9,-R*.9,R*1.8,R*1.8)}
   // head
   c.rotate(ang);c.translate(-(kick||0)*R*.03,0);c.scale(R,R);
   const H=HEADS[t.head]||HEADS.rifle;H(c,g,acc,time,t);
@@ -651,45 +709,43 @@ const HEADS={
  hangar(c,g,a){P(c,[[.9,0],[.2,-.5],[-.6,-.42],[-.75,0],[-.6,.42],[.2,.5]],MID,g,.05);rect(c,-.4,-.08,.9,.16,a);disc(c,-.3,0,.15,LIGHT)},
  crown(c,g,a){P(c,[[-.45,.35],[-.5,-.4],[-.2,-.1],[0,-.5],[.2,-.1],[.5,-.4],[.45,.35]],a,g,.05);for(const s of[-.25,.25])P(c,[[.3,s-.06],[.95,s*.6],[.3,s+.06]],LIGHT)},
 };
-const ICON={};
-const AREA_IMG=new Image();AREA_IMG.src="ui/icons/icon_area.svg";
-function areaMark(c,x,y,r){c.beginPath();c.arc(x,y,r,0,7);c.fillStyle="#FF7A1A";c.fill();c.lineWidth=Math.max(1.5,r*.22);c.strokeStyle="#fff";c.stroke();if(AREA_IMG.complete&&AREA_IMG.naturalWidth)c.drawImage(AREA_IMG,x-r*.78,y-r*.78,r*1.56,r*1.56)}
-const SINGLE_IMG=new Image();SINGLE_IMG.src="ui/icons/icon_single.svg";
-// attack-type badge next to the line badge: orange burst = 범위, teal target = 단발
-function typeMark(c,area,x,y,r){ // word pill beside the line badge: 범위 (orange) / 단발 (teal)
-  const w=r*3.1,h=r*1.9,x0=x-r*.95;c.beginPath();c.roundRect(x0,y-h/2,w,h,h/2);c.fillStyle=area?"#FF7A1A":"#18A7B5";c.fill();c.lineWidth=Math.max(1.5,r*.22);c.strokeStyle="#fff";c.stroke();
-  c.fillStyle="#fff";c.font=`900 ${r*1.12}px sans-serif`;c.textAlign="center";c.textBaseline="middle";c.fillText(area?"범위":"단발",x0+w/2,y+r*.06);c.textBaseline="alphabetic"}
-function makeIcons(){for(const t of TOWERS){const cv=document.createElement("canvas");cv.width=cv.height=96;const c=cv.getContext("2d");drawTower(c,t,48,48,44,-Math.PI/4,10,0);typeMark(c,t.area,62,84,10);ICON[t.i]=cv.toDataURL()}}
+const ICON={},ICON0={}; // ICON0: without badges, for tiny lists
+function makeIcons(){for(const t of TOWERS){const cv=document.createElement("canvas");cv.width=cv.height=96;const c=cv.getContext("2d");POSE[t.uid]?drawTower(c,t,48,66,38,-Math.PI/4,10,0):drawTower(c,t,48,46,42,-Math.PI/4,10,0);ICON0[t.i]=cv.toDataURL();badge(c,t.upg,13,84,10.5);badge(c,typeKey(t),83,84,10.5);ICON[t.i]=cv.toDataURL()}}
 
 // ---------- rendering ----------
 const cv=$("cv"),ctx=cv.getContext("2d");
+// the board is drawn lying back: everything on the ground is squashed vertically by TILT, standing things are drawn upright with bb(). 1 = the old flat top view
+const TILT=.8,WALL=TILT<1?.8:0; // WALL: front face of the board, in TS
+const bb=(c,x,y,f)=>{c.save();c.translate(x,y);c.scale(1,1/TILT);c.translate(-x,-y);f();c.restore()};
 let TS=36,K=TS/WT; // canvas px per tile, world→canvas
 let mapLayer=null;
 const UPG_IMG={};for(const[k,v]of Object.entries(UPG_ICON)){UPG_IMG[k]=new Image();UPG_IMG[k].src=`ui/icons/icon_${v}.svg`}
 const STAT_IMG={};for(const k of["status_slow","status_curse","buff_speed","buff_power"]){STAT_IMG[k]=new Image();STAT_IMG[k].src=`ui/status/${k}.png`}
 const BADGE=new Image();BADGE.src="ui/badge_merge.png";
-// themed boards (6x9, 128px per cell): 1~10 meadow, 11~20 snowy forest, 21~30 canyon, 31~ hell fortress
-const THEMES=[{id:"map_meadow",name:"성 앞 초원"},{id:"map_forest",name:"눈 덮인 숲"},{id:"map_canyon",name:"사막 협곡"},{id:"map_hell",name:"지옥 요새"},{id:"map_sky",name:"하늘 성"},{id:"map_glacier",name:"얼음 심연"},{id:"map_swamp",name:"독 버섯 늪"},{id:"map_ruins",name:"해저 유적"},{id:"map_factory",name:"기계 공장"},{id:"map_chaos",name:"혼돈의 차원"}];
-function themeLoad(k){const th=THEMES[k];if(!th||th.img)return;th.img=new Image();th.img.onload=()=>{if(MAP_TEXTURE===th.img)mapLayer=null};th.img.src=`ui/maps/${th.id}/board.jpg`;new Image().src=`ui/maps/${th.id}/bg.jpg`}
-themeLoad(0);themeLoad(1); // later maps load a few waves before they are needed
+// themed boards, one per 20 waves (all drawn from 3D at the game angle, same cells and path): 1~20 forest, cave, country, city, sea, snow, desert, volcano, dino, 181~200 Mars, 201~ space (endless). cy: entrance foot, in TS
+const THEMES=[{id:"map_meadow",name:"숲",d3:1},{id:"map_cave",name:"동굴",d3:1,cy:1.6},{id:"map_country",name:"시골",d3:1,cy:1.66},{id:"map_city",name:"도시",d3:1,cy:1.66},{id:"map_sea",name:"바다",d3:1},{id:"map_snow",name:"설원",d3:1,cy:1.5},{id:"map_desert",name:"사막",d3:1,cy:1.66},{id:"map_volcano",name:"화산",d3:1},{id:"map_dino",name:"공룡시대",d3:1,cy:1.66},{id:"map_mars",name:"화성",d3:1,cy:1.5},{id:"map_space",name:"우주",d3:1,cy:1.66}];
+function themeLoad(k){const th=THEMES[k];if(!th||th.img)return;th.img=new Image();th.img.onload=()=>{if(MAP_TEXTURE===th.img)mapLayer=null};th.img.src=th.d3?`ui/maps/${th.id}/floor.webp`:`ui/maps/${th.id}/board.jpg`;new Image().src=`ui/maps/${th.id}/${th.d3?"bg3d":"bg"}.jpg`;
+  if(th.d3){th.cave=new Image();th.cave.src=`ui/maps/${th.id}/cave.webp`}} // d3: drawn from 3D at the game angle (floor with its own height + a standing cave)
+document.body.classList.add("d3");themeLoad(0);themeLoad(1); // later maps load a few waves before they are needed
 let MAP_TEXTURE=THEMES[0].img,themeI=0,oldLayer=null,fadeT=0;
-const themeOf=wi=>{const k=Math.floor(wi/10);return k<10?k:4+(k-10)%6};
+const themeOf=wi=>Math.min(10,Math.floor(wi/20));
 function setTheme(k,announce){
   themeLoad(k);
   if(k===themeI&&!announce&&MAP_TEXTURE===THEMES[k].img)return;
   if(announce&&mapLayer){oldLayer=mapLayer;fadeT=1}
-  themeI=k;MAP_TEXTURE=THEMES[k].img;mapLayer=null;document.documentElement.style.setProperty("--themeBg",`url(ui/maps/${THEMES[k].id}/bg.jpg)`);
+  themeI=k;MAP_TEXTURE=THEMES[k].img;mapLayer=null;document.documentElement.style.setProperty("--themeBg",`url(ui/maps/${THEMES[k].id}/${THEMES[k].d3?"bg3d":"bg"}.jpg)`);document.body.classList.toggle("d3",!!THEMES[k].d3);
   if(announce){let el=$("regionBan");if(!el){el=document.createElement("img");el.id="regionBan";el.className="regionBan";el.alt="";document.querySelector(".stage").appendChild(el)}
     el.src=`ui/maps/${THEMES[k].id}/banner.png`;el.alt=THEMES[k].name;el.classList.remove("show");setTimeout(()=>{void el.offsetWidth;el.classList.add("show");sfx("rare")},1700);log(`새 지역 · ${THEMES[k].name}`,"good")}
 }
 
 const MQ=matchMedia("(max-width:700px)");
-function sizeCanvas(){TS=MQ.matches?56:36;K=TS/WT;cv.width=COLS*TS;cv.height=ROWS*TS;mapLayer=null}
+function sizeCanvas(){TS=MQ.matches?84:48;K=TS/WT;cv.width=COLS*TS;cv.height=Math.round((ROWS*TILT+WALL)*TS);mapLayer=null}
 sizeCanvas();MQ.addEventListener?.("change",()=>{sizeCanvas();closeSheet()});
 function buildMap(){
-  mapLayer=document.createElement("canvas");mapLayer.width=cv.width;mapLayer.height=cv.height;const c=mapLayer.getContext("2d");
-  c.fillStyle="#F3DFAF";c.fillRect(0,0,cv.width,cv.height);
-  if(MAP_TEXTURE.complete&&MAP_TEXTURE.naturalWidth){c.drawImage(MAP_TEXTURE,0,0,COLS*TS,ROWS*TS);return}
+  mapLayer=document.createElement("canvas");mapLayer.width=cv.width;mapLayer.height=ROWS*TS+Math.ceil(WALL*TS/TILT);const c=mapLayer.getContext("2d");
+  if(!THEMES[themeI].d3){c.fillStyle="#F3DFAF";c.fillRect(0,0,cv.width,cv.height)} // a 3D floor is see-through outside the path, so the lawn behind joins it
+  if(MAP_TEXTURE.complete&&MAP_TEXTURE.naturalWidth){if(THEMES[themeI].d3){c.imageSmoothingQuality="high";c.drawImage(MAP_TEXTURE,0,0,cv.width,(ROWS+WALL/TILT)*TS);return}
+    c.drawImage(MAP_TEXTURE,0,0,COLS*TS,ROWS*TS);if(TILT<1)raiseMap(c);return}
   // sandy path ring
   c.fillStyle="#FBEBC6";c.beginPath();c.roundRect(TS*.25,TS*.25,cv.width-TS*.5,cv.height-TS*.5,TS*.8);c.fill();
   c.strokeStyle="rgba(196,150,80,.35)";c.lineWidth=TS*.08;c.beginPath();c.roundRect(TS*.25,TS*.25,cv.width-TS*.5,cv.height-TS*.5,TS*.8);c.stroke();
@@ -701,7 +757,34 @@ function buildMap(){
   for(const s of SLOTS){const X=s.x*K,Y=s.y*K,a=TS*.9;c.fillStyle="rgba(255,255,255,.16)";c.beginPath();c.roundRect(X-a,Y-a,a*2,a*2,TS*.28);c.fill();
     c.strokeStyle="rgba(255,255,255,.4)";c.lineWidth=Math.max(1.5,TS*.035);c.setLineDash([TS*.12,TS*.1]);c.stroke();c.setLineDash([])}
 }
-function render(){
+// solid look: the grass becomes a raised block (front face + shadow on the road) and the whole board gets a front wall
+const wallTone=(a,k)=>`rgb(${a.map(v=>Math.max(0,Math.min(255,Math.round(v*k)))).join(",")})`;
+function avgCol(im,sx,sy,sw,sh){const q=document.createElement("canvas");q.width=q.height=1;const x=q.getContext("2d",{willReadFrequently:true});x.imageSmoothingQuality="high";x.drawImage(im,sx,sy,sw,sh,0,0,1,1);try{return[...x.getImageData(0,0,1,1).data].slice(0,3)}catch(e){return[120,120,90]}}
+function raiseMap(c){
+  const im=MAP_TEXTURE,u=im.naturalWidth/COLS,W=COLS*TS,H=ROWS*TS,top=avgCol(im,3*u,(ROWS-3.4)*u,(COLS-6)*u,u),road=avgCol(im,3*u,(ROWS-1.4)*u,(COLS-6)*u,u*.8);
+  const x0=2*TS,x1=W-2*TS,y0=2*TS,y1=H-2*TS,h=TS*.5/TILT,lip=TS*.11/TILT;
+  const lg=(a,b,x,y,x2,y2)=>{const g=c.createLinearGradient(x,y,x2,y2);g.addColorStop(0,a);g.addColorStop(1,b);return g};
+  const wall=(x,y,w,hh,col,n)=>{c.fillStyle=lg(wallTone(col,.72),wallTone(col,.42),0,y,0,y+hh);c.fillRect(x,y,w,hh);
+    c.strokeStyle="rgba(0,0,0,.22)";c.lineWidth=TS*.035;const rows=hh>TS*.6?2:1,rh=hh/rows;
+    for(let r=0;r<rows;r++){if(r){c.beginPath();c.moveTo(x,y+r*rh);c.lineTo(x+w,y+r*rh);c.stroke()}for(let k=0;k<n;k++){const px=x+w/n*(k+(r%2?.5:0));if(px<=x+1)continue;c.beginPath();c.moveTo(px,y+r*rh);c.lineTo(px,y+(r+1)*rh);c.stroke()}}};
+  // shadows on the road
+  c.fillStyle=lg("rgba(0,0,0,.34)","rgba(0,0,0,0)",0,y1+h,0,y1+h+TS*.5);c.fillRect(x0,y1+h,x1-x0+TS*.2,TS*.5);
+  c.fillStyle=lg("rgba(0,0,0,.30)","rgba(0,0,0,0)",x1,0,x1+TS*.42,0);c.fillRect(x1,y0+TS*.15,TS*.42,y1-y0+h-TS*.15);
+  c.fillStyle=lg("rgba(0,0,0,0)","rgba(0,0,0,.16)",x0-TS*.16,0,x0,0);c.fillRect(x0-TS*.16,y0,TS*.16,y1-y0+h);
+  // front face of the grass block, with an overhanging scalloped lip
+  wall(x0,y1,x1-x0,h,[road[0]*.75+top[0]*.1,road[1]*.7+top[1]*.1,road[2]*.65+top[2]*.1],16);
+  c.fillStyle="rgba(0,0,0,.25)";c.fillRect(x0,y1,x1-x0,lip*1.7);
+  const n=22,sw=(x1-x0)/n;c.fillStyle=wallTone(top,.86);c.beginPath();c.moveTo(x0,y1-1);for(let k=0;k<n;k++){const d=lip*(.75+.5*((k*7)%3)/2);c.quadraticCurveTo(x0+sw*(k+.5),y1+d*2,x0+sw*(k+1),y1)}c.closePath();c.fill();
+  c.fillStyle="rgba(255,255,255,.22)";c.fillRect(x0,y0,x1-x0,TS*.05/TILT);c.fillStyle="rgba(255,255,255,.14)";c.fillRect(x0,y0,TS*.05,y1-y0);
+  c.fillStyle="rgba(0,0,0,.14)";c.fillRect(x0,y1-TS*.05,x1-x0,TS*.05);
+  // each slot: light from the top, darker toward the front
+  for(const s of SLOTS){const X=s.x*K-TS,Y=s.y*K-TS;c.fillStyle="rgba(255,255,255,.10)";c.fillRect(X+TS*.06,Y+TS*.06,TS*1.88,TS*.07);c.fillStyle="rgba(0,0,0,.13)";c.fillRect(X+TS*.06,Y+TS*1.86,TS*1.88,TS*.09)}
+  // front wall of the board
+  const wh=WALL*TS/TILT;wall(0,H,W,wh,road,12);c.fillStyle=wallTone(road,1.12);c.fillRect(0,H-TS*.04,W,TS*.1/TILT);
+}
+const TOWER_K=TILT<1?.88:1; // old top-view characters, a little smaller in the lower cells
+function render(){ctx.save();ctx.clearRect(0,0,cv.width,cv.height);ctx.scale(1,TILT);try{render0()}finally{ctx.restore()}}
+function render0(){
   const c=ctx,time=S?S.frame:0;
   if(!mapLayer)buildMap();c.drawImage(mapLayer,0,0);
   if(oldLayer&&fadeT>0){c.globalAlpha=fadeT;c.drawImage(oldLayer,0,0);c.globalAlpha=1;fadeT-=.02;if(fadeT<=0)oldLayer=null}
@@ -724,41 +807,46 @@ function render(){
   if(tdrag&&tdrag.active){const o=tdrag.over||tdrag.tw.slot;{const tt=TOWERS[tdrag.tw.type];drawRange(o.x,o.y,tt.aura?tt.aura.r:rtOf(tt),!!tt.aura)}}
   else if(S.sel){const tt=TOWERS[S.sel.type];drawRange(S.sel.x,S.sel.y,tt.aura?tt.aura.r:rtOf(tt),!!tt.aura)}
   const tc={};for(const tw of S.towers)tc[tw.type]=(tc[tw.type]||0)+1;
-  for(const tw of S.towers){const dragging=tdrag&&tdrag.active&&tdrag.tw===tw;if(dragging)c.globalAlpha=.35;drawTower(c,TOWERS[tw.type],tw.x*K,tw.y*K,TS*1.38,tw.ang,time,tw.kick,tw);c.globalAlpha=1}
+  const far=m=>TILT<1&&m.y<WT*2,near=S.mons.filter(m=>!far(m)).sort((a,b)=>a.y-b.y),tws=TILT<1?[...S.towers].sort((a,b)=>a.y-b.y):S.towers;
+  if(TILT<1){drawPropsFloor(c,time);for(const m of S.mons)if(far(m)&&m.d<WT*1.6)drawMon(c,m,time);drawCave(c);for(const m of S.mons)if(far(m)&&m.d>=WT*1.6)drawMon(c,m,time)}
+  for(const tw of tws)bb(c,tw.x*K,tw.y*K,()=>{const dragging=tdrag&&tdrag.active&&tdrag.tw===tw;if(dragging)c.globalAlpha=.35;drawTower(c,TOWERS[tw.type],tw.x*K,tw.y*K,TS*1.38*(POSE[TOWERS[tw.type].uid]?1:TOWER_K),tw.ang,time,tw.kick,tw);c.globalAlpha=1});
   if(tdrag&&tdrag.active){const o=tdrag.over;if(o&&o!==tdrag.tw.slot){c.fillStyle=o.tower?"rgba(255,194,58,.28)":"rgba(78,240,176,.28)";c.strokeStyle=o.tower?"#ffc23a":"#4ef0b0";c.lineWidth=3;c.fillRect(o.x*K-TS+3,o.y*K-TS+3,TS*2-6,TS*2-6);c.strokeRect(o.x*K-TS+3,o.y*K-TS+3,TS*2-6,TS*2-6)}
-    c.globalAlpha=.9;drawTower(c,TOWERS[tdrag.tw.type],tdrag.cx,tdrag.cy-TS*.4,TS*1.38,tdrag.tw.ang,time,0,null);c.globalAlpha=1}
+    c.globalAlpha=.9;bb(c,tdrag.cx,tdrag.cy/TILT,()=>drawTower(c,TOWERS[tdrag.tw.type],tdrag.cx,tdrag.cy/TILT-TS*.4,TS*1.38,tdrag.tw.ang,time,0,null));c.globalAlpha=1}
   // small upgrade-line badge under each character (sword = 근접, gun = 사격, cannon = 범위)
-  for(const tw of S.towers){if(tdrag&&tdrag.active&&tdrag.tw===tw)continue;const im=UPG_IMG[TOWERS[tw.type].upg];if(!im||!im.complete)continue;const ar=TOWERS[tw.type].area,br=TS*.3,bx=tw.x*K-br*1.05,by=tw.y*K+TS*.86;typeMark(c,ar,bx+br*2.1,by,br*.92);
-    c.beginPath();c.arc(bx,by,br,0,7);c.fillStyle=UPG_COL[TOWERS[tw.type].upg];c.fill();c.lineWidth=Math.max(1.5,TS*.05);c.strokeStyle="#fff";c.stroke();c.drawImage(im,bx-br*.72,by-br*.72,br*1.44,br*1.44)}
-  for(const tw of S.towers){if(tw.conc){const bx=tw.x*K-TS*.7,by=tw.y*K-TS*.72;c.font=`900 ${TS*.38}px sans-serif`;c.textAlign="center";c.textBaseline="middle";c.lineWidth=TS*.1;c.strokeStyle="#5a2a6e";c.strokeText("★"+(tw.conc+1),bx,by);c.fillStyle="#ffe45a";c.fillText("★"+(tw.conc+1),bx,by);c.textBaseline="alphabetic"}}
-  for(const tw of S.towers){if(tc[tw.type]<2)continue;const bx=tw.x*K+TS*.78,by=tw.y*K-TS*.78+Math.sin(time*.15)*TS*.04,br=TS*.24;
-    if(BADGE.complete&&BADGE.naturalWidth){c.drawImage(BADGE,bx-br*1.2,by-br*1.2,br*2.4,br*2.4);continue}
+  for(const tw of S.towers){if(tw.conc)bb(c,tw.x*K,tw.y*K,()=>{const bx=tw.x*K-TS*.7,by=tw.y*K-TS*.72;c.font=`900 ${TS*.38}px sans-serif`;c.textAlign="center";c.textBaseline="middle";c.lineWidth=TS*.1;c.strokeStyle="#5a2a6e";c.strokeText("★"+(tw.conc+1),bx,by);c.fillStyle="#ffe45a";c.fillText("★"+(tw.conc+1),bx,by);c.textBaseline="alphabetic"})}
+  for(const tw of tws)bb(c,tw.x*K,tw.y*K,()=>lvText(c,tw));
+  for(const tw of S.towers){if(tc[tw.type]>=2)bb(c,tw.x*K,tw.y*K,()=>{const bx=tw.x*K+TS*.78,by=tw.y*K-TS*(POSE[TOWERS[tw.type].uid]?1.02:.78)+Math.sin(time*.15)*TS*.04,br=TS*.24;
+    if(BADGE.complete&&BADGE.naturalWidth){c.drawImage(BADGE,bx-br*1.2,by-br*1.2,br*2.4,br*2.4);return}
     c.beginPath();c.arc(bx,by,br,0,7);c.fillStyle="#2bd889";c.fill();c.lineWidth=TS*.05;c.strokeStyle="#0d3b26";c.stroke();
-    c.beginPath();c.moveTo(bx,by-br*.55);c.lineTo(bx+br*.5,by+br*.05);c.lineTo(bx+br*.2,by+br*.05);c.lineTo(bx+br*.2,by+br*.55);c.lineTo(bx-br*.2,by+br*.55);c.lineTo(bx-br*.2,by+br*.05);c.lineTo(bx-br*.5,by+br*.05);c.closePath();c.fillStyle="#fff";c.fill()}
+    c.beginPath();c.moveTo(bx,by-br*.55);c.lineTo(bx+br*.5,by+br*.05);c.lineTo(bx+br*.2,by+br*.05);c.lineTo(bx+br*.2,by+br*.55);c.lineTo(bx-br*.2,by+br*.55);c.lineTo(bx-br*.2,by+br*.05);c.lineTo(bx-br*.5,by+br*.05);c.closePath();c.fillStyle="#fff";c.fill()})}
   if(S.sel){c.strokeStyle="#fff";c.lineWidth=2;c.strokeRect(S.sel.x*K-TS+3,S.sel.y*K-TS+3,TS*2-6,TS*2-6)}
-  drawPropsFloor(c,time);
-  for(const m of S.mons)drawMon(c,m,time);
+  if(TILT>=1)drawPropsFloor(c,time);
+  for(const m of TILT<1?near:S.mons)drawMon(c,m,time);
   drawPropsTop(c,time);
   drawCrate(c,time);
-  tipDraw(c,time);
   // status icons: slowed (storm) and cursed monsters, buffed characters
   const si=(k,x,y,z)=>{const im=STAT_IMG[k];if(im&&im.complete&&im.naturalWidth)c.drawImage(im,x-z/2,y-z/2,z,z)};
-  for(const m of S.mons){let n=0;const z=TS*.5,y=m.y*K-monR(m)*K-TS*.55;if(m.slowT>0)si("status_slow",m.x*K-z*.55+n++*z*1.1,y,z);if(m.curseT>0)si("status_curse",m.x*K-z*.55+n++*z*1.1,y,z)}
-  for(const tw of S.towers){let n=0;const z=TS*.42,x=tw.x*K-TS*.72,y=tw.y*K-TS*.7;if(tw.bSpd/(tw.aSpd||1)>1)si("buff_speed",x,y+n++*z*1.05,z);if(tw.bPow/(tw.aPow||1)>1)si("buff_power",x,y+n++*z*1.05,z)}
-  for(const p of S.proj){if(p.delay>0)continue;const im=SPR[p.t.uid]&&SPR[p.t.uid].proj;if(!im)continue;
-    const z=TS*(p.bee?.6:p.t.uid===55?1:.7);c.save();c.translate(p.x*K,p.y*K);c.rotate(p.t.weapon.startsWith("Glave")?p.age*.6:p.a);cell(c,im,Math.floor(p.age/2)%2,2,-z/2,-z/2,z,z);c.restore()}
-  for(const f of S.fx)drawFx(c,f);
+  for(const m of S.mons){let n=0;if(!(m.slowT>0||m.curseT>0))continue;bb(c,m.x*K,m.y*K,()=>{const z=TS*.5,y=m.y*K-monR(m)*K-TS*.55;if(m.slowT>0)si("status_slow",m.x*K-z*.55+n++*z*1.1,y,z);if(m.curseT>0)si("status_curse",m.x*K-z*.55+n++*z*1.1,y,z)})}
+  for(const tw of S.towers)bb(c,tw.x*K,tw.y*K,()=>{let n=0;const z=TS*.42,x=tw.x*K-TS*.72,y=tw.y*K-TS*.7;if(tw.bSpd/(tw.aSpd||1)>1)si("buff_speed",x,y+n++*z*1.05,z);if(tw.bPow/(tw.aPow||1)>1)si("buff_power",x,y+n++*z*1.05,z)});
+  for(const p of S.proj){if(p.delay>0)continue;if(p.fly){const im=SPR[p.t.uid]&&(SPR[p.t.uid].shot||SPR[p.t.uid].hit);if(im){const z=TS*(SPR[p.t.uid].shot?1.95:.85+.15*p.age);c.save();c.translate(p.x*K,p.y*K);c.scale(1,1/TILT);c.rotate(p.a);c.globalAlpha=.95;c.drawImage(im,SPR[p.t.uid].shot?-z*320/384:-z/2,-z/2,z,z);c.restore()}continue}const im=SPR[p.t.uid]&&SPR[p.t.uid].proj;if(!im)continue;
+    const z=TS*(p.bee?.6:p.t.uid===55?1:.7);c.save();c.translate(p.x*K,p.y*K);c.scale(1,1/TILT);c.rotate(p.t.weapon.startsWith("Glave")?p.age*.6:p.a);cell(c,im,Math.floor(p.age/2)%2,2,-z/2,-z/2,z,z);c.restore()}
+  for(const f of S.fx)if(f.x2==null&&f.k!=="ring")bb(c,f.x*K,f.y*K,()=>drawFx(c,f));else drawFx(c,f);
 }
-function drawMon(c,m,time){
+// the standing cave of a 3D map: monsters walk out from behind it
+function drawCave(c){const im=THEMES[themeI].cave;if(!im||!im.naturalWidth)return;const z=TS*2.9,x=TS*1.04,y=TS*(THEMES[themeI].cy||1.38);bb(c,x,y,()=>c.drawImage(im,x-z*.5,y-z*.667,z,z))}
+function drawMon(c,m,time){bb(c,m.x*K,m.y*K,()=>drawMon1(c,m,time))}
+function drawMon1(c,m,time){
+  if(TILT<1){const r=monR(m)*K*1.5*(m.def.boss?1.5:1);c.fillStyle="rgba(20,20,10,.26)";c.beginPath();c.ellipse(m.x*K,m.y*K+r*.35,r*.95,r*.5,0,0,7);c.fill()}
   const fade=Math.min(1,(PATHLEN-m.d)/56);if(fade<1){c.save();c.globalAlpha=Math.max(0,fade);drawMon0(c,m,time);c.restore();return}drawMon0(c,m,time)}
+// monsters always stand upright like the heroes: they only face left or right, and keep the last side while walking up or down
+function monFace(m){const x=Math.cos(m.a);if(Math.abs(x)>.5)m.fx=x<0?-1:1;return m.fx||1}
 function drawMon0(c,m,time){
   const r=monR(m)*K*1.45*(MQ.matches?1.1:1)*(m.def.boss?1.6:1)*(m.kind==="mission"?1.4:1),x=m.x*K,y=m.y*K;
   c.save();c.translate(x,y);
   if(m.def.boss||m.kind==="mission"){c.beginPath();c.arc(0,0,r*(m.def.spr&&MSPR[m.def.spr]?1.05:1.45),0,7);c.strokeStyle=m.kind==="mission"?"#ffb547":"#ff6f7d";c.lineWidth=2;c.globalAlpha=.6+Math.sin(time*.2)*.3;c.stroke();c.globalAlpha=1}
-  c.rotate(m.a);
   const ms=m.def.spr&&MSPR[m.def.spr];
-  if(ms&&ms.walk){const z=r*2.9*(m.def.boss?.78:1);cell(c,ms.walk,Math.floor((time+m.id*2)/3)%4,4,-z/2,-z/2,z,z);c.restore();drawMonBars(c,m,x,y,r);return}
-  const wob=Math.sin(time*.4+m.id)*r*.08;
+  if(ms&&ms.walk){c.scale(monFace(m),1);c.translate(0,-r*.22);const z=r*2.9*(m.def.boss?.78:1);cell(c,ms.walk,Math.floor((time+m.id*2)/3)%4,4,-z/2,-z/2,z,z);c.restore();drawMonBars(c,m,x,y,r);return}
+  c.rotate(m.a);const wob=Math.sin(time*.4+m.id)*r*.08;
   c.beginPath();const n=m.def.boss?10:6+(m.def.u%4);
   for(let k=0;k<n*2;k++){const a=k*Math.PI/n,rr=k%2?r*.78:r*(1.08)+(k===0?r*.25:0);c.lineTo(Math.cos(a)*rr+wob*(k%2),Math.sin(a)*rr)}
   c.closePath();c.fillStyle=`hsl(${m.hue} 55% 38%)`;c.fill();c.strokeStyle=`hsl(${m.hue} 70% 62%)`;c.lineWidth=1.5;c.stroke();
@@ -774,7 +862,7 @@ const FLAME_PAL={fire:["rgba(255,245,170,1)","rgba(255,150,30,.95)","rgba(225,50
   gas:["rgba(240,215,255,.95)","rgba(180,90,240,.8)","rgba(120,40,170,.5)","rgba(90,20,130,0)"],acid:["rgba(240,255,200,.95)","rgba(160,240,60,.85)","rgba(80,170,30,.5)","rgba(50,120,20,0)"]};
 function drawFx(c,f){
   const a=f.life/f.max;c.save();c.globalAlpha=Math.min(1,a*1.4);c.strokeStyle=f.c;c.fillStyle=f.c;
-  if(f.k==="mdie"){c.globalAlpha=1;const z=f.z*K;c.translate(f.x*K,f.y*K);c.rotate(f.a);cell(c,MSPR[f.spr].death,Math.min(3,Math.floor((1-a)*4)),4,-z/2,-z/2,z,z)}
+  if(f.k==="mdie"){c.globalAlpha=1;const z=f.z*K;c.translate(f.x*K,f.y*K);c.scale(f.fx,1);cell(c,MSPR[f.spr].death,Math.min(3,Math.floor((1-a)*4)),4,-z/2,-z/2,z,z)}
   else if(f.k==="bolt"||f.k==="beam"){c.lineWidth=(f.w||2)*(f.k==="beam"?1.6:1)*a+.5;c.beginPath();c.moveTo(f.x*K,f.y*K);c.lineTo(f.x2*K,f.y2*K);c.stroke();if(f.k==="beam"){c.globalAlpha*=.3;c.lineWidth*=3;c.stroke()}disc(c,f.x2*K,f.y2*K,3+3*a,f.c)}
   else if(f.k==="slash"){c.lineWidth=3;c.beginPath();c.arc(f.x2*K,f.y2*K,12,a*4,a*4+2.2);c.stroke()}
   else if(f.k==="swarm"){for(let k=0;k<8;k++){const t=1-a,ang=k*.8;const px=f.x+(f.x2-f.x)*t+Math.cos(ang+t*6)*20,py=f.y+(f.y2-f.y)*t+Math.sin(ang+t*6)*20;disc(c,px*K,py*K,2.5,f.c)}}
@@ -785,6 +873,11 @@ function drawFx(c,f){
       const g=c.createRadialGradient(x,y,0,x,y,r);const P=FLAME_PAL[f.pal||"fire"];g.addColorStop(0,P[0]);g.addColorStop(.35,P[1]);g.addColorStop(.75,P[2]);g.addColorStop(1,P[3]);c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,7);c.fill()}}
   else if(f.k==="spine"){c.lineWidth=6*a+1;c.setLineDash([8,5]);c.beginPath();c.moveTo(f.x*K,f.y*K);c.lineTo(f.x2*K,f.y2*K);c.stroke()}
   else if(f.k==="imp"){const fr=Math.min(3,Math.floor((1-f.life/f.max)*4)),z=TS*1.5*f.s;c.globalAlpha=1;cell(c,f.im,fr,4,f.x*K-z/2,f.y*K-z/2,z,z)}
+  else if(f.k==="ray"){ // thin light ray: coloured glow + white core, the tail (muzzle side) fades first
+    const x=f.x*K,y=f.y*K,x2=f.x2*K,y2=f.y2*K,g=c.createLinearGradient(x,y,x2,y2),s=1-a;g.addColorStop(0,`rgba(90,205,255,${.9*a*a})`);g.addColorStop(Math.min(.95,.25+s*.6),`rgba(90,205,255,${.95*a})`);g.addColorStop(1,"rgba(210,245,255,1)");
+    c.lineCap="round";c.strokeStyle=g;c.beginPath();c.moveTo(x,y);c.lineTo(x2,y2);const ga=c.globalAlpha;c.globalAlpha=ga*.35;c.lineWidth=TS*.22*a+1;c.stroke();c.globalAlpha=ga;c.lineWidth=TS*.09*a+1;c.stroke();c.strokeStyle=`rgba(255,255,255,${a})`;c.lineWidth=TS*.035;c.stroke()}
+  else if(f.k==="hit1"){ // single-image hit spark: the trail in the art points 15deg up, turn it along the shot
+    const z=TS*(1.7+(1-a)*.5);c.globalAlpha=Math.min(1,a*1.6);c.translate(f.x*K,f.y*K);c.rotate(f.ang+.26);c.drawImage(f.im,-z/2,-z/2,z,z)}
   else if(f.k==="spike"){const el=f.max-f.life;if(el<f.del*.6||!f.im){c.restore();return}c.globalAlpha=Math.min(1,f.life/5);const z=TS*.95;cell(c,f.im,f.v,2,f.x*K-z/2,f.y*K-z*.75,z,z)}
   else if(f.k==="txt"){const u=1-a;c.globalAlpha=a<.3?a/.3:1;const sz=TS*(f.big?.62:.4)*(f.big?1+Math.max(0,.25-u)*2:1);c.font=`900 ${sz}px ${getComputedStyle(document.body).getPropertyValue("--display")||"sans-serif"}`;c.textAlign="center";c.textBaseline="middle";
     const x=f.x*K,y=f.y*K-u*TS*(f.big?.9:.7);c.lineWidth=Math.max(3,sz*.18);c.strokeStyle=f.sc||"#3a1d00";c.strokeText(f.t,x,y);c.fillStyle=f.c;c.fillText(f.t,x,y);c.textBaseline="alphabetic"}
@@ -817,10 +910,10 @@ function renderBubble(){
   if(bb.dataset.id!==key){
     bb.dataset.id=key;const can=sameCount(tw)>=2,sv=t.uid===81?1000:SELL[t.grade];
     const area=`${mh(t)}명`;
-    bb.innerHTML=`<div class="bh"><span class="gchip" style="background:${GCOL[t.grade]}">${GRADE[t.grade]}</span><b>${t.name}${tw.conc?` <span class="conc">★${tw.conc+1}</span>`:""}</b><span class="uchip" style="background:${UPG_COL[t.upg]}">${UPGS.find(u=>u[0]===t.upg)[1]}</span></div>
-    ${`<div class="stats"><div><small>공격력</small><b>${fmt(hitDmg(t)*t.factor*(tw.bPow||1))}</b></div><div><small>공격 속도</small><b>${(t.cd/24/(tw.bSpd||1)).toFixed(1)}초</b></div><div><small>사거리</small><b>${rtOf(t)}칸</b></div><div><small>대상</small><b>${area}</b></div></div>`}
+    bb.innerHTML=`<div class="bh"><span class="gchip" style="background:${GCOL[t.grade]}">${GRADE[t.grade]}</span><b>${t.name}${tw.conc?` <span class="conc">★${tw.conc+1}</span>`:""}</b><span class="uchip" style="background:${UPG_COL[t.upg]}"><img alt="" src="ui/icons/icon_${UPG_ICON[t.upg]}.svg">${UPGS.find(u=>u[0]===t.upg)[1]}</span></div>
+    ${`<div class="stats"><div><small>공격력</small><b>${fmt(hitDmg(t)*t.factor*(tw.bPow||1))}</b></div><div><small>공격 속도</small><b>${(t.cd/24/(tw.bSpd||1)).toFixed(1)}초</b></div><div><small>사거리</small><b>${rtOf(t)}칸</b></div><div><small><img class="ti" alt="" style="background:${UPG_COL[typeKey(t)]}" src="ui/icons/icon_${UPG_ICON[typeKey(t)]}.svg">${t.area?"범위":"지정"}</small><b>${area}</b></div></div>`}
     ${traitTags(t).map(x=>`<span class="tag">${x}</span>`).join("")}
-    <div class="bb"><button type="button" class="btn" id="bbS" ${sv?"":"disabled"}>판매${sv?" +"+sv:""}</button>${has("junk")&&t.grade<5?`<button type="button" class="btn" id="bbX" ${S.ore<xCost(t.grade)?"disabled":""}>교환 -${xCost(t.grade)}</button>`:""}<button type="button" class="btn primary" id="bbM" ${can?"":"disabled"}>${t.grade>=5?"농축":"합성"}</button></div>`;
+    <div class="bb"><button type="button" class="btn" id="bbS" ${sv?"":"disabled"}>판매${sv?" +"+sv:""}</button>${has("junk")&&t.grade<GOD?`<button type="button" class="btn" id="bbX" ${S.ore<xCost(t.grade)?"disabled":""}>교환 -${xCost(t.grade)}</button>`:""}<button type="button" class="btn primary" id="bbM" ${can?"":"disabled"}>${t.grade>=5?"농축":"합성"}</button></div>`;
     $("bbM").onclick=()=>{merge(tw)};if($("bbX"))$("bbX").onclick=()=>{exchange(tw)};$("bbS").onclick=()=>{sell(tw)};
   }
   bb.hidden=false;placeBubble();
@@ -828,7 +921,7 @@ function renderBubble(){
 function placeBubble(){
   const bb=$("bubble"),tw=S&&S.sel;if(!tw||bb.hidden)return;
   const st=bb.parentElement.getBoundingClientRect(),r=cv.getBoundingClientRect();
-  const x=r.left+tw.x*K*r.width/cv.width-st.left,y=r.top+tw.y*K*r.height/cv.height-st.top,half=TS*r.width/cv.width;
+  const x=r.left+tw.x*K*r.width/cv.width-st.left,y=r.top+tw.y*K*TILT*r.height/cv.height-st.top,half=TS*r.width/cv.width;
   const w=bb.offsetWidth,h=bb.offsetHeight;let top=y-half-h-6;if(top<4)top=y+half+6;
   const left=Math.max(4,Math.min(st.width-w-4,x-w/2));bb.style.left=left+"px";bb.style.top=top+"px";
 }
@@ -846,17 +939,18 @@ function renderPanels(){
   // upgrades: groups with owned characters first
   const ownCnt={};for(const tw of S.towers){const k=TOWERS[tw.type].upg;ownCnt[k]=(ownCnt[k]||0)+1}
   const ownTypes=new Set(S.towers.map(o=>o.type));
-  const order=UPGS.map((u,i)=>[u,i]).sort((a,b)=>((ownCnt[b[0][0]]?1:0)-(ownCnt[a[0][0]]?1:0))||a[1]-b[1]).map(x=>x[0]);
+  const order=UPGS.filter(u=>liveKey(u[0])).map((u,i)=>[u,i]).sort((a,b)=>((ownCnt[b[0][0]]?1:0)-(ownCnt[a[0][0]]?1:0))||a[1]-b[1]).map(x=>x[0]);
   $("augBody").innerHTML=augDetail();
+  {const el=$("augAll");if(!el.firstChild)el.innerHTML=augAllHTML()}
   const row=([k,n])=>{const lv=upgShown(k),cost=upgCostOf(k),st=Math.round(upgStep(k)*100),cur=Math.round(upgStep(k)*lv*100);
     const mine=TOWERS.filter(t=>(isType(k)?typeKey(t)===k:t.upg===k)&&ownTypes.has(t.i));
-    return `<div class="row up ${mine.length?"":"dim"}"><img class="gi" alt="" style="background:${UPG_COL[k]};border-radius:50%;padding:4px;box-sizing:border-box" src="ui/icons/icon_${UPG_ICON[k]}.svg"><div><b class="un" style="color:${UPG_COL[k]}">${n}</b><small class="ud">공격력 +${cur}% → <b class="nx">+${cur+st}%</b></small><span class="ui">${mine.length?mine.slice(0,4).map(t=>`<img alt="${t.name}" src="${ICON[t.i]}">`).join("")+(mine.length>4?`<small>+${mine.length-4}</small>`:""):`<small>보유 캐릭터 없음</small>`}</span></div><span class="lv">Lv${lv}</span><button class="btn gem" data-u="${k}" ${S.gas<cost?"disabled":""}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12l4 6-10 11L2 10z"/></svg>${cost}</button></div>`};
-  $("pUpg").innerHTML=`<p class="upH">계열별 <small>레벨당 공격력 +${Math.round(UPG_LINE_K*100)}%</small></p><div class="rows">${order.map(row).join("")}</div><p class="upH">공격 방식별 <small>레벨당 공격력 +${Math.round(UPG_TYPE_K*100)}% · 적용 캐릭터가 더 많아요</small></p><div class="rows">${UPGS_T.map(row).join("")}</div>`;
+    return `<div class="row up ${mine.length?"":"dim"}"><img class="gi" alt="" style="background:${UPG_COL[k]};border-radius:50%;padding:4px;box-sizing:border-box" src="ui/icons/icon_${UPG_ICON[k]}.svg"><div><b class="un" style="color:${UPG_COL[k]}">${n}</b><small class="ud">공격력 +${cur}% → <b class="nx">+${cur+st}%</b></small><span class="ui">${mine.length?mine.slice(0,4).map(t=>`<img alt="${t.name}" src="${ICON0[t.i]}">`).join("")+(mine.length>4?`<small>+${mine.length-4}</small>`:""):`<small>보유 캐릭터 없음</small>`}</span></div><span class="lv">Lv${lv}</span><button class="btn gem" data-u="${k}" ${S.gas<cost?"disabled":""}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12l4 6-10 11L2 10z"/></svg>${cost}</button></div>`};
+  $("pUpg").innerHTML=`<p class="upH">계열별 <small>레벨당 공격력 +${Math.round(UPG_LINE_K*100)}%</small></p><div class="rows">${order.map(row).join("")}</div><p class="upH">공격 방식별 <small>레벨당 공격력 +${Math.round(UPG_TYPE_K*100)}% · 적용 캐릭터가 더 많아요</small></p><div class="rows">${UPGS_T.filter(u=>liveKey(u[0])).map(row).join("")}</div>`;
   $("pUpg").querySelectorAll("[data-u]").forEach(b=>b.onclick=()=>buyUpg(b.dataset.u));
   // missions
   $("pMis").innerHTML=`<div class="rows">${MISSIONS.map((d,i)=>`<div class="row mis"><img class="mi" alt="" src="ui/missions/icon_mission_${i+1}.png"><div>${i+1}단계 · ${d.name}<small>권장 ${MIS_REC[i]}웨이브부터 · 보상 골드 +${d.reward}</small><small>놓치면 목숨 -10</small></div><span class="lv misLv">${misLeft(i)>0?misLeft(i)+"웨이브 뒤":""}</span><button class="btn" data-m="${i}" ${misLeft(i)>0||!running?"disabled":""}>도전</button></div>`).join("")}</div>`;
   $("pMis").querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>mission(+b.dataset.m));
-  {const fr=S.freeTix>0,dis=(!fr&&S.ore<100)||lottoBusy;$("lottoBtn").disabled=dis;$("navLotto").disabled=dis;const lb=fr?`무료 ${S.freeTix}장`:"골드 100";$("lottoBtn").querySelector("span").textContent=lb;$("navLotto").querySelector("small").textContent=lb}
+  {const fr=S.freeTix>0,dis=(!fr&&S.ore<100)||lottoBusy;$("lottoBtn").disabled=dis;$("navLotto").disabled=dis;const lb=fr?`무료 ${S.freeTix}장`:"골드 100";$("lottoBtn").querySelector("span").textContent=lb;$("navLotto").querySelector("small").textContent=fr?`${S.freeTix}장 남음`:lb;$("navFree").hidden=!fr;const sd=S.ore<100||!running||!SLOTS.some(s=>!s.tower);$("summonBtn").classList.toggle("off",sd);$("navSummon").classList.toggle("off",sd);$("navSummon").querySelector("small").textContent=SLOTS.some(s=>!s.tower)?"골드 100":"빈 칸 없음"}
   {const n=mergeablePairs();$("mergeAll").disabled=!n||!running;$("mergeAllN").textContent=n;$("navMerge").disabled=!n||!running;$("navMergeN").textContent=n;$("navMergeN").hidden=!n}
   if(rail.dataset.view==="sel"&&!S.sel&&viewType==null)closeSheet();
   {const el=$("lottoOdds");if(el)el.innerHTML=lottoOddsHTML()}
@@ -867,15 +961,13 @@ function renderPanels(){
 }
 function hud(){
   if(!S)return;
-  {const n=S.wi+(S.phase==="wave"?1:0);$("sWave").textContent=n>40?`${n}`:`${n}/40`}
-  $("sTimerLbl").textContent=S.phase==="prep"?"다음 웨이브":"남은 적";
-  $("sTimer").textContent=S.phase==="prep"?Math.ceil(S.cd/24)+"s":String(S.mons.length+S.spawnLeft);$("skipBtn").hidden=S.phase!=="prep"||!running;
-  $("sLife").textContent=S.life;const kf=n=>n>=10000?(n/1000).toFixed(1).replace(/\.0$/,"")+"k":String(n);$("sOre").textContent=kf(S.ore);$("sGas").textContent=kf(S.gas);$("sKill").textContent=S.kills;
+  if(S.phase==="prep")$("sTimer").textContent=Math.ceil(S.cd/24)+"초";$("skipBtn").hidden=S.phase!=="prep"||!running;
+  $("sLife").textContent=S.life;$("sLife").parentNode.classList.toggle("danger",S.life<=5);const kf=n=>n>=10000?(n/1000).toFixed(1).replace(/\.0$/,"")+"k":String(n);$("sOre").textContent=kf(S.ore);$("sGas").textContent=kf(S.gas);$("sKill").textContent=S.kills;
 }
 
 // ---------- input ----------
 let hover=null;
-function slotAt(ev){const r=cv.getBoundingClientRect();const x=(ev.clientX-r.left)/r.width*cv.width/K,y=(ev.clientY-r.top)/r.height*cv.height/K;
+function slotAt(ev){const r=cv.getBoundingClientRect();const x=(ev.clientX-r.left)/r.width*cv.width/K,y=(ev.clientY-r.top)/r.height*cv.height/K/TILT;
   return SLOTS.find(s=>Math.abs(s.x-x)<=WT&&Math.abs(s.y-y)<=WT)||null}
 cv.addEventListener("pointermove",e=>{if(e.pointerType!=="touch")hover=slotAt(e)});
 cv.addEventListener("pointerleave",()=>hover=null);
@@ -890,7 +982,7 @@ function fitVp(){
   const top=(MQ.matches?document.querySelector(".stage"):vp).getBoundingClientRect().top+window.scrollY,nav=MQ.matches?(document.querySelector(".mnav").offsetHeight||58):16;
   const availH=Math.max(240,window.innerHeight-top-nav-(MQ.matches?14:8)-CRATE_STRIP),availW=document.querySelector(".board").clientWidth-2;
   // fixed 6x9-cell board, uniformly scaled to fit and centered
-  const t=Math.min(availW/COLS,availH/ROWS);const w=Math.floor(t*COLS),h=Math.floor(t*ROWS);
+  const rw=ROWS*TILT+WALL,t=Math.min(availW/COLS,availH/rw);const w=Math.floor(t*COLS),h=Math.floor(t*rw);
   cv.style.width=w+"px";cv.style.height=h+"px";vp.style.width=w+"px";vp.style.height=h+"px";panX=panY=0;clampPan()}
 // ---------- drag a character to another slot (move, or swap if occupied) ----------
 let tdrag=null;
@@ -918,16 +1010,16 @@ cv.addEventListener("click",e=>{if(!S)return;const s=slotAt(e);viewType=null;
     if(lastTap.tw===tw&&now-lastTap.t<380&&sameCount(tw)>=2){lastTap={};merge(tw,false,true);S.sel=null;if(rail.dataset.view==="sel")closeSheet();renderPanels();return}
     lastTap={tw,t:now};S.sel=S.sel===tw?null:tw}else{if(S.sel){S.sel=null}else build(s)}if(rail.dataset.view==="sel")closeSheet();renderPanels()});
 const rail=$("rail");
-const SHEET_TITLE={sel:"캐릭터 정보",pUpg:"업글",pMis:"도전 미션",pAug:"내 증강",codex:"도감"};
+const SHEET_TITLE={sel:"캐릭터 정보",pUpg:"업글",pMis:"도전 미션",codex:"도감"};
 function selectTab(pid){if(!MQ.matches)return;$("pUpg").hidden=pid!=="pUpg";$("pMis").hidden=pid!=="pMis"}
 function openSheet(v){
   if(!MQ.matches)return;
   if(S&&v!=="sel"){S.sel=null;renderBubble()}
   rail.dataset.view=v;if(v.startsWith("p"))selectTab(v);
   $("sheetTitle").textContent=SHEET_TITLE[v]||"";rail.classList.add("open");rail.scrollTop=0;
-  document.querySelectorAll(".mnav button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sheet===v));
+  document.querySelectorAll(".mnav [data-sheet]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.sheet===v));
 }
-function closeSheet(){rail.classList.remove("open");rail.dataset.view="none";document.querySelectorAll(".mnav button").forEach(b=>b.setAttribute("aria-pressed","false"))}
+function closeSheet(){rail.classList.remove("open");rail.dataset.view="none";document.querySelectorAll(".mnav [data-sheet]").forEach(b=>b.setAttribute("aria-pressed","false"))}
 document.querySelectorAll(".mnav button[data-sheet]").forEach(b=>b.onclick=()=>{const v=b.dataset.sheet;if(rail.classList.contains("open")&&rail.dataset.view===v)closeSheet();else openSheet(v)});
 $("sheetClose").onclick=()=>{closeSheet();if(S&&rail.dataset.view==="none"){}};
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>selectTab(b.dataset.p));
@@ -937,6 +1029,7 @@ document.addEventListener("keydown",e=>{if(!S||!S.sel)return;if(e.key==="q"||e.k
 $("dNormal").onclick=()=>start("normal");
 $("skipBtn").onclick=()=>{if(S&&running&&S.phase==="prep")S.cd=1};
 $("mergeAll").onclick=$("navMerge").onclick=()=>{if(S)mergeAll()};
+$("summonBtn").onclick=$("navSummon").onclick=summon;
 $("lottoBtn").onclick=$("navLotto").onclick=()=>{if(S&&running)lotto()};
 document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".seg button").forEach(o=>o.setAttribute("aria-selected",o===b));$("pUpg").hidden=b.dataset.p!=="pUpg";$("pMis").hidden=b.dataset.p!=="pMis"});
 $("restart").onclick=()=>{$("endOv").hidden=true;$("rewardOv").hidden=true;rewardOpen=false;start("normal")};
@@ -950,14 +1043,14 @@ function start(d){
 }
 
 // ---------- boot ----------
-function buildCodex(){makeIcons();$("codex").innerHTML=[0,1,2,3,4,5].map(g=>`<div class="crow"><span class="glab" style="color:${GCOL[g]}">${GRADE[g]}</span><div class="cgrid">${byGrade(g).map(t=>`<button type="button" class="ci" data-t="${t.i}" title="${t.name}" style="--gc:${GCOL[g]}"><img alt="${t.name}" src="${ICON[t.i]}"><b class="cn">${t.short||t.name}</b><span class="cnt"></span></button>`).join("")}</div></div>`).join("");
+function buildCodex(){makeIcons();$("codex").innerHTML=GRADE.map((_,g)=>`<div class="crow"><span class="glab" style="color:${GCOL[g]}">${GRADE[g]}</span><div class="cgrid">${byGrade(g).map(t=>`<button type="button" class="ci" data-t="${t.i}" title="${t.name}" style="--gc:${GCOL[g]}"><img alt="${t.name}" src="${ICON[t.i]}"><b class="cn">${t.short||t.name}</b><span class="cnt"></span></button>`).join("")}</div></div>`).join("");
 document.querySelectorAll("#codex .ci").forEach(im=>im.onclick=()=>codexDetail(+im.dataset.t));if(S)renderPanels()}
 // tapping a codex entry: a large card over everything (home screen and in game, phone and desktop)
 function codexDetail(i){
   const t=TOWERS[i];let el=$("cxDet");if(!el){el=document.createElement("div");el.id="cxDet";el.className="cxDet";el.onclick=e=>{if(e.target===el||e.target.closest(".cxX"))el.hidden=true};document.body.appendChild(el)}
-  const dmg=hitDmg(t),own=S?S.towers.filter(o=>o.type===t.i).length:null,role={Melee:"근접",Shot:"사격",Sniper:"저격"}[ROLE[t.uid]]||"";
+  const dmg=hitDmg(t),own=S?S.towers.filter(o=>o.type===t.i).length:null,role={Melee:"근거리",Shot:"중거리",Sniper:"원거리"}[ROLE[t.uid]]||"";
   el.innerHTML=`<div class="cxCard" style="--gc:${GCOL[t.grade]}"><button type="button" class="cxX" aria-label="닫기">✕</button>
-   <div class="cxTop"><div class="cxImg"><img alt="" src="${ICON[t.i]}"></div><div><span class="gchip" style="background:${GCOL[t.grade]}">${GRADE[t.grade]}</span><h3>${t.name}</h3><p class="cxTags">${role}${role?" · ":""}${t.area?"범위":"단발"}${t.area?` · 최대 ${t.maxHit}명`:""}</p></div></div>
+   <div class="cxTop"><div class="cxImg"><img alt="" src="${ICON[t.i]}"></div><div><span class="gchip" style="background:${GCOL[t.grade]}">${GRADE[t.grade]}</span><h3>${t.name}</h3><p class="cxTags">${role}${role?" · ":""}${t.area?"범위":"지정"}${t.area?` · 최대 ${t.maxHit}명`:""}</p></div></div>
    <p class="cxDesc">${desc(t)}</p>
    <dl class="cxKv"><div><dt>공격력</dt><dd>${fmt(dmg*t.factor*(t.shots||1))}</dd></div><div><dt>공격 간격</dt><dd>${(t.cd/24).toFixed(2)}초</dd></div><div><dt>사거리</dt><dd>${t.rt}칸</dd></div>${own!=null?`<div><dt>보유</dt><dd>${own}명</dd></div>`:""}</dl>
    ${S?`<p class="cxNote">공격력은 지금 업글 레벨 기준이에요.</p>`:""}</div>`;
