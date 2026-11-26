@@ -396,6 +396,43 @@ body{background:radial-gradient(ellipse at 30% 0%,#A5D9E8 0%,#6CA9D5 42%,#527CB4
 .bubble .bb{margin-top:4px}
 .bubble .bb .btn{flex:1}
 </style>
+<style>
+.heroIn{position:fixed;inset:0;z-index:65;pointer-events:none;overflow:hidden;--c1:#6fd2ff;--c2:#1c5fd6;--c3:#081c4e;--h:92px}
+.heroIn.lv6{--c1:#ffb066;--c2:#a34f12;--c3:#3a1c08;--h:124px}.heroIn.lv7{--c1:#ff6a4a;--c2:#b3121f;--c3:#1c0508;--h:164px}.heroIn.lv8{--c1:#e7c8ff;--c2:#7a35e0;--c3:#12062f;--h:212px}
+.heroIn.lv7,.heroIn.lv8{pointer-events:auto}
+.heroIn i,.heroIn u{position:absolute;display:block}
+.heroIn .dim{inset:0;background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--c2) 45%,transparent),color-mix(in srgb,var(--c3) 88%,transparent) 70%);opacity:0}
+.heroIn.lv6 .dim{animation:hiDim 1.5s ease both;--o:.45}.heroIn.lv7 .dim{animation:hiDim 2s ease both;--o:.85}.heroIn.lv8 .dim{animation:hiDim 3s ease both;--o:1}
+@keyframes hiDim{0%,100%{opacity:0}14%,80%{opacity:var(--o)}}
+.heroIn .band{position:absolute;left:2%;right:2%;top:38%;height:var(--h);transform:translateX(-120%) skewY(-5deg);border-style:solid;border-image:url(ui/intro/band_lv5.webp) 25% 22% fill/calc(var(--h)*.25) calc(var(--h)*.83) stretch;filter:drop-shadow(0 0 16px color-mix(in srgb,var(--c1) 75%,transparent));display:flex;align-items:center;justify-content:center;gap:10px;animation:hiBand 1.1s cubic-bezier(.16,.9,.3,1) both}
+.heroIn.lv6 .band{animation-duration:1.5s}.heroIn.lv7 .band{animation-duration:2s}.heroIn.lv8 .band{animation-duration:3s;top:36%}
+@keyframes hiBand{0%{transform:translateX(-120%) skewY(-5deg)}20%{transform:translateX(0) skewY(-5deg)}80%{transform:translateX(0) skewY(-5deg);opacity:1}100%{transform:translateX(60%) skewY(-5deg);opacity:0}}
+.heroIn.lv6 .band{border-image-source:url(ui/intro/band_lv6.webp)}.heroIn.lv7 .band{border-image-source:url(ui/intro/band_lv7.webp)}.heroIn.lv8 .band{border-image-source:url(ui/intro/band_lv8.webp)}
+.heroIn .line{display:none;left:0;right:0;height:4px;background:linear-gradient(90deg,transparent,var(--c1) 20%,#fff 50%,var(--c1) 80%,transparent)}.heroIn .line.a{top:0}.heroIn .line.b{bottom:0}
+.heroIn.lv7 .line,.heroIn.lv8 .line{height:7px}.heroIn.lv8 .line.a{top:-14px}.heroIn.lv8 .line.b{bottom:-14px}
+.heroIn .streak{top:0;bottom:0;width:42%;left:-50%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);animation:hiStreak .8s .25s ease-out both}
+@keyframes hiStreak{to{left:120%}}
+.heroIn .cut{position:relative;width:min(calc(var(--h)*1.3),44vw);aspect-ratio:480/576;align-self:flex-end;flex:none;z-index:1;transform:skewY(5deg);animation:hiCut .5s .12s cubic-bezier(.2,1.5,.4,1) both}
+.heroIn .cut img{position:absolute;left:0;top:0;width:100%;height:100%;filter:drop-shadow(0 0 10px color-mix(in srgb,var(--c1) 60%,transparent))}
+.heroIn.lv7 .cut,.heroIn.lv8 .cut{width:min(calc(var(--h)*1.15),46vw)}
+@keyframes hiCut{from{opacity:0;transform:skewY(5deg) translateX(-70px) scale(.5)}}
+.heroIn .tx{text-align:left;color:#fff;font-family:var(--display);line-height:1;animation:hiTx .45s .25s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes hiTx{from{opacity:0;transform:translateX(60px)}}
+.heroIn .tx small{display:block;font-size:calc(var(--h)*.2);color:var(--c1);-webkit-text-stroke:4px #12062f;paint-order:stroke fill;margin-bottom:6px;font-weight:900}
+.heroIn .tx b{display:block;font-size:min(calc(var(--h)*.31),calc(44vw/var(--n,4)));white-space:nowrap;-webkit-text-stroke:6px #12062f;paint-order:stroke fill;font-weight:900}
+.heroIn .rays,.heroIn .orb{left:50%;top:44%;border-radius:50%;opacity:0}
+.heroIn.lv7 .rays,.heroIn.lv8 .rays{width:150vmax;height:150vmax;margin:-75vmax;background:repeating-conic-gradient(from 0deg,color-mix(in srgb,var(--c1) 55%,transparent) 0 7deg,transparent 9deg 22deg);-webkit-mask:radial-gradient(circle,#000 8%,transparent 46%);mask:radial-gradient(circle,#000 8%,transparent 46%);animation:hiRays 2s linear both}
+.heroIn.lv8 .rays{animation-duration:3s}
+@keyframes hiRays{0%{opacity:0;transform:rotate(0)}18%,78%{opacity:.75}100%{opacity:0;transform:rotate(38deg)}}
+.heroIn.lv8 .orb{width:118vmin;height:118vmin;margin:-59vmin;background:conic-gradient(from 20deg,#2a1070,#8f45ff,#3a1590,#d08bff,#2a1070,#7a35e0,#1a0a50,#b46bff,#2a1070);-webkit-mask:radial-gradient(circle,#000 58%,transparent 70%);mask:radial-gradient(circle,#000 58%,transparent 70%);animation:hiOrb 3s cubic-bezier(.2,.9,.3,1) both}
+@keyframes hiOrb{0%{opacity:0;transform:scale(.1) rotate(-120deg)}22%{opacity:.95;transform:scale(1) rotate(0)}80%{opacity:.95;transform:scale(1.04) rotate(70deg)}100%{opacity:0;transform:scale(1.5) rotate(90deg)}}
+.heroIn .sparks{inset:0}.heroIn .sparks u{left:var(--x);bottom:-4%;width:var(--s);height:var(--s);transform:rotate(45deg);background:#fff;box-shadow:0 0 10px 2px var(--c1);animation:hiSp 1.5s var(--d) ease-in both}
+.heroIn.lv8 .sparks u{bottom:auto;top:-10%;width:calc(var(--s)*3.2);height:calc(var(--s)*3.2);transform:none;background:url(ui/intro/feather.webp) calc(var(--f)*33.333%) 0/400% 100% no-repeat;box-shadow:none;filter:drop-shadow(0 0 6px #d9b8ff);animation:hiFe 2.6s var(--d) ease-in both}
+@keyframes hiFe{0%{opacity:0;transform:translate(0,0) rotate(-20deg)}15%,75%{opacity:1}100%{opacity:0;transform:translate(60px,112vh) rotate(240deg)}}
+@keyframes hiSp{0%{opacity:0}15%{opacity:1}100%{opacity:0;bottom:104%}}
+.quake7{animation:quake .4s .25s 2}.quake8{animation:quake .45s .35s 4}@keyframes quake{25%{transform:translate(3px,-2px)}50%{transform:translate(-3px,2px)}75%{transform:translate(2px,2px)}}
+@media (prefers-reduced-motion:reduce){.quake7,.quake8{animation:none}}
+</style>
 <style>.bubble .uchip{margin-left:auto;padding:2px 9px;border-radius:999px;color:#fff;font-size:12px;font-weight:800}</style>
 <style>.bubble .stats.s2{grid-template-columns:repeat(2,1fr)}</style>
 <style>.row.up .ud{margin-left:6px;font-size:11px;color:var(--muted);font-weight:500}</style>
