@@ -40,8 +40,8 @@ function place0(){for(const tw of [...S.towers])removeTower(tw);S.sel=null;S.fx=
   S.fx=[];$("banner").style.display="none"}
 function enter(){
   Object.assign(tipSeen,{summon:1,merge:1,aug:1,upg:1,boss:1});D.entering=true;start("normal");D.entering=false;S.phase="design";S.cd=1e9;D.on=true;D.pose=null;D.only=null;speed=1;paused=false;
-  document.body.classList.add("design");if(D.sel==null)D.sel=roster()[0].i;place();mobs();ui()}
-function leave(){D.on=false;running=false;S.mons=[];document.body.classList.remove("design","dmMin");$("banner").style.display="";$("goHome").click()}
+  document.body.classList.add("design");if(D.sel==null)D.sel=roster()[0].i;place();mobs();ui();setTimeout(fitVp,0);setTimeout(fitVp,400)}
+function leave(){D.on=false;running=false;S.mons=[];document.body.classList.remove("design","dmMin");setTimeout(fitVp,0);$("banner").style.display="";$("goHome").click()}
 /* 지금 판을 계속 깨끗하게: 배너·알림·도움말 숨기기 */
 const css=document.createElement("style");css.textContent=`
 body.design .toast,body.design #toast,body.design #banner,body.design .bubble,body.design .mnav,body.design .ctl,body.design .skip,body.design .lotto,body.design .mergeAll,body.design .hud,body.design #mapNext,body.design .mapBanner,body.design .tip{display:none!important}
@@ -106,4 +106,12 @@ function draw(cn,bigMode){
 const _start=start;start=d=>{_start(d);if(S&&!D.on&&!D.entering){place();S.cd=240}};
 /* 홈 단추 */
 const hb=document.createElement("button");hb.type="button";hb.id="dmOpen";hb.textContent="디자인 확인";hb.style.cssText="display:block;margin:10px auto 0;padding:10px 22px;border-radius:14px;border:2px solid #fff;background:#243D83;color:#fff;font:800 15px sans-serif;cursor:pointer";hb.onclick=enter;document.querySelector("#startOv .homeLow").append(hb);
+/* 폰: 위 막대와 아래 패널 사이에 판 전체가 들어가게 줄인다 */
+const _fit=fitVp;fitVp=function(){_fit();if(!document.body.classList.contains("design")||innerWidth>=900){vp.style.marginTop="";return}
+  vp.style.marginTop="";const th=$("dmTop").offsetHeight,ph=$("dmPan").offsetHeight,availH=Math.max(160,innerHeight-th-ph-8),availW=document.querySelector(".board").clientWidth-2;
+  const rw=ROWS*TILT+WALL,t=Math.min(availW/COLS,availH/rw),w=Math.floor(t*COLS),h=Math.floor(t*rw);
+  cv.style.width=w+"px";cv.style.height=h+"px";vp.style.width=w+"px";vp.style.height=h+"px";
+  for(let k=0;k<3;k++){const d=th+4-vp.getBoundingClientRect().top;if(Math.abs(d)<1)break;vp.style.marginTop=Math.round((parseFloat(vp.style.marginTop)||0)+d)+"px"}panX=panY=0;clampPan()};
+addEventListener("resize",()=>fitVp());addEventListener("load",()=>setTimeout(fitVp,50));
+if(window.ResizeObserver){const ro=new ResizeObserver(()=>fitVp());ro.observe($("dmTop"));ro.observe($("dmPan"))}
 })();
