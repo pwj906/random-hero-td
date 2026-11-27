@@ -1,6 +1,9 @@
 /* 디자인 확인 모드 — 시험판에만 붙는다(배포 빌드에는 들어가지 않음). 게임 스크립트 끝에 이어 붙여 같은 변수에 접근한다. */
 (()=>{
 const D={on:false,pose:null,tags:true,aura:true,snd:false,only:null,sel:null,n:26};window.DM=D;
+/* 판에 세울 영웅(uid). 처음엔 비어 있고, 아래 목록을 눌러 넣고 뺀다. 이 기기에 기억 */
+D.pick=new Map((()=>{try{const v=JSON.parse(localStorage.getItem("dmPick")||"[]");return Array.isArray(v)?v.map(u=>Array.isArray(u)?u:[u,1]):[]}catch(e){return[]}})());
+const savePick=()=>{try{localStorage.setItem("dmPick",JSON.stringify([...D.pick]))}catch(e){}},MAXN=6;
 const RN={Melee:"근거리",Shot:"중거리",Sniper:"원거리"},PN=["대기","준비","공격","마무리"];
 const roster=()=>TOWERS.filter(t=>!t.off).sort((a,b)=>a.grade-b.grade||a.i-b.i);
 /* 길 옆 칸을 시계 방향으로, 한 칸씩 띄워서 먼저 쓰고 모자라면 나머지 */
@@ -10,7 +13,9 @@ const ring=()=>{const xs=SLOTS.map(q=>q.x),lo=Math.min(...xs),hi=Math.max(...xs)
 const inner=()=>{const[cx,cy]=mid();return SLOTS.map((q,k)=>[k,Math.hypot(q.x-cx,q.y-cy)]).filter(([k])=>!edgeSlot(SLOTS[k])).sort((a,b)=>a[1]-b[1]).map(a=>a[0])};
 /* ---- 게임 동작 덮어쓰기(모드가 켜졌을 때만) ---- */
 const _leak=leak;leak=m=>{if(!D.on)return _leak(m);m.d-=PATHLEN};
-const _damage=damage;damage=function(m,...a){if(D.on)m.hp=m.maxhp=1e12;return _damage(m,...a)};
+/* 디자인 모드의 몹: 체력이 줄어드는 게 보이게 유한 체력, 0이 되면 죽지 않고 다시 꽉 참 */
+const DM_HP=4e6;const _damage=damage;damage=function(m,...a){if(D.on&&m.maxhp!==DM_HP){m.hp=m.maxhp=DM_HP}return _damage(m,...a)};
+const _kill=kill;kill=m=>{if(D.on){m.hp=m.maxhp;return}return _kill(m)};
 const _crate=crateTick;crateTick=()=>{if(!D.on)_crate()};
 const _lv=lvText;lvText=(c,tw)=>{if(!D.on||D.tags)_lv(c,tw)};
 const _sfx=sfx;sfx=(...a)=>{if(!D.on||D.snd)_sfx(...a)};
@@ -19,11 +24,19 @@ const _pose0=drawPose,_pose=function(c,t,...r){const s=SPR[t.uid],k=s&&s.aura;if
   const a=tw.atk;tw.atk=null;tw.pf=D.pose;const r=_pose(c,t,x,y,R,ang,tw);tw.atk=a;tw.pf=null;return r};
 function mobs(){S.mons=[];for(let i=0;i<D.n;i++){const def=waveDef(themeI*20+Math.floor(i/4)%4);spawn(def,1e12,"wave");const m=S.mons[S.mons.length-1];m.d=PATHLEN*i/D.n;m.spd=2.2;const p=pathAt(m.d);m.x=p[0];m.y=p[1];m.a=p[2]}}
 const _heroIn=heroIn;heroIn=(t,sl)=>{if(!D.placing)_heroIn(t,sl)};
+function grouped(only){ /* 지정은 위쪽, 범위는 아래쪽. 근거리는 길에 닿는 칸(맨 윗줄·맨 아랫줄·양옆 줄)에만 세운다 */
+  const ys=[...new Set(SLOTS.map(q=>q.y))].sort((a,b)=>a-b),xs=[...new Set(SLOTS.map(q=>q.x))].sort((a,b)=>a-b),at=(x,y)=>SLOTS.find(q=>q.x===x&&q.y===y);
+  const L=xs[0],Rr=xs[xs.length-1],n=ys.length;
+  const top=[...xs.map(x=>at(x,ys[0])),at(L,ys[1]),at(L,ys[2]),at(Rr,ys[1]),at(Rr,ys[2])],bot=[...xs.map(x=>at(x,ys[n-1])),at(L,ys[n-2]),at(L,ys[n-3]),at(Rr,ys[n-2]),at(Rr,ys[n-3])];
+  let ok=false;const want=t=>!only||only.has(t.uid);for(const[ar,sl]of[[0,top],[1,bot]]){roster().filter(t=>!!t.area===!!ar).forEach((t,i)=>{if(want(t)&&sl[i]&&!sl[i].tower){addTower(sl[i],t.i,false);ok=true}})}
+  const rest=roster().filter(t=>want(t)&&!S.towers.some(tw=>tw.type===t.i)),free=SLOTS.filter(q=>!q.tower&&edgeSlot(q)).concat(SLOTS.filter(q=>!q.tower&&!edgeSlot(q)));rest.forEach((t,i)=>free[i]&&addTower(free[i],t.i,false));
+  if(only)for(const t of roster()){const n=(only.get(t.uid)||0)-1,first=S.towers.find(tw=>tw.type===t.i);for(let k=0;k<n&&first;k++){const melee=t.upg==="Melee",fs=SLOTS.filter(q=>!q.tower).sort((a,b)=>(melee?(edgeSlot(b)-edgeSlot(a)):0)||Math.hypot(a.x-first.x,a.y-first.y)-Math.hypot(b.x-first.x,b.y-first.y));if(fs[0])addTower(fs[0],t.i,false)}}
+  return ok}
 function place(){D.placing=true;try{place0()}finally{D.placing=false}}
 function place0(){for(const tw of [...S.towers])removeTower(tw);S.sel=null;S.fx=[];S.proj=[];
   const EDGE=ring(),INNER=inner();
   if(D.only!=null){for(const i of [1,2,5,6,11])addTower(SLOTS[EDGE[i]],D.only,false);addTower(SLOTS[INNER[0]],D.only,false)}
-  else{let e=0,n=0;for(const t of roster()){const melee=t.upg==="Melee",k=melee&&e<EDGE.length?EDGE[e++]:n<INNER.length?INNER[n++]:EDGE[e++];if(SLOTS[k]&&!SLOTS[k].tower)addTower(SLOTS[k],t.i,false)}}
+  else grouped(D.on?D.pick:null);
   S.fx=[];$("banner").style.display="none"}
 function enter(){
   Object.assign(tipSeen,{summon:1,merge:1,aug:1,upg:1,boss:1});D.entering=true;start("normal");D.entering=false;S.phase="design";S.cd=1e9;D.on=true;D.pose=null;D.only=null;speed=1;paused=false;
@@ -42,7 +55,7 @@ body.design #dmTap{display:none;position:fixed;z-index:50;inset:0;touch-action:m
 .dmr{display:flex;gap:5px;align-items:center;margin-top:4px}.dmr>span{width:30px;flex:none;color:#b9c6ff}.dmr .dmb{flex:1;padding:8px 2px}
 #dmL{display:flex;gap:5px;overflow-x:auto;padding-bottom:2px}
 #dmL button{flex:none;width:58px;padding:3px 0 4px;border-radius:10px;border:2px solid transparent;background:#2b3a7c;color:#fff;font:700 10px sans-serif;cursor:pointer}
-#dmL button[aria-pressed=true]{border-color:#ffd24d;background:#3d50a3}#dmL .im{display:block;width:44px;height:44px;margin:0 auto;overflow:hidden}#dmL img{width:100%;height:100%;transform:scale(1.5);transform-origin:50% 62%}
+#dmL button.pk{background:#2f7d5a;position:relative}#dmL button.pk::after{content:attr(data-n);position:absolute;top:2px;right:4px;font-size:11px;color:#b6ffd9}#dmL button[aria-pressed=true]{border-color:#ffd24d}#dmL button[aria-pressed=true]:not(.pk){background:#3d50a3}#dmL .im{display:block;width:44px;height:44px;margin:0 auto;overflow:hidden}#dmL img{width:100%;height:100%;transform:scale(1.5);transform-origin:50% 62%}
 body.design.dmMin #dmPan .dmr,body.design.dmMin #dmC{display:none}
 #dmC{display:block;width:100%;height:84px;border-radius:10px;margin-top:6px;background:#78aa5a;cursor:zoom-in}
 body.design #dmBig.on{display:flex;position:fixed;z-index:70;inset:0;flex-direction:column;background:rgba(15,20,50,.97);color:#fff;font:700 14px sans-serif;padding:12px;gap:8px;box-sizing:border-box}
@@ -53,7 +66,7 @@ const el=(tag,id,html="")=>{const e=document.createElement(tag);e.id=id;e.innerH
 const tap=el("div","dmTap"),top=el("div","dmTop"),pan=el("div","dmPan"),big=el("div","dmBig");
 /* 판 위: 끌면 게임과 똑같이 옮겨지고(자리 바꾸기 포함), 누르면 그 캐릭터를 고른다. 소환·합성·정보창은 막는다 */
 document.addEventListener("click",ev=>{if(!D.on||!ev.target.closest||ev.target.closest("#dmTop,#dmPan,#dmBig"))return;ev.stopPropagation();ev.preventDefault();
-  const r=cv.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width*cv.width,y=(ev.clientY-r.top)/r.height*cv.height/TILT;let b=null,bd=TS*1.1;for(const tw of S.towers){const d=Math.hypot(tw.x*K-x,tw.y*K-TS*.35-y);if(d<bd){bd=d;b=tw}}S.sel=null;if(b){D.sel=b.type;ui()}},true);
+  const r=cv.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width*cv.width,y=((ev.clientY-r.top)/r.height*cv.height-TOPPX())/TILT;let b=null,bd=TS*1.1;for(const tw of S.towers){const d=Math.hypot(tw.x*K-x,tw.y*K-TS*.35-y);if(d<bd){bd=d;b=tw}}S.sel=null;if(b){D.sel=b.type;ui()}},true);
 const B=(t,on,fn)=>{const b=document.createElement("button");b.type="button";b.className="dmb";b.textContent=t;b.setAttribute("aria-pressed",!!on);b.onclick=()=>{fn();ui()};return b};
 function row(label,...bs){const d=document.createElement("div");d.className="dmr";const s=document.createElement("span");s.textContent=label;d.append(s,...bs);return d}
 let cvs=null;
@@ -61,11 +74,13 @@ function ui(){
   top.replaceChildren(B("← 나가기",0,leave));const nm=document.createElement("b");nm.textContent=THEMES[themeI].name;
   top.append(B("◀",0,()=>{setTheme((themeI+THEMES.length-1)%THEMES.length,false);mobs()}),nm,B("▶",0,()=>{setTheme((themeI+1)%THEMES.length,false);mobs()}),B("표시",D.tags,()=>D.tags=!D.tags),B("오라",D.aura,()=>D.aura=!D.aura),B("소리",D.snd,()=>D.snd=!D.snd),B(document.body.classList.contains("dmMin")?"펼치기":"접기",0,()=>document.body.classList.toggle("dmMin")));
   const old=document.getElementById("dmL"),sx=old?old.scrollLeft:0,L=document.createElement("div");L.id="dmL";
-  for(const t of roster()){const b=document.createElement("button");b.type="button";b.setAttribute("aria-pressed",t.i===D.sel);b.innerHTML=`<span class="im"><img alt="" src="${ICON0[t.i]}"></span>${GRADE[t.grade]}`;b.onclick=()=>{D.sel=t.i;if(D.only!=null){D.only=t.i;place()}ui()};L.append(b)}
+  for(const t of roster()){const b=document.createElement("button");b.type="button";b.setAttribute("aria-pressed",t.i===D.sel);b.innerHTML=`<span class="im"><img alt="" src="${ICON0[t.i]}"></span>${GRADE[t.grade]}`;if(D.pick.has(t.uid)){b.classList.add("pk");b.dataset.n=D.pick.get(t.uid)>1?"×"+D.pick.get(t.uid):"✓"}b.onclick=()=>{const was=D.sel===t.i;D.sel=t.i;D.only=null;if(!D.pick.has(t.uid))D.pick.set(t.uid,1);else if(was)D.pick.delete(t.uid);else{ui();return}savePick();place();ui()}; /* 처음 누르면 넣기, 판에 있으면 고르기(개수 조절), 고른 채로 한 번 더 누르면 빼기 */L.append(b)}
   cvs=document.createElement("canvas");cvs.id="dmC";cvs.onclick=()=>{big.classList.add("on");bigUi()};
   pan.replaceChildren(L,cvs,
     row("등장",...[5,6,7,8].map(l=>B("LV"+l,0,()=>{const t=roster().find(o=>o.grade===l-1),tw=S.towers.find(o=>o.type===t.i);introEnd();heroIn(t,tw?tw.slot:SLOTS[13]);sfx(l===8?"god":"rare")}))),
-    row("배치",B("전체(처음 자리)",D.only==null,()=>{D.only=null;place()}),B("고른 캐릭터만",D.only!=null,()=>{D.only=D.sel;place()})),
+    row("개수",...(()=>{const t=TOWERS[D.sel],n=t?D.pick.get(t.uid)||0:0,setN=v=>{v=Math.max(0,Math.min(MAXN,v));v?D.pick.set(t.uid,v):D.pick.delete(t.uid);savePick();D.only=null;place()},lab=document.createElement("b");lab.style.cssText="flex:1.4;text-align:center;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis";lab.textContent=t?`${t.name} ${n}명`:"";
+      return[B("－",0,()=>setN(n-1)),lab,B("＋",0,()=>setN(n+1)),...[1,3,6].map(v=>B(v+"명",n===v,()=>setN(v)))]})()),
+    row("영웅",B("모두 넣기",0,()=>{roster().forEach(t=>{if(!D.pick.has(t.uid))D.pick.set(t.uid,1)});savePick();D.only=null;place()}),B("모두 빼기",0,()=>{D.pick.clear();savePick();D.only=null;place()})),
     row("속도",...[[.1,"0.1배"],[.25,"0.25배"],[.5,"0.5배"],[1,"1배"]].map(([v,t])=>B(t,speed===v,()=>speed=v))),
     row("자세",B("자동",D.pose==null,()=>D.pose=null),...PN.map((t,k)=>B(t,D.pose===k,()=>D.pose=k))));
   L.scrollLeft=sx;if(!sx){const a=L.querySelector("[aria-pressed=true]");if(a)L.scrollLeft=Math.max(0,a.offsetLeft-160)}}
@@ -85,7 +100,7 @@ function draw(cn,bigMode){
   if(bigMode){const z=Math.min(w*.86,h*.6);frame(c,im,k,w/2,h*.56,z);const P=POSE[t.uid],sh=SPR[t.uid].shot;if(k===2&&sh&&P.mz){const e=clock%1400-800,u=Math.min(1,e/120),X=w/2+(P.mz[0]/256-.5)*z,Y=h*.56+(P.mz[1]-232)/256*z,g=z*.5,x=X+u*w*.1;if(u<1)c.drawImage(sh,x-g*320/384,Y-g/2,g,g);else if(hit)c.drawImage(hit,Math.min(w-g,x-g/2+g*.3),Y-g/2,g,g)}
     const s=Math.min(w/4,h*.3);for(let i=0;i<4;i++){const x=w*(i+.5)/4;frame(c,im,i,x,h-26,s);lab(PN[i],x,h-8,13)}}
   else{const s=Math.min(h*1.0,w/5);frame(c,im,k,w/10,h-18,s);lab("반복",w/10,h-5,11);for(let i=0;i<4;i++){const x=w*(i+1.5)/5;frame(c,im,i,x,h-18,s);lab(PN[i],x,h-5,11)}}}
-(function raf(now){if(D.on&&S){clock+=Math.min(60,now-lastT)*speed;S.mons.forEach(m=>{m.hp=m.maxhp});if(!D.tags)S.fx=S.fx.filter(f=>f.k!=="txt");if(cvs)draw(cvs,false);if(bc)draw(bc,true)}lastT=now;requestAnimationFrame(raf)})(0);
+(function raf(now){if(D.on&&S){clock+=Math.min(60,now-lastT)*speed;if(!D.tags)S.fx=S.fx.filter(f=>f.k!=="txt");if(cvs)draw(cvs,false);if(bc)draw(bc,true)}lastT=now;requestAnimationFrame(raf)})(0);
 /* 시험판은 열자마자 디자인 확인 화면. 일반 게임도 8명을 미리 세워 둔다 */
 (function wait(){if(!Object.keys(ICON0).length||!roster().every(t=>(SPR[t.uid]||{}).pose))return setTimeout(wait,150);if(document.body.classList.contains("atHome"))enter()})();
 const _start=start;start=d=>{_start(d);if(S&&!D.on&&!D.entering){place();S.cd=240}};
